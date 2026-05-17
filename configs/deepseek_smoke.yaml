@@ -1,0 +1,13 @@
+experiment_name: gepa_aime_smoke_deepseek
+reproduction_type: method_level_reproduction
+provider: deepseek
+api_base: https://api.deepseek.com
+benchmark: aime
+task_model: ${TASK_MODEL}
+reflection_model: ${REFLECTION_MODEL}
+max_metric_calls: 10
+temperature_task: 0.0
+temperature_reflection: 0.7
+seed: 42
+output_dir: outputs/gepa_aime_smoke
+allow_model_substitution: false
