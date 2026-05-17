@@ -36,8 +36,19 @@ def test_allow_model_substitution_must_be_false(monkeypatch) -> None:
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
         "configs/deepseek_official_budget.yaml",
-    ]:
+        ]:
         assert _load(relative_path).allow_model_substitution is False
+
+
+def test_save_raw_pickle_defaults_to_false(monkeypatch) -> None:
+    monkeypatch.setenv("TASK_MODEL", "task-model-a")
+    monkeypatch.setenv("REFLECTION_MODEL", "reflection-model-b")
+    for relative_path in [
+        "configs/deepseek_smoke.yaml",
+        "configs/deepseek_pilot.yaml",
+        "configs/deepseek_official_budget.yaml",
+    ]:
+        assert _load(relative_path).save_raw_pickle is False
 
 
 def test_reproduction_type_must_be_method_level_reproduction(monkeypatch) -> None:

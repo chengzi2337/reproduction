@@ -1,9 +1,12 @@
 /.env
 .venv/
+.venv-wsl/
 __pycache__/
 .pytest_cache/
 *.pyc
 *.pyo
 *.pyd
+.codex/context-summary-*.md
+.codex/*.ps1
 outputs/*
 !outputs/.gitkeep

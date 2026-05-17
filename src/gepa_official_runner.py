@@ -110,17 +110,30 @@ def _sanitize_value(value: Any, secret: str) -> Any:
     return value
 
 
-def _save_raw_result(run_dir: Path, result: Any, api_key: str) -> Path:
+def _save_raw_result(
+    run_dir: Path,
+    result: Any,
+    api_key: str,
+    *,
+    save_raw_pickle: bool,
+) -> tuple[Path | None, str | None]:
     try:
         raw_payload = _sanitize_value(result.to_dict(), api_key)
         raw_result_path = run_dir / "raw_result.json"
         write_json(raw_result_path, raw_payload)
-        return raw_result_path
+        return raw_result_path, None
     except Exception:
+        if not save_raw_pickle:
+            note = (
+                "raw result was not serialized because result.to_dict() is unavailable "
+                "and save_raw_pickle=false.\n"
+            )
+            return None, note
+
         raw_result_path = run_dir / "raw_result.pkl"
         with raw_result_path.open("wb") as handle:
             pickle.dump(result, handle)
-        return raw_result_path
+        return raw_result_path, None
 
 
 def _collect_probe_results(config: ExperimentConfig) -> list[tuple[str, ProbeResult]]:
@@ -165,6 +178,7 @@ def _build_notes(
         f"- task_model：`{config.task_model}`",
         f"- reflection_model：`{config.reflection_model}`",
         f"- max_metric_calls：`{config.max_metric_calls}`",
+        f"- save_raw_pickle：`{config.save_raw_pickle}`",
         "- 未修改 GEPA 源码。",
         "",
         "## 适配记录",
@@ -311,7 +325,15 @@ def run_gepa_aime_experiment(config: ExperimentConfig) -> Path:
             },
         )
 
-        raw_result_path = _save_raw_result(run_dir, result, config.api_key)
+        raw_result_path, raw_result_note = _save_raw_result(
+            run_dir,
+            result,
+            config.api_key,
+            save_raw_pickle=config.save_raw_pickle,
+        )
+        if raw_result_note:
+            append_text(run_dir / "notes.md", f"\n## Raw Result\n\n- {raw_result_note}")
+
         write_json(
             run_dir / "gepa_result_summary.json",
             {
@@ -321,7 +343,7 @@ def run_gepa_aime_experiment(config: ExperimentConfig) -> Path:
                 "num_val_instances": result.num_val_instances,
                 "total_metric_calls": result.total_metric_calls,
                 "num_full_val_evals": result.num_full_val_evals,
-                "raw_result_path": raw_result_path.name,
+                "raw_result_path": raw_result_path.name if raw_result_path is not None else None,
                 "seed_prompt": SEED_PROMPT,
                 "optimized_prompt": optimized_prompt,
             },

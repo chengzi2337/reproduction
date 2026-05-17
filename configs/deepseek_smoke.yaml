@@ -11,3 +11,4 @@ temperature_reflection: 0.7
 seed: 42
 output_dir: outputs/gepa_aime_smoke
 allow_model_substitution: false
+save_raw_pickle: false

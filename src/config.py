@@ -52,6 +52,7 @@ class ExperimentConfig:
     seed: int
     output_dir: Path
     allow_model_substitution: bool
+    save_raw_pickle: bool
     config_path: Path
     project_root: Path
     api_key: str
@@ -75,6 +76,7 @@ class ExperimentConfig:
             "seed": self.seed,
             "output_dir": str(self.output_dir),
             "allow_model_substitution": self.allow_model_substitution,
+            "save_raw_pickle": self.save_raw_pickle,
             "config_path": str(self.config_path),
         }
 
@@ -114,6 +116,7 @@ def load_experiment_config(
         DEFAULT_DEEPSEEK_API_BASE,
     )
     api_key = str(os.getenv("DEEPSEEK_API_KEY") or "").strip()
+    save_raw_pickle = raw_config.get("save_raw_pickle", False)
 
     if not experiment_name:
         raise ValueError("配置缺少 experiment_name。")
@@ -143,6 +146,8 @@ def load_experiment_config(
     allow_model_substitution = raw_config.get("allow_model_substitution")
     if allow_model_substitution is not False:
         raise ValueError("第一阶段必须保持 allow_model_substitution=false。")
+    if not isinstance(save_raw_pickle, bool):
+        raise ValueError("save_raw_pickle 必须是布尔值。")
 
     temperature_task = float(raw_config.get("temperature_task", 0.0))
     temperature_reflection = float(raw_config.get("temperature_reflection", 0.7))
@@ -166,6 +171,7 @@ def load_experiment_config(
         seed=seed,
         output_dir=output_dir,
         allow_model_substitution=allow_model_substitution,
+        save_raw_pickle=save_raw_pickle,
         config_path=path,
         project_root=root,
         api_key=api_key,

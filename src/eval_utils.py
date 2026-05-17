@@ -8,6 +8,8 @@ from tqdm import tqdm
 
 from src.deepseek_utils import build_litellm_model_name, temporary_openai_compatible_env
 
+DEFAULT_EVAL_BATCH_SIZE = 25
+
 
 def load_prompt_candidate(path: str | Path) -> dict[str, str]:
     prompt_path = Path(path).resolve()
@@ -21,6 +23,12 @@ def load_prompt_candidate(path: str | Path) -> dict[str, str]:
     raise ValueError(f"无法从文件解析 prompt candidate：{prompt_path}")
 
 
+def _iter_batches(dataset: list[dict[str, Any]], batch_size: int) -> list[list[dict[str, Any]]]:
+    if batch_size <= 0:
+        raise ValueError("batch_size 必须是大于 0 的整数。")
+    return [dataset[index : index + batch_size] for index in range(0, len(dataset), batch_size)]
+
+
 def evaluate_candidate(
     *,
     dataset: list[dict[str, Any]],
@@ -30,39 +38,66 @@ def evaluate_candidate(
     task_model: str,
     api_key: str,
     api_base: str,
+    batch_size: int = DEFAULT_EVAL_BATCH_SIZE,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     from gepa.adapters.default_adapter.default_adapter import DefaultAdapter
 
     records: list[dict[str, Any]] = []
     with temporary_openai_compatible_env(api_key=api_key, api_base=api_base):
         adapter = DefaultAdapter(model=build_litellm_model_name(task_model))
-        for sample_index, sample in enumerate(tqdm(dataset, desc=f"评估 {prompt_version}", leave=False), start=1):
-            prediction = ""
-            score = 0.0
-            error = None
-            try:
-                result = adapter.evaluate([sample], candidate, capture_traces=False)
-                prediction = result.outputs[0]["full_assistant_response"]
-                score = float(result.scores[0])
-            except Exception as exc:
-                error = f"{type(exc).__name__}: {exc}"
-
-            records.append(
-                {
-                    "sample_id": str(sample.get("sample_id") or sample.get("id") or f"{split_name}-{sample_index}"),
-                    "prompt_version": prompt_version,
-                    "question": sample["input"],
-                    "prediction": prediction,
-                    "gold": sample["answer"],
-                    "score": score,
-                    "error": error,
-                }
-            )
+        progress = tqdm(total=len(dataset), desc=f"评估 {prompt_version}", leave=False)
+        try:
+            for batch_start, batch in enumerate(_iter_batches(dataset, batch_size)):
+                try:
+                    result = adapter.evaluate(batch, candidate, capture_traces=False)
+                    outputs = result.outputs
+                    scores = result.scores
+                    for index_within_batch, (sample, output, score) in enumerate(
+                        zip(batch, outputs, scores, strict=True),
+                        start=1,
+                    ):
+                        sample_index = batch_start * batch_size + index_within_batch
+                        records.append(
+                            {
+                                "sample_id": str(
+                                    sample.get("sample_id") or sample.get("id") or f"{split_name}-{sample_index}"
+                                ),
+                                "prompt_version": prompt_version,
+                                "question": sample["input"],
+                                "prediction": output["full_assistant_response"],
+                                "gold": sample["answer"],
+                                "score": float(score),
+                                "error": None,
+                            }
+                        )
+                except Exception as exc:
+                    error_text = f"{type(exc).__name__}: {exc}"
+                    for index_within_batch, sample in enumerate(batch, start=1):
+                        sample_index = batch_start * batch_size + index_within_batch
+                        records.append(
+                            {
+                                "sample_id": str(
+                                    sample.get("sample_id") or sample.get("id") or f"{split_name}-{sample_index}"
+                                ),
+                                "prompt_version": prompt_version,
+                                "question": sample["input"],
+                                "prediction": "",
+                                "gold": sample["answer"],
+                                "score": 0.0,
+                                "error": error_text,
+                            }
+                        )
+                finally:
+                    progress.update(len(batch))
+        finally:
+            progress.close()
 
     average_score = sum(record["score"] for record in records) / len(records) if records else 0.0
     return records, {
         "split": split_name,
+        "eval_model": task_model,
         "num_examples": len(records),
+        "evaluated_sample_count": len(records),
         "average_score": average_score,
         "num_errors": sum(1 for record in records if record["error"]),
     }
