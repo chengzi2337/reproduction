@@ -1,6 +1,6 @@
-## 编码前检查 - strict official path 与 exact seed prompt
+## 编码前检查 - exact seed prompt 修正与 strict 路径拆分
 
-时间：2026-05-18 20:25:02 +08:00
+时间：2026-05-18 21:05:00 +08:00
 
 □ 已查阅上下文摘要文件：`.codex/context-summary-strict-official-path.md`
 □ 将使用以下可复用组件：
@@ -15,35 +15,23 @@
 
 ## 操作记录
 
-时间：2026-05-18 20:25:02 +08:00
+时间：2026-05-18 21:05:00 +08:00
 
-1. 读取用户指定文件：
-   - `reports/project_summary_and_next_plan.md`
-   - `reports/stage1_final_status.md`
-   - `reports/official_core_path_comparison.md`
-   - `reports/temperature_control_audit.md`
-   - `src/gepa_official_runner.py`
-   - `scripts/06_minimal_official_path_sanity.py`
-2. 补充读取与模式确认：
-   - `tests/test_gepa_official_runner.py`
-   - `tests/test_minimal_official_path_sanity.py`
-   - `tests/test_eval_saved_prompt.py`
-   - `README.md`
-   - `requirements.txt`
-   - `src/config.py`
-3. 外部可核验来源检索：
-   - 当前官方仓库 `gepa-ai/gepa`
-   - 历史仓库 `CerebrasResearch/gepa`
-   - `gepa-ai/gepa-artifact`
-   - arXiv `2507.19457`
-4. 结论：
-   - 当前本地 `SEED_PROMPT` 仅为语义等价版本
-   - 当前官方 README quickstart 与官方 AIME 测试文件存在不同 prompt 文本
-   - 最贴近 AIME 优化实验的 exact seed prompt 来自官方测试文件而非本地 wrapper
+1. 复核用户指出的 exact 文本问题：
+   - `reports/exact_seed_prompt_trace.md`
+   - `reports/strict_official_path_design.md`
+   - `reports/strict_vs_wrapper_path_diff.md`
+2. 外部复核重点：
+   - 当前官方 `README.md` quickstart 使用 `### <answer>`
+   - 官方 AIME 测试上下文应按 `### <final answer>` 记录
+3. 修正方向：
+   - 把 README quickstart path 与 official AIME test path 拆成两条
+   - 把 strict 路径标题改成 DeepSeek backend 下的 minimal official-core path
+   - 收紧 fallback 与 temperature 的差异分类表述
 
-## 编码后声明 - strict official path 与 exact seed prompt
+## 编码后声明 - exact seed prompt 修正与 strict 路径拆分
 
-时间：2026-05-18 20:25:02 +08:00
+时间：2026-05-18 21:05:00 +08:00
 
 ### 1. 复用了以下既有组件
 
@@ -60,7 +48,8 @@
 
 - `src/gepa_official_runner.py`：当前主 wrapper path，差异在于其包含探活、落盘和语义等价 seed prompt
 - `scripts/06_minimal_official_path_sanity.py`：当前最小一致性快照路径，差异在于其仍保留 config 与 notes/snapshot 外壳
-- 官方 `tests/test_aime_prompt_optimization/test_aime_prompt_optimize.py`：最接近 AIME 优化实验语义的可核验官方例子
+- 官方 `README.md`：当前公开 quickstart 路径
+- 官方 `tests/test_aime_prompt_optimization/test_aime_prompt_optimize.py`：单独的官方 AIME 测试路径
 
 ### 4. 未重复造轮子的证明
 

@@ -5,7 +5,7 @@
 当前能找到的、与 `AIME` 优化实验**最接近**的 `exact seed prompt`，不是本仓库 `src/gepa_official_runner.py` 里的语义等价版本，而是官方仓库 AIME 优化测试文件中的这条：
 
 ```python
-{"system_prompt": "You are a helpful assistant. You are given a question and you need to answer it. The answer should be given at the end of your response in exactly the format '### '"}
+{"system_prompt": "You are a helpful assistant. You are given a question and you need to answer it. The answer should be given at the end of your response in exactly the format '### <final answer>'"}
 ```
 
 我把它判定为当前最优先的可核验来源，原因是它直接出现在官方 `AIME` prompt optimization 测试上下文里，而不是面向 quickstart 的示例文案。
@@ -23,6 +23,7 @@
   - 同一文件中直接出现 `trainset, valset, _ = gepa.examples.aime.init_dataset()`
   - 同一文件中直接调用 `gepa.optimize(...)`
   - 因此它比 README quickstart 更贴近真实 `AIME` 优化测试语义
+  - 当前 exact 文本应记为 `### <final answer>`，不是空占位的 `### `
 
 ### B. 历史官方示例中的同一 exact seed prompt
 
@@ -38,7 +39,7 @@
 ### C. 当前官方 quickstart 的 prompt
 
 - 来源：`gepa-ai/gepa`
-- 版本/上下文：当前 `main` 的 README quickstart，Context7 指向 `https://github.com/gepa-ai/gepa/blob/main/README.md`
+- 版本/上下文：当前 `main` 的 README quickstart
 - 证据链接：
   - <https://github.com/gepa-ai/gepa/blob/main/README.md>
 - 当前 quickstart 文本：
@@ -63,6 +64,9 @@
 
 - 它和**当前官方 quickstart**一致
 - 它和**当前官方 AIME 测试文件**不一致
+- 两者不是 token 级完全一致，只能说语义接近：
+  - quickstart：`### <answer>`
+  - AIME test：`### <final answer>`
 - 它更准确地应被标注为：
   - `current official README quickstart prompt`
   - 不是：
@@ -92,6 +96,16 @@
   - 当前官方仓库 `gepa-ai/gepa` 的 AIME 优化测试文件
 - 它的历史连续性来自：
   - `CerebrasResearch/gepa` 的同名测试文件
+
+### 对当前项目的直接含义
+
+- 当前 Stage 1 历史结果可以继续解释为：
+  - `README quickstart prompt + DeepSeek backend` 的方法级复现基线
+- 不应事后把 Stage 1 改写成：
+  - `official AIME test exact seed prompt` 的结果
+- 后续若要建立更严格的对照路径，必须先明确自己对齐的是：
+  - `README quickstart path`
+  - 还是 `official AIME test path`
 
 ### 严格表述
 
