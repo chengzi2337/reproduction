@@ -34,7 +34,7 @@
 - 已形成温度控制审计：
   - [temperature_control_audit.md](C:/Users/lin/Documents/New project 2/reports/temperature_control_audit.md)
 - 本地测试当前状态：
-  - `pytest 30 passed`
+  - `pytest 36 passed`
 
 ## 当前结论
 
@@ -74,18 +74,30 @@
 
 ## 后续建议
 
-### 1. 下一步
+### 1. Stage 1 closure status
 
-- 优先完成 `pilot saved prompt eval`
-- 目标是补齐：
-  - `seed prompt score`
-  - `optimized prompt score`
-  - `score delta`
-  - `test split` 或 `validation sanity check only`
+- `saved prompt eval status`: `completed`
+- `whether Stage 1 is closed`: `yes`
+- saved prompt eval summary:
+  - `seed prompt score`: `0.25333333333333335`
+  - `optimized prompt score`: `0.6533333333333333`
+  - `score delta`: `0.39999999999999997`
+  - `split`: `test split`
+  - `seed num_errors`: `0`
+  - `optimized num_errors`: `0`
+  - `valid_for_performance_claim`: `true`
+- remaining issues:
+  - `DeepSeek backend`
+  - `not original same-model reproduction`
+  - `temperature not explicitly controlled`
+  - `single-run baseline`
+  - `no official_budget`
+  - `no multi-seed`
+  - `no multi-benchmark`
 
 ### 2. 之后
 
-- 在 `pilot saved prompt eval` 完成并固化报告后，再考虑 `official_budget`
+- Stage 1 已封版；后续如继续推进，应将 `official_budget` 视为下一阶段实验，而不是 Stage 1 补丁。
 
 ### 3. 更后续
 

@@ -13,7 +13,7 @@
 - It is `not final paper-level conclusion`.
 - `official_budget` has `not` been run in Stage 1.
 - Stage 1 temperature handling follows `方案 A`: `not explicitly controlled`, no rerun required for the current Stage 1 baseline.
-- The next planned Stage 1 step is `pilot saved prompt eval`.
+- The `pilot saved prompt eval` step has been completed for the saved pilot run artifact.
 - This report only summarizes the two verified Stage 1 runs that already exist in the repository-local `outputs/` directory:
   - smoke: `outputs/gepa_aime_smoke/20260517T152050+0800`
   - pilot: `outputs/gepa_aime_pilot/20260517T155236+0800`
@@ -77,10 +77,38 @@ Related reports:
   - require zero-padded three-digit output, such as `### 081`
   - explicitly forbid alternate final-answer formatting such as `\boxed{}`
 
+## Pilot Saved Prompt Evaluation
+
+- Eval run source: `outputs/gepa_aime_pilot/20260517T155236+0800`
+- Eval script: `scripts/05_eval_saved_prompt.py`
+- Split: `test split`
+- Eval model: `deepseek-v4-flash`
+- Eval timestamp: `20260518T173210+0800`
+- Evaluated sample count: `150`
+- Seed prompt score: `0.25333333333333335`
+- Optimized prompt score: `0.6533333333333333`
+- Score delta: `0.39999999999999997`
+- Seed `num_errors`: `0`
+- Optimized `num_errors`: `0`
+- `valid_for_performance_claim`: `true`
+
+### Saved Prompt Eval Interpretation
+
+- In this Stage 1 saved prompt evaluation, the optimized prompt achieved `0.6533333333333333` compared with `0.25333333333333335` for the seed prompt, with delta `0.39999999999999997`.
+- The saved prompt evaluation used the repository-local `test split` artifact path exposed by the current installed GEPA package.
+- Seed prompt and optimized prompt are different.
+- Prompt-change summary remains:
+  - the optimized prompt frames the task as AIME-style integer-answer solving
+  - it constrains the final answer to the `0-999` range
+  - it requires the exact final line format `### XXX`
+  - it requires zero-padded three-digit output
+- This is a `Stage 1` single-run method-level evaluation, not a paper-level final conclusion.
+
 ## Notes and Limitations
 
 - `max_metric_calls` does not guarantee equality with the final `total_metric_calls`; GEPA may perform a full baseline evaluation before later search steps.
 - These runs establish a Stage 1 smoke/pilot baseline only.
 - They do not establish same-model reproduction of the original GEPA paper.
 - They do not establish paper-level evidence across multiple seeds, tasks, or model families.
-- Saved prompt evaluation for the pilot run is `not recorded in current run artifact`.
+- `official_budget` has still not been run.
+- Temperature handling in Stage 1 still follows `方案 A`: `not explicitly controlled`, and no rerun of `smoke / pilot` was required for this Stage 1 baseline.

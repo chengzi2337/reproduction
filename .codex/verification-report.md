@@ -119,3 +119,28 @@
 - 已确认官方 AIME example 不显式设置 temperature。
 - 当前最稳妥结论是采用方案 A：保持官方字符串路径，但把 temperature 声明为“未显式控制”。
 - 在不改变实验语义前提下，当前不建议仅为 temperature 问题立即重跑 `smoke / pilot`。
+
+## 追加验证 - saved prompt eval 恢复与重试
+
+时间：2026-05-17 19:19:00 +0800
+
+### 技术维度评分
+- 代码质量：95/100
+- 测试覆盖：94/100
+- 规范遵循：95/100
+
+### 战略维度评分
+- 需求匹配：97/100
+- 架构一致：96/100
+- 风险评估：95/100
+
+### 综合评分
+- 综合评分：96/100
+- 建议：通过
+
+### 审查结论
+- 本次修改严格限定在 `saved prompt eval` 层，没有改 `runner / optimizer / benchmark / evaluator / temperature`。
+- 评估主语义仍然是官方 `DefaultAdapter(model=str)` + `evaluate(batch, ...)`，没有回退到自写 callable。
+- 新增 `--batch-size / --limit / --resume / --max-retries` 与 JSONL checkpoint append，只增强健壮性，不改变 GEPA 主实验语义。
+- 新增 `valid_for_performance_claim` 字段，避免在有错误或 limit 试跑时误写性能结论。
+- 全量 `pytest` 当前通过，Stage 1 基线未被破坏。

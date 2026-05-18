@@ -91,8 +91,13 @@ def test_saved_prompt_eval_writes_auditable_summary(tmp_path, monkeypatch) -> No
                 "eval_model": kwargs["task_model"],
                 "num_examples": 1,
                 "evaluated_sample_count": 1,
+                "requested_sample_count": 1,
                 "average_score": score,
                 "num_errors": 0,
+                "completed_from_resume": 0,
+                "num_new_records": 1,
+                "used_resume": False,
+                "is_complete": True,
             },
         )
 
@@ -108,9 +113,11 @@ def test_saved_prompt_eval_writes_auditable_summary(tmp_path, monkeypatch) -> No
     assert summary["eval_model"] == "deepseek-v4-flash"
     assert summary["eval_timestamp"] == "20260517T160000+0800"
     assert summary["evaluated_sample_count"] == 1
+    assert summary["requested_sample_count"] == 1
     assert summary["seed_prompt_score"] == 0.25
     assert summary["optimized_prompt_score"] == 0.75
     assert summary["score_delta"] == 0.5
+    assert summary["valid_for_performance_claim"] is True
 
     records = (run_dir / "per_example_eval.jsonl").read_text(encoding="utf-8").strip().splitlines()
     assert len(records) == 2
@@ -152,8 +159,13 @@ def test_saved_prompt_eval_records_validation_sanity_check_note(tmp_path, monkey
                 "eval_model": kwargs["task_model"],
                 "num_examples": 0,
                 "evaluated_sample_count": 0,
+                "requested_sample_count": 0,
                 "average_score": 0.0,
                 "num_errors": 0,
+                "completed_from_resume": 0,
+                "num_new_records": 0,
+                "used_resume": False,
+                "is_complete": True,
             },
         ),
     )
@@ -168,3 +180,122 @@ def test_saved_prompt_eval_records_validation_sanity_check_note(tmp_path, monkey
 
     notes = (run_dir / "notes.md").read_text(encoding="utf-8")
     assert "validation sanity check only" in notes
+
+
+def test_saved_prompt_eval_limit_and_resume_mark_summary_invalid(tmp_path, monkeypatch) -> None:
+    run_dir = tmp_path / "run-resume"
+    run_dir.mkdir()
+    (run_dir / "notes.md").write_text("# notes\n", encoding="utf-8")
+    existing_records = [
+        {
+            "sample_id": "failed-seed-1",
+            "prompt_version": "seed",
+            "question": "qf",
+            "prediction": "",
+            "gold": "gf",
+            "score": 0.0,
+            "error": "RuntimeError: old failure",
+        },
+        {
+            "sample_id": "existing-seed-1",
+            "prompt_version": "seed",
+            "question": "q",
+            "prediction": "p",
+            "gold": "g",
+            "score": 1.0,
+            "error": None,
+        }
+    ]
+    (run_dir / "per_example_eval.jsonl").write_text(
+        "\n".join(json.dumps(record, ensure_ascii=False) for record in existing_records) + "\n",
+        encoding="utf-8",
+    )
+
+    captured_calls = []
+
+    monkeypatch.setattr(
+        eval_script,
+        "load_experiment_config",
+        lambda *args, **kwargs: _build_config(run_dir),
+    )
+    monkeypatch.setattr(
+        eval_script,
+        "load_prompt_candidate",
+        lambda path: {"system_prompt": f"loaded-from-{Path(path).name}"},
+    )
+    monkeypatch.setattr(
+        eval_script,
+        "load_official_aime_dataset",
+        lambda: (
+            [{"input": "train-q", "answer": "1"}],
+            [{"input": "val-q1", "answer": "2"}, {"input": "val-q2", "answer": "3"}],
+            None,
+            None,
+            [],
+        ),
+    )
+
+    def fake_evaluate_candidate(**kwargs):
+        captured_calls.append(kwargs)
+        prompt_version = kwargs["prompt_version"]
+        score = 0.1 if prompt_version == "seed" else 0.2
+        return (
+            [
+                {
+                    "sample_id": f"{prompt_version}-1",
+                    "prompt_version": prompt_version,
+                    "question": "q",
+                    "prediction": "p",
+                    "gold": "g",
+                    "score": score,
+                    "error": None,
+                }
+            ],
+            {
+                "split": kwargs["split_name"],
+                "eval_model": kwargs["task_model"],
+                "num_examples": 1,
+                "evaluated_sample_count": 1,
+                "requested_sample_count": 1,
+                "average_score": score,
+                "num_errors": 0,
+                "completed_from_resume": len(kwargs["existing_prompt_records"]),
+                "num_new_records": 1,
+                "used_resume": bool(kwargs["existing_prompt_records"]),
+                "is_complete": True,
+            },
+        )
+
+    monkeypatch.setattr(eval_script, "evaluate_candidate", fake_evaluate_candidate)
+    monkeypatch.setattr(eval_script, "create_timestamp", lambda: "20260517T161000+0800")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "05_eval_saved_prompt.py",
+            "--run-dir",
+            str(run_dir),
+            "--resume",
+            "--retry-failed",
+            "--limit",
+            "1",
+            "--batch-size",
+            "1",
+            "--max-retries",
+            "2",
+            "--retry-sleep-seconds",
+            "0.0",
+        ],
+    )
+
+    eval_script.main()
+
+    summary = json.loads((run_dir / "saved_prompt_eval_summary.json").read_text(encoding="utf-8"))
+    assert summary["limit"] == 1
+    assert summary["resume"] is True
+    assert summary["retry_failed"] is True
+    assert summary["batch_size"] == 1
+    assert summary["max_retries"] == 2
+    assert summary["valid_for_performance_claim"] is False
+    assert captured_calls[0]["existing_prompt_records"] == [existing_records[1]]
+    assert len(captured_calls[0]["dataset"]) == 1

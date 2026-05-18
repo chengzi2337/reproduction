@@ -209,3 +209,43 @@
 - 已更新表述：
   - `README.md`
   - `reports/stage1_deepseek_method_reproduction_report.md`
+
+## 编码前检查 - saved prompt eval 恢复与重试
+
+时间：2026-05-17 19:06:00 +0800
+
+□ 已查阅上下文摘要文件：`.codex/context-summary-saved-prompt-eval-resume.md`
+□ 将使用以下可复用组件：
+- `scripts/05_eval_saved_prompt.py`：保留现有 run-dir / summary / notes 协议
+- `src/eval_utils.py`：继续复用官方 `DefaultAdapter(model=str)` 批量评估路径
+- `tests/test_eval_saved_prompt.py`：继续沿用 monkeypatch 的摘要断言模式
+- `tests/test_eval_utils.py`：继续沿用 Fake adapter 的行为测试模式
+□ 将遵循命名约定：新增 CLI 参数与摘要字段使用 `snake_case` / 可读英文 key
+□ 将遵循代码风格：只补 `retry / resume / limit / append`，不改 runner、不改 evaluator、不改 GEPA optimize
+□ 确认不重复造轮子，证明：已检查当前脚本、评估工具和测试骨架，本次只补健壮性而不改实验主路径
+
+## 编码后声明 - saved prompt eval 恢复与重试
+
+时间：2026-05-17 19:18:00 +0800
+
+### 1. 复用了以下既有组件
+- `src/eval_utils.py`：继续使用官方 `DefaultAdapter(model=str)` 与 `evaluate(batch, ...)`
+- `scripts/05_eval_saved_prompt.py`：继续使用现有 run artifact、summary、notes 协议
+- `tests/test_eval_saved_prompt.py` / `tests/test_eval_utils.py`：继续沿用 monkeypatch 行为测试风格
+
+### 2. 遵循了以下项目约定
+- 没有修改 `src/gepa_official_runner.py`
+- 没有修改 `gepa.optimize()` 主调用
+- 没有修改 benchmark、evaluator、temperature 逻辑
+- 只在 saved prompt eval 外围补 `--batch-size / --limit / --resume / --max-retries`
+
+### 3. 本轮新增的最小健壮性能力
+- `per_example_eval.jsonl` 逐批 append，支持中途中断后的 resume
+- 批次级 retry，不改变单次评估语义
+- `limit` 小规模试跑
+- `valid_for_performance_claim` 摘要字段
+- `num_errors / requested_sample_count / completed_from_resume / is_complete` 审计字段
+
+### 4. 本地验证结果
+- `python -m pytest -q tests/test_eval_utils.py tests/test_eval_saved_prompt.py tests/test_gepa_official_runner.py tests/test_config.py`：通过，`17 passed`
+- `python -m pytest -q`：通过，`33 passed`
