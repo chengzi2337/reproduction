@@ -25,9 +25,12 @@ from src.openai_compatible_utils import (
 
 
 DEFAULT_MODELS = [
-    "mimo-v2-flash",
-    "mimo-v2.5",
     "mimo-v2.5-pro",
+    "mimo-v2.5",
+]
+
+TOKEN_PLAN_CN_UNSUPPORTED_MODELS = [
+    "mimo-v2-flash",
 ]
 
 
@@ -156,7 +159,7 @@ def main() -> None:
         for model_name in DEFAULT_MODELS
     ]
     litellm_results = [
-        _litellm_probe_result(api_key=api_key, api_base=api_base, model_name="mimo-v2-flash")
+        _litellm_probe_result(api_key=api_key, api_base=api_base, model_name="mimo-v2.5-pro")
     ]
 
     payload = {
@@ -164,6 +167,15 @@ def main() -> None:
         "backend_family": "openai_compatible",
         "api_base": api_base,
         "probe_text": PROBE_TEXT,
+        "default_probe_models": DEFAULT_MODELS,
+        "endpoint_model_notes": [
+            {
+                "endpoint_match": "token-plan-cn.xiaomimimo.com",
+                "model": model_name,
+                "status": "unsupported_on_current_endpoint",
+            }
+            for model_name in TOKEN_PLAN_CN_UNSUPPORTED_MODELS
+        ],
         "openai_sdk_probe_results": raw_results,
         "litellm_probe_results": litellm_results,
     }

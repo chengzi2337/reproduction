@@ -16,8 +16,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.deepseek_utils import build_litellm_model_name, redact_secret, temporary_openai_compatible_env
+from src.config import DEFAULT_BACKEND_FAMILY, get_provider_settings
 from src.logging_utils import create_run_dir, create_timestamp, write_json, write_text
+from src.openai_compatible_utils import (
+    build_litellm_model_name,
+    redact_secret,
+    temporary_openai_compatible_env,
+)
 
 
 README_QUICKSTART_SEED_PROMPT = {
@@ -71,6 +76,9 @@ def build_strict_optimize_kwargs(
 
 def build_input_snapshot(
     *,
+    provider: str,
+    backend_family: str,
+    api_base: str,
     dataset_source: str,
     task_model: str,
     reflection_model: str,
@@ -82,6 +90,9 @@ def build_input_snapshot(
 ) -> dict[str, Any]:
     return {
         "path_type": "strict_readme_quickstart_path",
+        "provider": provider,
+        "backend_family": backend_family,
+        "api_base": api_base,
         "dataset_source": dataset_source,
         "task_model": task_model,
         "reflection_model": reflection_model,
@@ -99,15 +110,19 @@ def build_input_snapshot(
 
 def run_strict_readme_quickstart_path(
     *,
+    provider: str,
     task_model: str,
     reflection_model: str,
     max_metric_calls: int,
     seed: int,
     api_base: str,
     api_key: str,
+    api_key_env_name: str,
     execute: bool,
     output_root: Path | None = None,
 ) -> Path:
+    if not provider.strip():
+        raise ValueError("缺少 provider。")
     if not task_model.strip():
         raise ValueError("缺少 TASK_MODEL。")
     if not reflection_model.strip():
@@ -134,6 +149,9 @@ def run_strict_readme_quickstart_path(
     write_json(
         run_dir / "strict_input_snapshot.json",
         build_input_snapshot(
+            provider=provider,
+            backend_family=DEFAULT_BACKEND_FAMILY,
+            api_base=api_base,
             dataset_source=dataset_source,
             task_model=task_model,
             reflection_model=reflection_model,
@@ -152,7 +170,10 @@ def run_strict_readme_quickstart_path(
                 "# strict README quickstart path",
                 "",
                 "- 路径类型：`strict_readme_quickstart_path`",
-                "- 项目身份：`GEPA method-level reproduction with DeepSeek backend`",
+                "- 项目身份：`GEPA method-level reproduction`",
+                f"- provider：`{provider}`",
+                f"- backend_family：`{DEFAULT_BACKEND_FAMILY}`",
+                f"- api_base：`{api_base}`",
                 f"- 时间戳：{timestamp}",
                 f"- execute_optimize：{execute}",
                 f"- dataset_source：{dataset_source}",
@@ -166,7 +187,7 @@ def run_strict_readme_quickstart_path(
         return run_dir
 
     if not api_key.strip():
-        raise ValueError("执行 strict README quickstart path 时缺少 DEEPSEEK_API_KEY。")
+        raise ValueError(f"执行 strict README quickstart path 时缺少 {api_key_env_name}。")
 
     with temporary_openai_compatible_env(api_key=api_key, api_base=api_base):
         result = gepa.optimize(**optimize_kwargs)
@@ -191,9 +212,25 @@ def _env(name: str, default: str = "") -> str:
     return str(os.getenv(name, default) or "").strip()
 
 
+def _resolve_provider_runtime(provider: str, explicit_api_base: str = "") -> tuple[str, str, str]:
+    settings = get_provider_settings(provider)
+    api_base = explicit_api_base.strip() or _env(
+        settings["api_base_env"],
+        settings["default_api_base"],
+    )
+    api_key_env_name = settings["api_key_env"]
+    api_key = _env(api_key_env_name)
+    return api_base, api_key, api_key_env_name
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="执行 strict README quickstart path；默认只输出 input snapshot，不调用模型。"
+    )
+    parser.add_argument(
+        "--provider",
+        default=_env("PROVIDER", "deepseek"),
+        help="provider，支持 deepseek / mimo；默认读取 PROVIDER 或使用 deepseek。",
     )
     parser.add_argument("--task-model", default=_env("TASK_MODEL"), help="任务模型名，默认读取 TASK_MODEL。")
     parser.add_argument(
@@ -203,8 +240,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--api-base",
-        default=_env("DEEPSEEK_API_BASE", "https://api.deepseek.com"),
-        help="DeepSeek API base，默认读取 DEEPSEEK_API_BASE。",
+        default="",
+        help="OpenAI-compatible API base；默认按 provider 读取对应环境变量。",
     )
     parser.add_argument(
         "--max-metric-calls",
@@ -225,16 +262,18 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    api_key = _env("DEEPSEEK_API_KEY")
+    api_base, api_key, api_key_env_name = _resolve_provider_runtime(args.provider, args.api_base)
 
     try:
         run_dir = run_strict_readme_quickstart_path(
+            provider=args.provider,
             task_model=args.task_model,
             reflection_model=args.reflection_model,
             max_metric_calls=args.max_metric_calls,
             seed=args.seed,
-            api_base=args.api_base,
+            api_base=api_base,
             api_key=api_key,
+            api_key_env_name=api_key_env_name,
             execute=args.execute,
             output_root=Path(args.output_root).resolve(),
         )
@@ -248,6 +287,7 @@ def main() -> None:
                 "run_dir": str(run_dir),
                 "execute_optimize": args.execute,
                 "path_type": "strict_readme_quickstart_path",
+                "provider": args.provider,
             },
             ensure_ascii=False,
             indent=2,

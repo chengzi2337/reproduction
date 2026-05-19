@@ -32,6 +32,8 @@
 
 - provider：`mimo`
 - backend_family：`openai_compatible`
+- 对当前 `token-plan-cn` 套餐 key，应优先使用平台页面给出的专属 OpenAI-compatible endpoint：
+  - `https://token-plan-cn.xiaomimimo.com/v1`
 - MiMo thinking 模式下，`mimo-v2.5-pro` 和 `mimo-v2.5` 的 temperature 视为 `provider-controlled`
 - 因此本项目中对 MiMo 仍然只能写：
   - `temperature not explicitly controlled`
@@ -52,6 +54,16 @@
   - [mimo_pilot.yaml](C:/Users/lin/Documents/New%20project%202/configs/mimo_pilot.yaml)
 - 新增 MiMo probe 脚本：
   - [00_check_mimo_models.py](C:/Users/lin/Documents/New%20project%202/scripts/00_check_mimo_models.py)
+
+## 当前路径稳定性结论
+
+- `mimo-v2.5-pro` 已通过：
+  - raw OpenAI SDK probe
+  - LiteLLM `openai/mimo-v2.5-pro` probe
+- `mimo-v2-flash` 在当前 `token-plan-cn` endpoint 上返回 `Not supported model`
+- 因此初始 GEPA 路径稳定性优先配置应为：
+  - `task_model = mimo-v2.5-pro`
+  - `reflection_model = mimo-v2.5-pro`
 
 ## 后续实验顺序
 

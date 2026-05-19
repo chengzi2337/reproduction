@@ -45,20 +45,25 @@ def test_strict_readme_quickstart_dry_run_writes_input_snapshot(tmp_path, monkey
     )
 
     run_dir = strict_script.run_strict_readme_quickstart_path(
-        task_model="deepseek-v4-flash",
-        reflection_model="deepseek-v4-pro",
+        provider="mimo",
+        task_model="mimo-v2.5-pro",
+        reflection_model="mimo-v2.5-pro",
         max_metric_calls=5,
         seed=42,
-        api_base="https://api.deepseek.com",
+        api_base="https://token-plan-cn.xiaomimimo.com/v1",
         api_key="fake-key",
+        api_key_env_name="MIMO_API_KEY",
         execute=False,
         output_root=tmp_path / "strict-dry-run",
     )
 
     snapshot = json.loads((run_dir / "strict_input_snapshot.json").read_text(encoding="utf-8"))
     assert snapshot["path_type"] == "strict_readme_quickstart_path"
-    assert snapshot["task_lm"] == "openai/deepseek-v4-flash"
-    assert snapshot["reflection_lm"] == "openai/deepseek-v4-pro"
+    assert snapshot["provider"] == "mimo"
+    assert snapshot["backend_family"] == "openai_compatible"
+    assert snapshot["api_base"] == "https://token-plan-cn.xiaomimimo.com/v1"
+    assert snapshot["task_lm"] == "openai/mimo-v2.5-pro"
+    assert snapshot["reflection_lm"] == "openai/mimo-v2.5-pro"
     assert snapshot["max_metric_calls"] == 5
     assert snapshot["seed"] == 42
     assert snapshot["trainset_size"] == 1
@@ -80,12 +85,14 @@ def test_strict_readme_quickstart_execute_writes_result_summary(tmp_path, monkey
     monkeypatch.setattr(strict_script.gepa, "optimize", lambda **kwargs: _FakeResult())
 
     run_dir = strict_script.run_strict_readme_quickstart_path(
-        task_model="deepseek-v4-flash",
-        reflection_model="deepseek-v4-pro",
+        provider="mimo",
+        task_model="mimo-v2.5-pro",
+        reflection_model="mimo-v2.5-pro",
         max_metric_calls=3,
         seed=7,
-        api_base="https://api.deepseek.com",
+        api_base="https://token-plan-cn.xiaomimimo.com/v1",
         api_key="fake-key",
+        api_key_env_name="MIMO_API_KEY",
         execute=True,
         output_root=tmp_path / "strict-exec",
     )
@@ -98,12 +105,14 @@ def test_strict_readme_quickstart_execute_writes_result_summary(tmp_path, monkey
 def test_strict_readme_quickstart_requires_models() -> None:
     try:
         strict_script.run_strict_readme_quickstart_path(
+            provider="mimo",
             task_model="",
-            reflection_model="deepseek-v4-pro",
+            reflection_model="mimo-v2.5-pro",
             max_metric_calls=3,
             seed=7,
-            api_base="https://api.deepseek.com",
+            api_base="https://token-plan-cn.xiaomimimo.com/v1",
             api_key="fake-key",
+            api_key_env_name="MIMO_API_KEY",
             execute=False,
             output_root=PROJECT_ROOT / "outputs" / "tmp-test",
         )
@@ -113,7 +122,7 @@ def test_strict_readme_quickstart_requires_models() -> None:
         raise AssertionError("缺少 task model 时必须失败。")
 
 
-def test_strict_readme_quickstart_execute_requires_api_key(tmp_path, monkeypatch) -> None:
+def test_strict_readme_quickstart_execute_requires_provider_specific_api_key(tmp_path, monkeypatch) -> None:
     dataset = (
         [{"input": "train-q", "answer": "### 1"}],
         [{"input": "val-q", "answer": "### 2"}],
@@ -124,16 +133,27 @@ def test_strict_readme_quickstart_execute_requires_api_key(tmp_path, monkeypatch
 
     try:
         strict_script.run_strict_readme_quickstart_path(
-            task_model="deepseek-v4-flash",
-            reflection_model="deepseek-v4-pro",
+            provider="mimo",
+            task_model="mimo-v2.5-pro",
+            reflection_model="mimo-v2.5-pro",
             max_metric_calls=3,
             seed=7,
-            api_base="https://api.deepseek.com",
+            api_base="https://token-plan-cn.xiaomimimo.com/v1",
             api_key="",
+            api_key_env_name="MIMO_API_KEY",
             execute=True,
             output_root=tmp_path / "strict-exec-no-key",
         )
     except ValueError as exc:
-        assert "DEEPSEEK_API_KEY" in str(exc)
+        assert "MIMO_API_KEY" in str(exc)
     else:
-        raise AssertionError("execute 模式缺少 API key 时必须失败。")
+        raise AssertionError("execute 模式缺少 provider-specific API key 时必须失败。")
+
+
+def test_resolve_provider_runtime_uses_mimo_env(monkeypatch) -> None:
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
+    monkeypatch.setenv("MIMO_API_KEY", "mimo-key")
+    api_base, api_key, api_key_env_name = strict_script._resolve_provider_runtime("mimo", "")
+    assert api_base == "https://token-plan-cn.xiaomimimo.com/v1"
+    assert api_key == "mimo-key"
+    assert api_key_env_name == "MIMO_API_KEY"

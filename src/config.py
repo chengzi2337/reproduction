@@ -84,6 +84,10 @@ def _provider_settings(provider: str) -> dict[str, str]:
     return settings
 
 
+def get_provider_settings(provider: str) -> dict[str, str]:
+    return dict(_provider_settings(provider))
+
+
 @dataclass(slots=True)
 class ExperimentConfig:
     experiment_name: str
