@@ -104,6 +104,7 @@ def test_no_automatic_model_substitution(monkeypatch) -> None:
 def test_build_litellm_model_name_uses_standard_openai_prefix() -> None:
     assert build_litellm_model_name("deepseek-v4-flash") == "openai/deepseek-v4-flash"
     assert build_litellm_model_name("openai/deepseek-v4-flash") == "openai/deepseek-v4-flash"
+    assert build_litellm_model_name("mimo-v2-flash") == "openai/mimo-v2-flash"
 
 
 def test_runner_uses_official_string_model_path() -> None:

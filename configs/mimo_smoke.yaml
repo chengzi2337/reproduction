@@ -1,0 +1,17 @@
+experiment_name: mimo_aime_smoke
+reproduction_type: method_level_reproduction
+provider: mimo
+backend_family: openai_compatible
+api_base: ${MIMO_API_BASE}
+benchmark: aime
+task_model: mimo-v2-flash
+reflection_model: mimo-v2.5-pro
+max_metric_calls: 10
+temperature_task: null
+temperature_reflection: null
+thinking_task: disabled
+thinking_reflection: provider_default
+seed: 42
+output_dir: outputs/mimo_aime_smoke
+allow_model_substitution: false
+save_raw_pickle: false
