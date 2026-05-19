@@ -85,3 +85,9 @@
 - `max_completion_tokens` 上限
 
 则必须另开 `Stage 2C: MiMo explicitly controlled-generation GEPA path`，并明确标注它偏离 strict official path。
+
+## 当前选择
+
+- 当前项目已选择 `路线 A 的前半段`
+- 这意味着 Stage 2B 目前只保留为诊断证据
+- 在路线 A 未失败前，不从 Stage 2B 直接进入 Stage 2C

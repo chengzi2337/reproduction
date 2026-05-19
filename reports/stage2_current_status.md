@@ -26,5 +26,16 @@
 
 - 当前不运行 `gepa.optimize()`
 - 当前不运行 MiMo smoke / pilot
-- 如果后续继续 MiMo GEPA 路径，必须单独设计：
-  - `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+
+## 已选路线
+
+- 当前选择 `路线 A 的前半段`
+- 含义：优先尝试恢复和稳定 MiMo 的 strict default path，再回到 strict execute sanity
+- 当前不进入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+
+## 路线 A 的下一步
+
+1. 继续限制在 strict default path 语义范围内排查执行阻塞
+2. 不引入 `thinking.disabled` 或 `max_completion_tokens` 到 GEPA 路径
+3. 只有 strict default path 未来能稳定返回时，才重新进入 strict execute sanity
+4. 在路线 A 未闭环前，不启动 MiMo GEPA smoke / pilot

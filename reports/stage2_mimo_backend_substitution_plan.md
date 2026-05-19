@@ -53,9 +53,11 @@
 
 ## 下一步顺序
 
-1. 评估是否需要进入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
-2. 只有在 Stage 2C 设计完成后，才讨论非 strict 的 MiMo GEPA smoke
-3. 在 strict default path 未来能够稳定返回之前，不把 Stage 2B 混写成 strict execute completion
+1. 已选择 `路线 A 的前半段`：优先尝试恢复 strict default path
+2. 在路线 A 未闭环前，不进入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+3. 只有 strict default path 未来能够稳定返回时，才重新进入 strict execute sanity
+4. 在 strict default path 未闭环前，不讨论 MiMo GEPA smoke / pilot
+5. 在任何阶段，都不把 Stage 2B 混写成 strict execute completion
 
 ## 与 Stage 1 的关系
 
