@@ -3,11 +3,11 @@
 ## 定位
 
 - MiMo 路径只定义为 `Stage 2: Xiaomi MiMo backend-substitution experiment`
-- 当前项目整体仍然是 `GEPA method-level reproduction`
-- 该路径 **不是** `original same-model reproduction`
-- 该路径 **不是** Stage 1 DeepSeek wrapper baseline 的改写
+- 整个仓库仍然是 `GEPA method-level reproduction` 研究仓库
+- 它不是 `original same-model reproduction`
+- 它不改写 Stage 1 DeepSeek 历史结论
 
-## 不变项
+## 不变边界
 
 - 不修改 `GEPA optimizer`
 - 不修改 `gepa.examples.aime.init_dataset()`
@@ -20,71 +20,46 @@
   - `task_lm = "openai/<model>"`
   - `reflection_lm = "openai/<model>"`
 
-## 解释边界
+## MiMo 配置边界
 
-- MiMo 路径不构成 `original same-model reproduction`
-- MiMo 路径不直接对标 GEPA 原论文分数
-- MiMo 路径不与 Stage 1 DeepSeek wrapper baseline 混写
-- MiMo 结果只能解释为：
-  - 在 GEPA 官方核心路径不变的前提下，替换到 Xiaomi MiMo OpenAI-compatible backend 的 Stage 2 backend-substitution 观察结果
-
-## provider 与 temperature 说明
-
-- provider：`mimo`
-- backend_family：`openai_compatible`
-- 对当前 `token-plan-cn` 套餐 key，应优先使用平台页面给出的专属 OpenAI-compatible endpoint：
+- `provider = mimo`
+- `backend_family = openai_compatible`
+- `provider=mimo` 时必须显式设置 `MIMO_API_BASE`
+- 当前已验证的 Token Plan OpenAI-compatible endpoint：
   - `https://token-plan-cn.xiaomimimo.com/v1`
-- MiMo thinking 模式下，`mimo-v2.5-pro` 和 `mimo-v2.5` 的 temperature 视为 `provider-controlled`
-- 因此本项目中对 MiMo 仍然只能写：
+- MiMo thinking 模式下的 temperature 只能表述为：
   - `temperature not explicitly controlled`
   - `provider-controlled`
-- 不能声称：
-  - `temperature_task=0.0 已生效`
-  - `temperature_reflection=0.7 已生效`
 
-## 当前实现范围
+## 已完成事项
 
-- 抽象 `OpenAI-compatible` 通用工具层
-- 保留 `src/deepseek_utils.py` 作为兼容层，避免破坏 Stage 1
-- 扩展 `src/config.py` 支持：
-  - `deepseek`
-  - `mimo`
-- 新增 MiMo 配置：
-  - [mimo_smoke.yaml](C:/Users/lin/Documents/New%20project%202/configs/mimo_smoke.yaml)
-  - [mimo_pilot.yaml](C:/Users/lin/Documents/New%20project%202/configs/mimo_pilot.yaml)
-- 新增 MiMo probe 脚本：
-  - [00_check_mimo_models.py](C:/Users/lin/Documents/New%20project%202/scripts/00_check_mimo_models.py)
+1. provider connectivity probe：已完成
+2. LiteLLM `openai/<model>` probe：已完成
+3. strict README quickstart dry-run：已完成
+4. Stage 2B controlled-generation single-sample validation：已完成
 
-## 当前路径稳定性结论
+## 当前解释边界
 
-- `mimo-v2.5-pro` 已通过：
-  - raw OpenAI SDK probe
-  - LiteLLM `openai/mimo-v2.5-pro` probe
-- `mimo-v2-flash` 在当前 `token-plan-cn` endpoint 上返回 `Not supported model`
-- 因此初始 GEPA 路径稳定性优先配置应为：
-  - `task_model = mimo-v2.5-pro`
-  - `reflection_model = mimo-v2.5-pro`
+- 当前不把 MiMo 路径写成 strict official path 已完成
+- 当前不把 MiMo 路径写成 GEPA smoke 已完成
+- 当前不把 MiMo 结果写成性能结论
+- 当前不把 MiMo 结果与 Stage 1 DeepSeek wrapper baseline 混写
 
-## 后续实验顺序
+## 当前稳定结论
 
-1. raw OpenAI SDK probe
-2. LiteLLM `openai/<model>` probe
-3. strict README quickstart dry-run
-4. MiMo smoke `max_metric_calls=10`
-5. saved prompt eval `limit=10`
-6. MiMo pilot `max_metric_calls=50`
-7. full saved prompt eval
+- `mimo-v2.5-pro` 已在受控生成条件下通过 direct SDK 与 LiteLLM 单样本验证
+- `mimo-v2-flash` 不再作为当前 Token Plan endpoint 的优先实验模型
+- MiMo provider 已经接入，但 strict default execute 路径尚未闭环
+
+## 下一步顺序
+
+1. 评估是否需要进入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+2. 只有在 Stage 2C 设计完成后，才讨论非 strict 的 MiMo GEPA smoke
+3. 在 strict default path 未来能够稳定返回之前，不把 Stage 2B 混写成 strict execute completion
 
 ## 与 Stage 1 的关系
 
-- Stage 1 DeepSeek wrapper path 已封版
-- 本次改动不改写任何 Stage 1 历史结论
-- 本次改动不要求重跑 Stage 1 baseline
-- DeepSeek 仍然保留为已完成的 Stage 1 backend 路径
-- MiMo 是新增的 Stage 2 backend-substitution 路径
-
-## 当前结论
-
-- 这次改动的目标不是证明 MiMo 分数优于或等于原论文
-- 这次改动的目标是把项目从 `DeepSeek-only backend` 扩展为 `OpenAI-compatible multi-provider backend`
-- 在这个边界内，MiMo 只承担 Stage 2 provider-substitution 的角色
+- Stage 1：DeepSeek method-level reproduction baseline，已封版
+- Stage 2：MiMo backend-substitution 研究，不改写 Stage 1
+- Stage 2B：MiMo controlled-generation diagnostic path，只证明受控生成单样本可达
+- Stage 2C：尚未开始；若开启，必须明确标注为非 strict 工程适配路径

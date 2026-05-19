@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 
 DEFAULT_DEEPSEEK_API_BASE = "https://api.deepseek.com"
-DEFAULT_MIMO_API_BASE = "https://api.xiaomimimo.com/v1"
+DEFAULT_MIMO_API_BASE = "https://token-plan-cn.xiaomimimo.com/v1"
 DEFAULT_BACKEND_FAMILY = "openai_compatible"
 EXPECTED_REPRODUCTION_TYPE = "method_level_reproduction"
 
@@ -23,7 +23,9 @@ SUPPORTED_PROVIDERS: dict[str, dict[str, str]] = {
     "mimo": {
         "api_key_env": "MIMO_API_KEY",
         "api_base_env": "MIMO_API_BASE",
-        "default_api_base": DEFAULT_MIMO_API_BASE,
+        "default_api_base": "",
+        "suggested_api_base": DEFAULT_MIMO_API_BASE,
+        "require_explicit_api_base": "true",
     },
 }
 
@@ -200,6 +202,10 @@ def load_experiment_config(
     if require_api_key and not api_key:
         raise ValueError(
             f"缺少 {settings['api_key_env']} 环境变量。真实 key 只能从环境变量读取。"
+        )
+    if settings.get("require_explicit_api_base") == "true" and not api_base:
+        raise ValueError(
+            f"provider={provider!r} 时必须显式设置 {settings['api_base_env']} 或 YAML `api_base`。不要依赖默认 Base URL。"
         )
 
     max_metric_calls = raw_config.get("max_metric_calls")

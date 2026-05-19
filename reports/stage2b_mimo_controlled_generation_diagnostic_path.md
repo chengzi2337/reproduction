@@ -27,16 +27,16 @@
 
 ## 作用
 
-这条路径只用于确认以下四件事：
+该路径只用于确认以下事实：
 
 1. MiMo endpoint 可达
 2. key 有效
-3. MiMo 可对真实 AIME 样本返回非空 `content`
+3. MiMo 可对真实 AIME 单样本返回非空 `content`
 4. LiteLLM `openai/<model>` 在受控生成条件下可返回非空 `content`
 
 它不用于：
 
-- GEPA 优化
+- GEPA optimize
 - smoke / pilot 实验
 - 性能结论
 - 与 GEPA 原论文分数对标
@@ -49,23 +49,29 @@
 - `max_completion_tokens = 512`
 - `timeout = 120`
 
-## 输出
+## 代码与输出
 
-- 脚本：[02_validate_mimo_controlled_generation_path.py](C:/Users/lin/Documents/New%20project%202/scripts/02_validate_mimo_controlled_generation_path.py)
+- 脚本：`scripts/02_validate_mimo_controlled_generation_path.py`
 - 输出目录：`outputs/mimo_controlled_generation_validation/<timestamp>/controlled_generation_results.json`
 
-输出 JSON 会显式包含：
+输出 JSON 至少包含以下解释字段：
 
 - `path_type = stage2b_mimo_controlled_generation_diagnostic_path`
 - `not_strict_official_path = true`
 - `not_performance_claim = true`
 - `no_gepa_optimize_called = true`
 
+## 当前结论
+
+- 该路径已经证明 MiMo 在受控生成条件下可以完成真实 AIME 单样本返回
+- 该路径不等于 strict default path 已闭环
+- 该路径不等于 MiMo GEPA smoke 已完成
+
 ## 后续分叉
 
 ### A. strict default path 未来可稳定返回
 
-如果以后 strict default path 可以在稳定可达路径上返回，则再回到 strict execute sanity。
+如果未来 strict default path 可以在稳定可达路径上返回，再回到 strict execute sanity。
 
 ### B. 只有 controlled-generation path 可用
 
@@ -78,4 +84,4 @@
 - `thinking.disabled`
 - `max_completion_tokens` 上限
 
-则必须另开一条 `explicitly controlled-generation GEPA path`，并明确标注它偏离 strict official path。
+则必须另开 `Stage 2C: MiMo explicitly controlled-generation GEPA path`，并明确标注它偏离 strict official path。

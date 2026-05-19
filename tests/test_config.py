@@ -11,10 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import (
-    DEFAULT_MIMO_API_BASE,
-    load_experiment_config,
-)
+from src.config import load_experiment_config
 
 
 def _load(relative_path: str):
@@ -24,6 +21,7 @@ def _load(relative_path: str):
 def test_five_yaml_files_can_load(monkeypatch) -> None:
     monkeypatch.setenv("TASK_MODEL", "custom-task-model")
     monkeypatch.setenv("REFLECTION_MODEL", "custom-reflection-model")
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     for relative_path in [
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
@@ -38,6 +36,7 @@ def test_five_yaml_files_can_load(monkeypatch) -> None:
 def test_allow_model_substitution_must_be_false(monkeypatch) -> None:
     monkeypatch.setenv("TASK_MODEL", "task-model-a")
     monkeypatch.setenv("REFLECTION_MODEL", "reflection-model-b")
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     for relative_path in [
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
@@ -51,6 +50,7 @@ def test_allow_model_substitution_must_be_false(monkeypatch) -> None:
 def test_save_raw_pickle_defaults_to_false(monkeypatch) -> None:
     monkeypatch.setenv("TASK_MODEL", "task-model-a")
     monkeypatch.setenv("REFLECTION_MODEL", "reflection-model-b")
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     for relative_path in [
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
@@ -64,6 +64,7 @@ def test_save_raw_pickle_defaults_to_false(monkeypatch) -> None:
 def test_reproduction_type_must_be_method_level_reproduction(monkeypatch) -> None:
     monkeypatch.setenv("TASK_MODEL", "task-model-a")
     monkeypatch.setenv("REFLECTION_MODEL", "reflection-model-b")
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     for relative_path in [
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
@@ -77,6 +78,7 @@ def test_reproduction_type_must_be_method_level_reproduction(monkeypatch) -> Non
 def test_max_metric_calls_must_be_positive_integer(monkeypatch) -> None:
     monkeypatch.setenv("TASK_MODEL", "task-model-a")
     monkeypatch.setenv("REFLECTION_MODEL", "reflection-model-b")
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     for relative_path in [
         "configs/deepseek_smoke.yaml",
         "configs/deepseek_pilot.yaml",
@@ -172,7 +174,7 @@ def test_mimo_provider_reads_provider_specific_env(monkeypatch, tmp_path) -> Non
     assert config.api_base == "https://mimo-env.example.com/v1"
 
 
-def test_mimo_provider_uses_default_api_base(monkeypatch, tmp_path) -> None:
+def test_mimo_provider_requires_explicit_api_base(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("MIMO_API_BASE", raising=False)
     config_path = tmp_path / "mimo-config.yaml"
     config_path.write_text(
@@ -196,13 +198,14 @@ def test_mimo_provider_uses_default_api_base(monkeypatch, tmp_path) -> None:
         ),
         encoding="utf-8",
     )
-    config = load_experiment_config(config_path, project_root=PROJECT_ROOT, require_api_key=False)
-    assert config.api_base == DEFAULT_MIMO_API_BASE
+    with pytest.raises(ValueError, match="MIMO_API_BASE"):
+        load_experiment_config(config_path, project_root=PROJECT_ROOT, require_api_key=False)
 
 
 def test_mimo_config_allows_null_temperature(monkeypatch) -> None:
     monkeypatch.delenv("TASK_MODEL", raising=False)
     monkeypatch.delenv("REFLECTION_MODEL", raising=False)
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     config = _load("configs/mimo_smoke.yaml")
     assert config.temperature_task is None
     assert config.temperature_reflection is None
@@ -211,7 +214,8 @@ def test_mimo_config_allows_null_temperature(monkeypatch) -> None:
     assert public_dict["temperature_reflection"] is None
 
 
-def test_allow_model_substitution_not_false_raises(tmp_path) -> None:
+def test_allow_model_substitution_not_false_raises(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("MIMO_API_BASE", "https://token-plan-cn.xiaomimimo.com/v1")
     config_path = tmp_path / "bad-config.yaml"
     config_path.write_text(
         "\n".join(
@@ -269,3 +273,5 @@ def test_yaml_placeholders_exist() -> None:
     payload = yaml.safe_load((PROJECT_ROOT / "configs/deepseek_smoke.yaml").read_text(encoding="utf-8"))
     assert payload["task_model"] == "${TASK_MODEL}"
     assert payload["reflection_model"] == "${REFLECTION_MODEL}"
+    mimo_payload = yaml.safe_load((PROJECT_ROOT / "configs/mimo_smoke.yaml").read_text(encoding="utf-8"))
+    assert mimo_payload["api_base"] == "${MIMO_API_BASE}"
