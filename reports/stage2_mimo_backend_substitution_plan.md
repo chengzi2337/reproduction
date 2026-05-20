@@ -56,22 +56,22 @@
 
 这只是 `Stage 2B: controlled-generation diagnostic path`，不是 strict path，不是 GEPA smoke。
 
-## 当前阶段选择
+## Stage 2C 当前节点
 
 - Stage 2A strict default path 当前 blocked
-- 因此当前不再继续强行恢复 MiMo strict default GEPA smoke
-- 当前转入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
-- 但本轮只进入 design and scaffold 阶段
+- 因此当前转入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+- Stage 2C 的 design and scaffold 已完成
+- Stage 2C 的第一次 `max_metric_calls = 1` controlled-generation sanity 已通过
 
-## Stage 2C 当前范围
+## Stage 2C 当前解释边界
 
-- 只验证 controlled-generation 条件下的最小 GEPA 闭环可执行性
-- 只允许 `max_metric_calls = 1`
-- 不做 smoke
-- 不做 pilot
-- 不做 saved prompt eval
-- 不和 DeepSeek Stage 1 对比
-- 不写性能结论
+- 已验证 controlled-generation 条件下的最小 GEPA 闭环可执行性
+- 当前已完成的上限仍然只有 `max_metric_calls = 1` sanity
+- 当前还没有 smoke
+- 当前还没有 pilot
+- 当前还没有 saved prompt eval
+- 当前不和 DeepSeek Stage 1 对比
+- 当前不写性能结论
 
 ## 当前明确禁止
 
@@ -83,7 +83,6 @@
 
 ## 下一步
 
-- 当前下一步最多是：
-  - `Stage 2C controlled-generation GEPA sanity`
-  - `max_metric_calls = 1`
-- 它仍然不是 smoke / pilot
+- 当前下一步应先写 `Stage 2C controlled-generation GEPA smoke design`
+- 在 smoke design 完成前，不直接运行 smoke
+- 即使未来进入 smoke，它也仍然不是 strict path，也不是性能实验

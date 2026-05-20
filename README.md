@@ -14,7 +14,7 @@
 - strict path closure：`strict_readme_quickstart_path` 已完成 dry-run 和极小执行校验
 - Stage 2A：MiMo strict default path diagnosis 已完成，当前被真实 AIME 题面复杂度阻塞
 - Stage 2B：MiMo controlled-generation diagnostic path 已完成单样本验证
-- Stage 2C：MiMo controlled-generation GEPA path 已进入 design and scaffold 阶段
+- Stage 2C：MiMo controlled-generation GEPA path 已完成 design and scaffold，并通过一次最小 sanity
 
 ## Stage 2A 关键结论
 
@@ -44,7 +44,9 @@
 - Stage 2C 不是 `strict_readme_quickstart_path`
 - Stage 2C 不是 original same-model reproduction
 - Stage 2C 是 non-strict controlled-generation engineering adaptation path
-- Stage 2C 当前还没有 smoke / pilot / performance result
+- Stage 2C 当前已经通过一次 `max_metric_calls = 1` sanity
+- Stage 2C 当前仍然没有 smoke / pilot / performance result
+- Stage 2C sanity 不能写成 baseline 或性能结论
 
 ## 当前不做的事
 
@@ -87,6 +89,7 @@
 - [reports/stage2_mimo_backend_substitution_plan.md](reports/stage2_mimo_backend_substitution_plan.md)
 - [reports/stage2b_mimo_controlled_generation_diagnostic_path.md](reports/stage2b_mimo_controlled_generation_diagnostic_path.md)
 - [reports/stage2c_mimo_controlled_generation_gepa_design.md](reports/stage2c_mimo_controlled_generation_gepa_design.md)
+- [reports/stage2c_mimo_controlled_generation_gepa_sanity_result.md](reports/stage2c_mimo_controlled_generation_gepa_sanity_result.md)
 - [reports/stage2_current_status.md](reports/stage2_current_status.md)
 
 ## 运行环境说明
@@ -99,4 +102,4 @@
 
 - 所有结论以本地可重复验证为准
 - Stage 2B 当前只证明受控生成单样本可达，不构成性能结论
-- Stage 2C 当前只进入设计与脚手架阶段，不自动运行 execute
+- Stage 2C 当前已完成一次最小 sanity，但仍不构成 smoke / pilot / performance result
