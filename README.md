@@ -12,9 +12,39 @@
 
 - Stage 1：DeepSeek method-level reproduction baseline，已封版
 - strict path closure：`strict_readme_quickstart_path` 已完成 dry-run 和极小执行校验
-- Stage 2A：MiMo provider probe 与 strict README dry-run 已完成
+- Stage 2A：MiMo strict default path diagnosis 已完成，当前被真实 AIME 题面复杂度阻塞
 - Stage 2B：MiMo controlled-generation diagnostic path 已完成单样本验证
-- Stage 2C：尚未开始设计
+- Stage 2C：MiMo controlled-generation GEPA path 已进入 design and scaffold 阶段
+
+## Stage 2A 关键结论
+
+- `first_blocked_level = 3`
+- Level 0-2 passed
+- Level 3-5 `HardTimeout`
+- direct SDK 与 LiteLLM 行为一致
+- blocker 由真实 AIME 题面复杂度在 MiMo strict default generation 下触发
+- `README quickstart seed prompt` 不是主触发因素，因为 Level 3 已经阻塞
+- `official AIME-style seed prompt` 也不能移除 blocker
+- Stage 2A 没有调用 `gepa.optimize()`
+- Stage 2A 没有使用 `thinking.disabled`
+- Stage 2A 没有使用 `max_completion_tokens`
+
+## Stage 2B 关键结论
+
+- `thinking.disabled`
+- `max_completion_tokens = 512`
+- direct SDK + 真实 AIME 单样本返回非空 `content`
+- LiteLLM `openai/mimo-v2.5-pro` + 同条件返回非空 `content`
+
+这些结果只说明 controlled-generation 单样本可达，不构成 strict path 成功，也不构成性能结论。
+
+## Stage 2C 边界
+
+- Stage 2C 是 `MiMo explicitly controlled-generation GEPA path`
+- Stage 2C 不是 `strict_readme_quickstart_path`
+- Stage 2C 不是 original same-model reproduction
+- Stage 2C 是 non-strict controlled-generation engineering adaptation path
+- Stage 2C 当前还没有 smoke / pilot / performance result
 
 ## 当前不做的事
 
@@ -25,6 +55,8 @@
 - 不修改 `GEPA optimizer`
 - 不修改默认 evaluator
 - 不引入 callable 替代官方字符串模型路径
+- 不运行 `configs/mimo_smoke.yaml`
+- 不运行 `configs/mimo_pilot.yaml`
 
 ## 官方核心路径边界
 
@@ -42,7 +74,7 @@
 ## MiMo 配置边界
 
 - `provider=mimo` 时，必须显式提供 `MIMO_API_BASE`
-- 当前已验证可用的 Token Plan OpenAI-compatible endpoint 是：
+- 当前已验证可用的 Token Plan OpenAI-compatible endpoint：
   - `https://token-plan-cn.xiaomimimo.com/v1`
 - 不应依赖隐式 MiMo 默认 Base URL
 
@@ -51,8 +83,10 @@
 - [reports/stage1_final_status.md](reports/stage1_final_status.md)
 - [reports/official_core_path_comparison.md](reports/official_core_path_comparison.md)
 - [reports/strict_readme_quickstart_sanity_status.md](reports/strict_readme_quickstart_sanity_status.md)
+- [reports/stage2a_mimo_prompt_complexity_decomposition_result.md](reports/stage2a_mimo_prompt_complexity_decomposition_result.md)
 - [reports/stage2_mimo_backend_substitution_plan.md](reports/stage2_mimo_backend_substitution_plan.md)
 - [reports/stage2b_mimo_controlled_generation_diagnostic_path.md](reports/stage2b_mimo_controlled_generation_diagnostic_path.md)
+- [reports/stage2c_mimo_controlled_generation_gepa_design.md](reports/stage2c_mimo_controlled_generation_gepa_design.md)
 - [reports/stage2_current_status.md](reports/stage2_current_status.md)
 
 ## 运行环境说明
@@ -65,4 +99,4 @@
 
 - 所有结论以本地可重复验证为准
 - Stage 2B 当前只证明受控生成单样本可达，不构成性能结论
-- 在 Stage 2C 设计完成前，不进入新的 MiMo GEPA execute 实验
+- Stage 2C 当前只进入设计与脚手架阶段，不自动运行 execute

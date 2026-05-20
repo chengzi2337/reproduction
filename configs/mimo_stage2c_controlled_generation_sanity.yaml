@@ -1,0 +1,24 @@
+experiment_name: mimo_stage2c_controlled_generation_sanity
+reproduction_type: method_level_backend_substitution_controlled_generation
+provider: mimo
+backend_family: openai_compatible
+api_base: ${MIMO_API_BASE}
+benchmark: aime
+task_model: mimo-v2.5-pro
+reflection_model: mimo-v2.5-pro
+max_metric_calls: 1
+temperature_task: null
+temperature_reflection: null
+thinking_task: disabled
+thinking_reflection: disabled
+controlled_generation:
+  enabled: true
+  thinking_type: disabled
+  max_completion_tokens: 512
+  timeout_seconds: 120
+seed: 42
+output_dir: outputs/stage2c_mimo_controlled_generation_gepa_sanity
+allow_model_substitution: false
+save_raw_pickle: false
+not_strict_official_path: true
+not_performance_claim: true
