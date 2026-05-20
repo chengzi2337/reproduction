@@ -141,3 +141,21 @@
   - 不进入 format-enforced smoke rerun
   - 不进入 pilot
   - 如继续推进，应先设计下一轮更强约束的格式诊断，而不是扩大 GEPA 预算
+
+## Stage 2D output-protocol adaptation checkpoint
+
+- 当前已转入 `Stage 2D: MiMo output-protocol adaptation diagnostic`
+- Stage 2D 只做只读审计：
+  - official evaluator format contract audit
+  - existing outputs answer-extractability audit
+- Stage 2D 当前已明确：
+  - GEPA AIME official evaluator 的契约是字符串包含精确 `### 72`
+  - `normalized_score` 只能作为诊断字段，不能写成 GEPA official result
+  - prompt-first 中已经出现“语义答案存在但 official fail”的代表性样本
+- 因此当前主 blocker 已可以更准确地写成：
+  - `output_protocol_violation`
+  - `format_missing relative to official evaluator contract`
+- Stage 2D 当前仍然：
+  - 不进入 GEPA optimize
+  - 不进入 smoke rerun
+  - 不进入 pilot

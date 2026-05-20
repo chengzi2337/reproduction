@@ -121,3 +121,42 @@
 - 因此：
   - 当前不进入 format-enforced smoke rerun
   - 当前不进入 pilot
+
+## Stage 2D output-protocol adaptation
+
+- 当前已进入 `Stage 2D: MiMo output-protocol adaptation diagnostic`
+- Stage 2D 不是 strict path
+- Stage 2D 不是 Stage 2C pilot
+- Stage 2D 不是性能实验
+- Stage 2D 不修改 official evaluator
+- Stage 2D 先完成了两类只读审计：
+  - official evaluator format contract audit
+  - existing outputs answer-extractability audit
+
+### Stage 2D official evaluator contract audit
+
+- 已定位到 GEPA AIME 默认 evaluator：
+  - `gepa.adapters.default_adapter.default_adapter.ContainsAnswerEvaluator`
+- 已定位到 AIME ground truth contract：
+  - `answer = "### " + str(x["answer"])`
+- official contract 实际上是：
+  - `data["answer"] in response`
+- 因此：
+  - `### 72` 会 official pass
+  - `### <answer>\n72\n</answer>` 会 official fail
+- Stage 2D 已明确区分：
+  - `official_score`
+  - `normalized_score`
+
+### Stage 2D existing outputs audit
+
+- 已确认 Stage 2C smoke 全量正文里：
+  - `official_evaluator_compatible = 0 / 45`
+  - 主 failure mode 是 `markdown_heading_misuse + final_answer_missing`
+- 已确认 Stage 2C prompt-first preview 里：
+  - 存在 `semantic_answer_present = true` 但 `official_evaluator_compatible = false` 的样本
+  - 代表性模式是：
+    - `### <answer>\n72\n</answer>`
+- 当前更准确的 blocker 写法是：
+  - `output_protocol_violation`
+  - `format_missing relative to official evaluator contract`
