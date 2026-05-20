@@ -90,3 +90,34 @@
   - 但单靠提高 token 上限，不足以解决 `format_missing`
 - 当前下一步应先做 `Stage 2C prompt-first / format-enforcement design`
 - 在新设计完成前，不进入 pilot
+
+## Stage 2C prompt-first / format-enforcement
+
+- 当前已进入 prompt-first / format-enforcement design 阶段
+- 当前目标是让 MiMo 在 controlled-generation 条件下稳定输出精确的 `### <answer>`
+- 当前优先比较的 prompt 变体为：
+  - `Variant A: answer-only`
+  - `Variant B: first-line final answer`
+  - `Variant C: current README quickstart prompt`
+- 当前仍未运行新的 direct SDK / LiteLLM 小样本格式诊断
+- 在格式诊断完成前，不进入 format-enforced smoke，更不进入 pilot
+
+## Stage 2C prompt-first / format-enforcement diagnostic
+
+- 已完成一次 direct SDK + LiteLLM 的真实小样本格式诊断
+- 固定参数：
+  - `thinking.disabled`
+  - `max_completion_tokens = 2048`
+  - `timeout = 120`
+  - `sample_count = 3`
+- 诊断变体：
+  - `Variant A: answer-only`
+  - `Variant B: first-line final answer`
+  - `Variant C: current README quickstart prompt`
+- 当前结果：
+  - 三个变体都没有达到“`3/3` 样本稳定输出首行精确 `### <integer>`”的通过标准
+  - `2048` 已缓解硬截断，但没有消除 `format_missing`
+  - 当前主 blocker 仍然是 `format_missing`
+- 因此：
+  - 当前不进入 format-enforced smoke rerun
+  - 当前不进入 pilot

@@ -111,3 +111,33 @@
   - `最终答案格式可达性不足` 仍然存在
 - 当前不进入 pilot
 - 当前下一步应先做 `Stage 2C prompt-first / format-enforcement design`
+
+## Stage 2C prompt-first / format-enforcement checkpoint
+
+- Stage 2C 下一阶段已切换到 `prompt-first / format-enforcement design`
+- 当前核心问题是：
+  - 更高 token 上限已缓解截断
+  - 但模型仍未稳定输出 evaluator 需要的精确 `### <answer>`
+- 当前优先方向不是重跑 smoke，而是先做小样本格式诊断设计
+- 诊断将比较：
+  - `answer-only`
+  - `first-line final answer`
+  - `current README quickstart prompt`
+- 在格式稳定前，不进入 format-enforced smoke，也不进入 pilot
+
+## Stage 2C prompt-first / format-enforcement diagnostic checkpoint
+
+- 已完成一次 direct SDK + LiteLLM 的真实小样本格式诊断
+- 固定参数：
+  - `thinking.disabled`
+  - `max_completion_tokens = 2048`
+  - `timeout = 120`
+  - `sample_count = 3`
+- 结果收敛为：
+  - `2048` 已经足以缓解主要截断
+  - 但三种 prompt 变体都还不能稳定产生 evaluator 需要的精确 `### <integer>`
+  - 当前主 blocker 仍然是 `format_missing`
+- 当前结论：
+  - 不进入 format-enforced smoke rerun
+  - 不进入 pilot
+  - 如继续推进，应先设计下一轮更强约束的格式诊断，而不是扩大 GEPA 预算
