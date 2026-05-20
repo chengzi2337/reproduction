@@ -36,26 +36,26 @@
 
 - Stage 2C 已完成 design and scaffold
 - Stage 2C 第一次 `max_metric_calls = 1` controlled-generation sanity 已通过
+- Stage 2C 第一次 `max_metric_calls = 10` controlled-generation smoke 已通过
 - Stage 2C 的定义是：
   - `MiMo explicitly controlled-generation GEPA path`
 - Stage 2C 不是 strict official path
 - Stage 2C 不是 original same-model reproduction
 - Stage 2C 不是 Stage 1 DeepSeek continuation
-- Stage 2C 当前仍然没有 smoke / pilot / performance result
-- Stage 2C 当前只拥有一条最小 sanity 结果
+- Stage 2C 当前仍然没有 pilot / performance result
+- Stage 2C smoke 的 `best_score = 0.0` 只记录为 smoke artifact / warning signal，不构成 MiMo 性能结论
 
 ## 当前不做的事
 
-- 不运行 `configs/mimo_smoke.yaml`
 - 不运行 `configs/mimo_pilot.yaml`
 - 不运行 `official_budget`
 - 不运行 saved prompt eval
-- 不自动扩展到 smoke / pilot
+- 不自动扩展到 pilot
 
 ## 下一步上限
 
-- Stage 2C checkpoint 已经完成
-- 下一步应先写 smoke design，而不是直接运行 smoke
-- 后续若进入 smoke，仍然必须保持：
+- 当前应先做 `Stage 2C smoke failure-mode audit design`
+- 在 failure-mode audit 前，不直接进入 pilot
+- 后续若继续 Stage 2C，仍然必须保持：
   - non-strict controlled-generation path
   - 非性能实验解释

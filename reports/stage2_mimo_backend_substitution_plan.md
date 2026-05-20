@@ -15,7 +15,7 @@
 - 不修改 Stage 1 历史结果
 - 不把 MiMo 路径写成 strict official path
 - 不把 MiMo 路径写成性能实验
-- 不启动 smoke / pilot / official_budget
+- 不启动 pilot / official_budget
 - 不进行 saved prompt eval
 
 ## MiMo 配置边界
@@ -62,27 +62,28 @@
 - 因此当前转入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
 - Stage 2C 的 design and scaffold 已完成
 - Stage 2C 的第一次 `max_metric_calls = 1` controlled-generation sanity 已通过
+- Stage 2C 的第一次 `max_metric_calls = 10` controlled-generation smoke 已通过
 
 ## Stage 2C 当前解释边界
 
 - 已验证 controlled-generation 条件下的最小 GEPA 闭环可执行性
-- 当前已完成的上限仍然只有 `max_metric_calls = 1` sanity
-- 当前还没有 smoke
+- 已验证 controlled-generation 条件下的 smoke execution-stability 闭环可执行性
 - 当前还没有 pilot
 - 当前还没有 saved prompt eval
 - 当前不和 DeepSeek Stage 1 对比
 - 当前不写性能结论
+- `best_score = 0.0` 只作为 smoke-run artifact / warning signal 记录
 
 ## 当前明确禁止
 
-- 不运行 `configs/mimo_smoke.yaml`
 - 不运行 `configs/mimo_pilot.yaml`
 - 不把 Stage 2C 写成 strict path
 - 不把 Stage 2C 写成 MiMo baseline
 - 不把 Stage 2C 写成 GEPA original reproduction
+- 不把 smoke 结果解释成模型有效性能
 
 ## 下一步
 
-- 当前下一步应先写 `Stage 2C controlled-generation GEPA smoke design`
-- 在 smoke design 完成前，不直接运行 smoke
-- 即使未来进入 smoke，它也仍然不是 strict path，也不是性能实验
+- 当前下一步应先做 `Stage 2C smoke failure-mode audit design`
+- 在 audit 完成前，不直接运行 pilot
+- 若 audit 认为需要调整参数，应先做参数调整设计，再决定是否重跑 sanity / smoke
