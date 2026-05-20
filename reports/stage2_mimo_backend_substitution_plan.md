@@ -87,3 +87,14 @@
 - 当前下一步应先做 `Stage 2C smoke failure-mode audit design`
 - 在 audit 完成前，不直接运行 pilot
 - 若 audit 认为需要调整参数，应先做参数调整设计，再决定是否重跑 sanity / smoke
+## Stage 2C smoke audit checkpoint
+
+- Stage 2C smoke result 已封存
+- Stage 2C smoke failure-mode audit 已完成只读审计
+- 当前已确认：
+  - `45/45` 样本存在非空正文
+  - `0/45` 样本出现精确的 `### <answer>`
+  - 至少 `23/45` 样本出现明显截断
+- 因此，当前 `0.0` 更接近格式与截断问题，而不是“完全无输出”
+- 当前不进入 pilot
+- 当前下一步应先做 `Stage 2C parameter-adjustment design`

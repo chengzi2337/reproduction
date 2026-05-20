@@ -59,3 +59,16 @@
 - 后续若继续 Stage 2C，仍然必须保持：
   - non-strict controlled-generation path
   - 非性能实验解释
+## Stage 2C smoke failure-mode audit
+
+- 已完成一次只读 audit，不触发新的 `gepa.optimize()`
+- `45/45` 样本 `full_assistant_response` 非空
+- `0/45` 样本出现精确的 `### <answer>`
+- `10/45` 样本虽含 `###`，但仅为 `### Step 1` 等中间标题
+- 至少 `23/45` 样本表现出明显的中途截断特征
+- 当前最主要的失败模式判断为：
+  - `format_missing`
+  - `truncated_before_final`
+- 因此，`best_score = 0.0` 当前应解释为 `smoke-run artifact / warning signal`
+- 当前下一步应先做 `Stage 2C parameter-adjustment design`
+- 在参数调整设计完成前，不进入 pilot
