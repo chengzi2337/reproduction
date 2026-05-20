@@ -98,3 +98,16 @@
 - 因此，当前 `0.0` 更接近格式与截断问题，而不是“完全无输出”
 - 当前不进入 pilot
 - 当前下一步应先做 `Stage 2C parameter-adjustment design`
+
+## Stage 2C parameter-adjustment checkpoint
+
+- Stage 2C parameter-adjustment diagnostic 已完成
+- 当前已确认：
+  - `1024` 仍然会触发 `finish_reason = length`
+  - `2048` 已可到 `finish_reason = stop`
+  - 但两种设置都未稳定产出精确的 `### <answer>`
+- 因此，当前问题已从“token 太低导致截断”进一步收敛到：
+  - `token 上限不足` 是部分原因
+  - `最终答案格式可达性不足` 仍然存在
+- 当前不进入 pilot
+- 当前下一步应先做 `Stage 2C prompt-first / format-enforcement design`

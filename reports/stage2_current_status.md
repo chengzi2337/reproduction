@@ -72,3 +72,21 @@
 - 因此，`best_score = 0.0` 当前应解释为 `smoke-run artifact / warning signal`
 - 当前下一步应先做 `Stage 2C parameter-adjustment design`
 - 在参数调整设计完成前，不进入 pilot
+
+## Stage 2C parameter-adjustment diagnostic
+
+- 已完成一次小样本参数诊断，不触发 `gepa.optimize()`
+- 保持 `thinking.disabled` 不变
+- `max_completion_tokens = 1024`：
+  - direct SDK / LiteLLM 均返回非空内容
+  - `finish_reason = length`
+  - 仍未出现精确的 `### <answer>`
+- `max_completion_tokens = 2048`：
+  - direct SDK / LiteLLM 均返回非空内容
+  - `finish_reason = stop`
+  - 仍未出现精确的 `### <answer>`
+- 当前结论：
+  - 提高 token 上限可以缓解截断
+  - 但单靠提高 token 上限，不足以解决 `format_missing`
+- 当前下一步应先做 `Stage 2C prompt-first / format-enforcement design`
+- 在新设计完成前，不进入 pilot
