@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import inspect
 import json
 import os
@@ -34,14 +35,47 @@ DEFAULT_MAX_METRIC_CALLS = 10
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "deepseek_strict_continuation_smoke"
 
 
+def _resolve_cached_arrow(dataset_dir_name: str, arrow_filename: str) -> Path:
+    cache_root = Path.home() / ".cache" / "huggingface" / "datasets" / dataset_dir_name / "default" / "0.0.0"
+    if not cache_root.exists():
+        raise RuntimeError(f"未找到本地缓存目录：{cache_root}")
+    candidates = sorted(cache_root.glob(f"*/{arrow_filename}"))
+    if not candidates:
+        raise RuntimeError(f"未找到本地缓存文件：{cache_root / arrow_filename}")
+    return candidates[-1]
+
+
+@contextlib.contextmanager
+def _patch_datasets_load_dataset_from_local_cache() -> Any:
+    import datasets
+    from datasets import Dataset
+
+    original_load_dataset = datasets.load_dataset
+    aime_arrow = _resolve_cached_arrow("AI-MO___aimo-validation-aime", "aimo-validation-aime-train.arrow")
+    matharena_arrow = _resolve_cached_arrow("MathArena___aime_2025", "aime_2025-train.arrow")
+
+    def _load_dataset(name: str, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        if name == "AI-MO/aimo-validation-aime":
+            return {"train": Dataset.from_file(str(aime_arrow))}
+        if name == "MathArena/aime_2025":
+            return {"train": Dataset.from_file(str(matharena_arrow))}
+        return original_load_dataset(name, *args, **kwargs)
+
+    datasets.load_dataset = _load_dataset
+    try:
+        yield
+    finally:
+        datasets.load_dataset = original_load_dataset
+
+
 def load_dataset_via_strict_readme_path() -> tuple[
     list[dict[str, Any]],
     list[dict[str, Any]],
     list[dict[str, Any]] | None,
     str,
 ]:
-    dataset_source = f"{inspect.getsourcefile(init_dataset)}:{inspect.getsourcelines(init_dataset)[1]}"
-    dataset_result = init_dataset()
+    with _patch_datasets_load_dataset_from_local_cache():
+        dataset_result = init_dataset()
     if not isinstance(dataset_result, tuple) or len(dataset_result) not in (2, 3):
         raise RuntimeError("官方 `init_dataset()` 返回结构不符合 DeepSeek strict continuation smoke 预期。")
 
@@ -51,7 +85,12 @@ def load_dataset_via_strict_readme_path() -> tuple[
         trainset, valset = dataset_result
         testset = None
 
-    return list(trainset), list(valset), list(testset) if testset is not None else None, dataset_source
+    return (
+        list(trainset),
+        list(valset),
+        list(testset) if testset is not None else None,
+        "gepa.examples.aime.init_dataset() with local cache-backed load_dataset",
+    )
 
 
 def build_optimize_kwargs(
