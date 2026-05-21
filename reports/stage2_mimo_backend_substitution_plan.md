@@ -42,120 +42,93 @@
 - blocker 由真实 AIME 题面复杂度在 MiMo strict default generation 下触发
 - `README quickstart seed prompt` 不是主触发因素
 - `official AIME-style seed prompt` 不能移除 blocker
-- Stage 2A 没有调用 `gepa.optimize()`
-- Stage 2A 没有使用 `thinking.disabled`
-- Stage 2A 没有使用 `max_completion_tokens`
 
 ## Stage 2B 已完成事项
 
-- 在 `thinking.disabled`
-- 且 `max_completion_tokens = 512`
-- 且 provider / LiteLLM 路径可达
+在：
+
+- `thinking.disabled`
+- `max_completion_tokens = 512`
+- provider / LiteLLM 路径可达
 
 的条件下，MiMo 可以对真实 AIME 单样本返回非空 `content`。
 
-这只是 `Stage 2B: controlled-generation diagnostic path`，不是 strict path，不是 GEPA smoke。
+这只属于 `Stage 2B: controlled-generation diagnostic path`，不是 strict path，也不是 GEPA smoke。
 
-## Stage 2C 当前节点
+## Stage 2C 当前结论
 
 - Stage 2A strict default path 当前 blocked
-- 因此当前转入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
+- 因此后续转入 `Stage 2C: MiMo explicitly controlled-generation GEPA path`
 - Stage 2C 的 design and scaffold 已完成
-- Stage 2C 的第一次 `max_metric_calls = 1` controlled-generation sanity 已通过
-- Stage 2C 的第一次 `max_metric_calls = 10` controlled-generation smoke 已通过
+- Stage 2C 的：
+  - `max_metric_calls = 1` sanity 已通过
+  - `max_metric_calls = 10` smoke 已通过
 
-## Stage 2C 当前解释边界
+但当前只证明：
 
-- 已验证 controlled-generation 条件下的最小 GEPA 闭环可执行性
-- 已验证 controlled-generation 条件下的 smoke execution-stability 闭环可执行性
-- 当前还没有 pilot
-- 当前还没有 saved prompt eval
-- 当前不和 DeepSeek Stage 1 对比
-- 当前不写性能结论
-- `best_score = 0.0` 只作为 smoke-run artifact / warning signal 记录
+- controlled-generation 条件下的最小 GEPA 闭环可执行
+- smoke execution-stability 闭环可执行
 
-## 当前明确禁止
+当前不证明：
 
-- 不运行 `configs/mimo_pilot.yaml`
-- 不把 Stage 2C 写成 strict path
-- 不把 Stage 2C 写成 MiMo baseline
-- 不把 Stage 2C 写成 GEPA original reproduction
-- 不把 smoke 结果解释成模型有效性能
+- pilot
+- saved prompt eval
+- 与 DeepSeek Stage 1 可比的性能结果
+
+## Stage 2C 当前 failure mode
+
+- smoke failure-mode audit 已确认：
+  - `45/45` 样本有非空正文
+  - `0/45` 样本出现精确 `### <answer>`
+  - 至少 `23/45` 样本出现明显截断
+- parameter-adjustment diagnostic 已确认：
+  - `1024` 仍会 `finish_reason = length`
+  - `2048` 已可到 `finish_reason = stop`
+  - 但两种设置都不能稳定输出精确 `### <answer>`
+- prompt-first diagnostic 已确认：
+  - 三种 prompt 变体都未稳定通过格式门槛
+
+因此当前已收敛为：
+
+- 截断是部分原因
+- 但当前主 blocker 已进一步收敛到：
+  - `format_missing`
+  - `output_protocol_violation`
+
+## Stage 2D 当前结论
+
+- Stage 2D 是 `output-protocol adaptation diagnostic`
+- 已完成：
+  - official evaluator format contract audit
+  - existing outputs answer-extractability audit
+  - official-contract prompt adaptation diagnostic
+
+当前已明确：
+
+- GEPA AIME official evaluator 需要的是形如 `### 72` 的精确字符串契约
+- `normalized_score` 只能作为诊断字段，不能写成 official result
+- prompt-only official-contract adaptation 当前不稳定
+
+### Stage 2D Phase 2 final state
+
+- `MiMo Stage 2D Phase 2 did not meet the entry gate for adapted GEPA smoke`
+- `Prompt-only official-contract adaptation is not stable enough`
+- 当前不应进入：
+  - MiMo pilot
+  - adapted GEPA smoke
+
+## 当前主线决策
+
+- 暂停 MiMo experimental expansion
+- MiMo 当前保留为已完成的 Stage 2A / 2B / 2C / 2D 诊断资产
+- 当前主线返回 `DeepSeek strict-readme continuation`
+- 当前不做：
+  - MiMo pilot
+  - MiMo adapted GEPA smoke
+  - `official_budget`
 
 ## 下一步
 
-- 当前下一步应先做 `Stage 2C smoke failure-mode audit design`
-- 在 audit 完成前，不直接运行 pilot
-- 若 audit 认为需要调整参数，应先做参数调整设计，再决定是否重跑 sanity / smoke
-## Stage 2C smoke audit checkpoint
-
-- Stage 2C smoke result 已封存
-- Stage 2C smoke failure-mode audit 已完成只读审计
-- 当前已确认：
-  - `45/45` 样本存在非空正文
-  - `0/45` 样本出现精确的 `### <answer>`
-  - 至少 `23/45` 样本出现明显截断
-- 因此，当前 `0.0` 更接近格式与截断问题，而不是“完全无输出”
-- 当前不进入 pilot
-- 当前下一步应先做 `Stage 2C parameter-adjustment design`
-
-## Stage 2C parameter-adjustment checkpoint
-
-- Stage 2C parameter-adjustment diagnostic 已完成
-- 当前已确认：
-  - `1024` 仍然会触发 `finish_reason = length`
-  - `2048` 已可到 `finish_reason = stop`
-  - 但两种设置都未稳定产出精确的 `### <answer>`
-- 因此，当前问题已从“token 太低导致截断”进一步收敛到：
-  - `token 上限不足` 是部分原因
-  - `最终答案格式可达性不足` 仍然存在
-- 当前不进入 pilot
-- 当前下一步应先做 `Stage 2C prompt-first / format-enforcement design`
-
-## Stage 2C prompt-first / format-enforcement checkpoint
-
-- Stage 2C 下一阶段已切换到 `prompt-first / format-enforcement design`
-- 当前核心问题是：
-  - 更高 token 上限已缓解截断
-  - 但模型仍未稳定输出 evaluator 需要的精确 `### <answer>`
-- 当前优先方向不是重跑 smoke，而是先做小样本格式诊断设计
-- 诊断将比较：
-  - `answer-only`
-  - `first-line final answer`
-  - `current README quickstart prompt`
-- 在格式稳定前，不进入 format-enforced smoke，也不进入 pilot
-
-## Stage 2C prompt-first / format-enforcement diagnostic checkpoint
-
-- 已完成一次 direct SDK + LiteLLM 的真实小样本格式诊断
-- 固定参数：
-  - `thinking.disabled`
-  - `max_completion_tokens = 2048`
-  - `timeout = 120`
-  - `sample_count = 3`
-- 结果收敛为：
-  - `2048` 已经足以缓解主要截断
-  - 但三种 prompt 变体都还不能稳定产生 evaluator 需要的精确 `### <integer>`
-  - 当前主 blocker 仍然是 `format_missing`
-- 当前结论：
-  - 不进入 format-enforced smoke rerun
-  - 不进入 pilot
-  - 如继续推进，应先设计下一轮更强约束的格式诊断，而不是扩大 GEPA 预算
-
-## Stage 2D output-protocol adaptation checkpoint
-
-- 当前已转入 `Stage 2D: MiMo output-protocol adaptation diagnostic`
-- Stage 2D 只做只读审计：
-  - official evaluator format contract audit
-  - existing outputs answer-extractability audit
-- Stage 2D 当前已明确：
-  - GEPA AIME official evaluator 的契约是字符串包含精确 `### 72`
-  - `normalized_score` 只能作为诊断字段，不能写成 GEPA official result
-  - prompt-first 中已经出现“语义答案存在但 official fail”的代表性样本
-- 因此当前主 blocker 已可以更准确地写成：
-  - `output_protocol_violation`
-  - `format_missing relative to official evaluator contract`
-- Stage 2D 当前仍然：
-  - 不进入 GEPA optimize
-  - 不进入 smoke rerun
-  - 不进入 pilot
+- MiMo 线当前先不扩展
+- 若未来要重启 MiMo，必须先出现新的、不是 prompt-only 的解释性突破
+- 当前最合理的仓库主线，是基于已完成的 DeepSeek strict continuation smoke，评估是否进入 strict continuation pilot

@@ -18,6 +18,7 @@ from src.deepseek_utils import (
     redact_secret,
     temporary_openai_compatible_env,
 )
+from src.litellm_error_guard import patch_default_adapter_batch_completion_guard
 from src.logging_utils import (
     append_text,
     build_manifest,
@@ -287,7 +288,7 @@ def run_gepa_aime_experiment(config: ExperimentConfig) -> Path:
         print("[INFO] 开始调用官方 gepa.optimize()")
 
         try:
-            with temporary_openai_compatible_env(api_key=config.api_key, api_base=config.api_base):
+            with patch_default_adapter_batch_completion_guard(), temporary_openai_compatible_env(api_key=config.api_key, api_base=config.api_base):
                 result = optimize(
                     seed_candidate=SEED_PROMPT,
                     trainset=trainset,

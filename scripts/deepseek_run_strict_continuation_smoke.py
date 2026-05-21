@@ -6,6 +6,7 @@ import inspect
 import json
 import os
 import sys
+import traceback
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config import DEFAULT_BACKEND_FAMILY, get_provider_settings
+from src.litellm_error_guard import patch_default_adapter_batch_completion_guard
 from src.logging_utils import create_run_dir, create_timestamp, write_json, write_text
 from src.openai_compatible_utils import (
     build_litellm_model_name,
@@ -247,7 +249,7 @@ def run_deepseek_strict_continuation_smoke(
     }
 
     try:
-        with temporary_openai_compatible_env(api_key=api_key, api_base=api_base):
+        with patch_default_adapter_batch_completion_guard(), temporary_openai_compatible_env(api_key=api_key, api_base=api_base):
             result = gepa.optimize(**optimize_kwargs)
         best_idx = result.best_idx
         best_score = result.val_aggregate_scores[best_idx]
@@ -265,6 +267,7 @@ def run_deepseek_strict_continuation_smoke(
     except Exception as exc:
         result_summary["error_type"] = type(exc).__name__
         result_summary["error_message"] = redact_secret(str(exc), api_key)
+        result_summary["traceback"] = redact_secret(traceback.format_exc(), api_key)
 
     write_json(run_dir / "deepseek_strict_continuation_smoke_result_summary.json", result_summary)
     return run_dir
