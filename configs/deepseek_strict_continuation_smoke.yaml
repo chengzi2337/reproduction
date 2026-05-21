@@ -1,0 +1,15 @@
+experiment_name: deepseek_strict_continuation_smoke
+reproduction_type: method_level_reproduction
+provider: deepseek
+backend_family: openai_compatible
+api_base: https://api.deepseek.com
+benchmark: aime
+task_model: ${TASK_MODEL}
+reflection_model: ${REFLECTION_MODEL}
+max_metric_calls: 10
+temperature_task: 0.0
+temperature_reflection: 0.7
+seed: 42
+output_dir: outputs/deepseek_strict_continuation_smoke
+allow_model_substitution: false
+save_raw_pickle: false
