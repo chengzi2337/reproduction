@@ -70,6 +70,16 @@
   - `0.6466666666666666` vs `0.18666666666666668`
   - `score_delta = 0.45999999999999996`
 
+补充说明：
+
+- 虽然 `official_budget` 的 validation `best_score` 高于 fresh pilot，
+  但 saved prompt eval 的 `test split` 分数与 fresh pilot 接近：
+  - fresh pilot `optimized_prompt_score = 0.6533333333333333`
+  - official_budget `optimized_prompt_score = 0.6466666666666666`
+- 因此，本结果不能支持“更大 budget 带来更高 test performance”的结论。
+- 更准确的解释是：`official_budget` 提高了 validation `best_score`，
+  并在 `test split` 上保持了与 fresh pilot 相近的提升幅度。
+
 ## 结论边界
 
 - 当前结果可以支持：

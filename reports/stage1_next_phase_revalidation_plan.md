@@ -1,5 +1,11 @@
 # Stage 1 下一阶段：环境复验后的 fresh pilot 确认计划
 
+> Status: Superseded.
+>
+> 本文档记录的是 `official_budget` 运行前的 revalidation 计划。
+> 实际的 `official_budget` 结果已归档于
+> `reports/stage1_official_budget_revalidation_result.md`。
+
 ## 文档定位
 
 - 本文档用于固化当前主线回退后的下一阶段执行计划。
