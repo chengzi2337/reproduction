@@ -18,7 +18,10 @@
 - `dataset source`: `gepa.examples.aime.init_dataset()`
 - `eval split`: `test split`
 - `eval model`: `deepseek-v4-flash`
-- `temperature_explicitly_controlled`: `false`
+- `temperature_fields_present_in_config`: `true`
+- `temperature_task`: `0.0`
+- `temperature_reflection`: `0.7`
+- `runner_temperature_application_not_revalidated_in_this_report`: `true`
 - `not_same_model_reproduction = true`
 - `single_benchmark_only = true`
 - `single_backend_only = true`
@@ -39,6 +42,10 @@
 | 0 | `outputs/gepa_aime_official_budget_seed0/20260522T121001+0800` | 150 | 3 | 3 | 0.8444444444444444 | 0.2 | 0.6333333333333333 | 0.4333333333333333 | 0 | 0 | `true` |
 | 1 | `outputs/gepa_aime_official_budget_seed1/20260522T175103+0800` | 162 | 3 | 3 | 0.9111111111111111 | 0.16666666666666666 | 0.6666666666666666 | 0.5 | 0 | 0 | `true` |
 | 2 | `outputs/gepa_aime_official_budget_seed2/20260522T221654+0800` | 150 | 3 | 3 | 0.6888888888888889 | 0.22666666666666666 | 0.9266666666666666 | 0.7 | 0 | 0 | `true` |
+
+补充说明：
+
+- `total_metric_calls` 可能超过 `max_metric_calls`，因为 GEPA 可能会在预算边界附近完成一个评估单元；因此 `max_metric_calls` 应理解为控制预算，而不是最终调用计数必须严格相等的字段。
 
 ## Prompt 长度表
 
