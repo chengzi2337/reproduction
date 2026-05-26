@@ -13,7 +13,17 @@
 
 ## 先看一个关键现象
 
-逐题记录显示，seed prompt 的很多 `score = 0` 并不是因为数学答案一定错，而是因为最终格式没有写成 evaluator 要求的 `### <answer>`。
+seed prompt 本身已经要求固定输出格式，原始 `system_prompt` 为：
+
+```json
+{
+  "system_prompt": "You are a helpful assistant. Answer the question. Put your final answer in the format '### <answer>'"
+}
+```
+
+这里的 `### <answer>` 是说明性模板；official evaluator 实际匹配的是类似 `### 70`、`### 588` 的具体 gold 字符串，而不是字面量 `<answer>`。
+
+逐题记录显示，seed prompt 的很多 `score = 0` 并不是因为数学答案一定错，而是因为 seed prompt 虽然已有 `### <answer>` 要求，但该格式约束很短、约束力弱；模型经常沿用数学题常见的 `\boxed{...}` 输出习惯，导致与当前 evaluator 的 strict output protocol 不匹配。
 
 典型模式：
 
@@ -25,7 +35,7 @@ optimized prediction final: ### 70
 optimized score: 1
 ```
 
-因此，5-seed official_budget 的提升里包含一个非常明确的成分：optimized prompt 更稳定地遵守 `### <answer>` 输出格式。它不应被简单解释成“数学推理能力全部提升”，也不应被简单解释成“prompt 越长越好”。
+因此，5-seed official_budget 的提升里包含一个非常明确的成分：optimized prompt 更稳定地遵守 official output protocol。它不应被简单解释成“数学推理能力全部提升”，也不应被简单解释成“prompt 越长越好”。
 
 ## 跨 seed 的直观统计
 
@@ -47,7 +57,7 @@ optimized score: 1
 说明：
 
 - `zero_score_with_boxed` 表示 prediction 中包含 `\boxed{...}`，但 score 仍为 `0`。
-- 这通常说明格式不符合 `### <answer>`，但不自动证明数学过程正确。
+- 这通常说明格式不符合 official output protocol，但不自动证明数学过程正确。
 - seed0 optimized 有 158 行，说明该 artifact 中存在额外记录；正式 performance 结论仍以已归档 summary 为准。
 
 ## 代表样例
@@ -65,7 +75,7 @@ optimized score: 1
 | seed | 0 | 推出 `b+7` 整除 `56`，得到 `b = 21, 49`，和为 `70`，但最后写成 `\boxed{70}` |
 | optimized | 1 | 同样得到 `21 + 49 = 70`，并以 `### 70` 结尾 |
 
-直观解释：这个样例显示 optimized prompt 修正了 evaluator 需要的最终答案格式。
+直观解释：这个样例显示 seed prompt 已有格式要求但未被遵守，而 optimized prompt 更好地遵守了 evaluator 需要的最终答案协议。
 
 ### 样例 2：seed 和 optimized 都正确
 
@@ -91,7 +101,7 @@ optimized score: 1
 | seed | 0 | 找到三组计数 `(6,2,1)`、`(5,3,1)`、`(4,3,2)`，算出余数 `16`，但最后写成 `\boxed{16}` |
 | optimized | 1 | 同样完成组合计数，并按 `### 16` 输出 |
 
-直观解释：这类题说明不少分数差异来自最终格式，而不是答案数值本身。
+直观解释：这类题说明不少分数差异来自输出协议遵循，而不是答案数值本身。
 
 ### 样例 4：optimized 仍可能失败，甚至为空回答
 
@@ -123,9 +133,9 @@ optimized score: 1
 
 这些样例说明：
 
-1. official_budget 的提升不仅体现在数学推理，也明显体现在最终答案格式遵循上。
-2. seed prompt 经常输出 `\boxed{...}`，这对当前 evaluator 来说不是有效最终格式。
-3. optimized prompt 更常输出 `### <answer>`，因此更适配当前评估协议。
+1. official_budget 的提升不仅可能体现在任务行为，也明显体现在最终答案格式遵循上。
+2. seed prompt 已要求 `### <answer>`，但该短格式约束经常没有被遵守，模型仍会输出 `\boxed{...}`。
+3. optimized prompt 更常输出类似 `### 70` 的具体答案格式，因此更适配当前评估协议。
 4. optimized prompt 并不保证逐题不退化，仍存在 seed 对而 optimized 错或空回答的样例。
 5. 因此最终结论仍应写成“5 / 5 seeds 上 optimized prompt 优于 seed prompt”，而不是“optimized prompt 在每一道题上都更好”。
 

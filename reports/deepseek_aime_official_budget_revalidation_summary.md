@@ -164,6 +164,8 @@ post-hoc audit 基于已有 5 个 official_budget run 的 candidate-level artifa
 
 > DeepSeek backend 下，AIME official_budget 具备中等强度多 seed 稳定性；optimized prompt 在 5 / 5 个 seed 上优于 seed prompt。与此同时，optimized prompt 明显变长，但长度增长不能单调解释 test score 或 score delta。post-hoc length-control audit 没有发现当前 3-candidate runs 中存在更短且 near-best 的候选，因此当前不支持直接运行简单长度上限式 Length-Controlled GEPA。
 
+Qualitative examples show that the seed prompt already asks for `### <answer>`, but its short format instruction is often not followed; optimized prompts improve both task behavior and output-protocol adherence, so the observed score gains should not be interpreted as pure reasoning improvement.
+
 最终报告应使用的边界措辞：
 
 - 可以说：`GEPA method-level reproduction with DeepSeek backend`
