@@ -1,0 +1,32 @@
+experiment_name: aime_format_controlled_seed_baseline_smoke
+reproduction_type: method_level_reproduction
+provider: deepseek
+api_base: https://api.deepseek.com
+benchmark: aime
+task_model: ${TASK_MODEL}
+reflection_model: ${REFLECTION_MODEL}
+max_metric_calls: 90
+temperature_task: 0.0
+temperature_reflection: 0.7
+seed: 42
+output_dir: outputs/aime_format_controlled_seed_baseline_smoke
+allow_model_substitution: false
+save_raw_pickle: false
+
+diagnostic_type: format_controlled_seed_baseline
+default_dry_run: true
+smoke_sample_count: 30
+batch_size: 10
+
+prompts:
+  original_seed_prompt: "You are a helpful assistant. Answer the question. Put your final answer in the format '### <answer>'"
+  strong_format_seed_prompt: |
+    Solve the problem. Your final answer must be a single line in the exact format:
+    ### N
+    Do not use \boxed{}.
+    Do not use XML tags.
+    Do not write the final answer in any other format.
+  answer_first_format_prompt: |
+    First output the final answer in the exact format:
+    ### N
+    Then optionally provide a short explanation.
