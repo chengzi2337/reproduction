@@ -103,6 +103,16 @@ def test_load_smoke_config_requires_all_prompt_versions(tmp_path: Path) -> None:
     ]
 
 
+def test_load_prompt_specs_can_select_single_prompt_version(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.yaml"
+    _write_config(config_path)
+    raw_config = baseline_script.load_smoke_config(config_path)
+
+    specs = baseline_script.load_prompt_specs(raw_config, ["answer_first_format_prompt"])
+
+    assert [spec.name for spec in specs] == ["answer_first_format_prompt"]
+
+
 def test_dry_run_main_writes_manifest_without_execute_dependencies(tmp_path: Path, monkeypatch) -> None:
     config_path = tmp_path / "config.yaml"
     _write_config(config_path)
@@ -197,6 +207,7 @@ def test_execute_branch_can_be_mocked_and_writes_diagnostic_metrics(tmp_path: Pa
         run_dir=run_dir,
         max_retries=0,
         retry_sleep_seconds=0.0,
+        resume=False,
     )
 
     assert payload["metadata"]["mode"] == "execute"
@@ -205,6 +216,64 @@ def test_execute_branch_can_be_mocked_and_writes_diagnostic_metrics(tmp_path: Pa
     assert payload["summaries"]["original_seed_prompt"]["relaxed_extractable_score"] == pytest.approx(1.0)
     assert payload["summaries"]["original_seed_prompt"]["format_loss_count"] == 1
     assert (run_dir / "per_example_eval.jsonl").exists()
+
+
+def test_execute_resume_reuses_existing_success_records(tmp_path: Path, monkeypatch) -> None:
+    config_path = tmp_path / "config.yaml"
+    _write_config(config_path)
+    raw_config = baseline_script.load_smoke_config(config_path)
+    run_dir = tmp_path / "resume-run"
+    run_dir.mkdir()
+    existing = _record("1", "original_seed_prompt", "### 70", "### 70", 1.0)
+    (run_dir / "per_example_eval.jsonl").write_text(
+        json.dumps(existing, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    class _FakeConfig:
+        task_model = "dummy-model"
+        api_key = "fake-key"
+        api_base = "https://api.deepseek.com"
+
+    monkeypatch.setattr("src.config.load_experiment_config", lambda *args, **kwargs: _FakeConfig())
+    monkeypatch.setattr(
+        baseline_script,
+        "load_official_dataset_for_execute",
+        lambda: (
+            [
+                {"input": "q1", "answer": "### 70", "id": "1"},
+                {"input": "q2", "answer": "### 588", "id": "2"},
+            ],
+            "test",
+            "test split",
+        ),
+    )
+
+    captured_existing: dict[str, int] = {}
+
+    def fake_evaluate_candidate(**kwargs):
+        prompt_version = kwargs["prompt_version"]
+        captured_existing[prompt_version] = len(kwargs["existing_prompt_records"])
+        records = list(kwargs["existing_prompt_records"])
+        records.append(_record("2", prompt_version, "### 588", "### 588", 1.0))
+        return records, {"average_score": 1.0}
+
+    monkeypatch.setattr("src.eval_utils.evaluate_candidate", fake_evaluate_candidate)
+
+    payload = baseline_script.run_execute(
+        raw_config=raw_config,
+        config_path=config_path,
+        limit=2,
+        batch_size=1,
+        run_dir=run_dir,
+        max_retries=0,
+        retry_sleep_seconds=0.0,
+        resume=True,
+    )
+
+    assert payload["execution"]["resume"] is True
+    assert captured_existing["original_seed_prompt"] == 1
+    assert captured_existing["strong_format_seed_prompt"] == 0
 
 
 def test_script_source_does_not_directly_call_api_or_gepa_optimize() -> None:

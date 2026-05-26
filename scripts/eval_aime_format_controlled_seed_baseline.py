@@ -154,13 +154,21 @@ def require_positive_int(raw_config: dict[str, Any], key: str) -> int:
     return value
 
 
-def load_prompt_specs(raw_config: dict[str, Any]) -> list[PromptSpec]:
+def load_prompt_specs(
+    raw_config: dict[str, Any],
+    selected_prompt_versions: list[str] | None = None,
+) -> list[PromptSpec]:
     prompts = raw_config.get("prompts")
     if not isinstance(prompts, dict):
         raise FormatBaselineError("配置缺少 prompts 字典。")
 
+    selected = selected_prompt_versions or list(PROMPT_KEYS)
+    unknown = sorted(set(selected) - set(PROMPT_KEYS))
+    if unknown:
+        raise FormatBaselineError(f"未知 prompt version：{', '.join(unknown)}")
+
     specs: list[PromptSpec] = []
-    for key in PROMPT_KEYS:
+    for key in selected:
         value = prompts.get(key)
         if not isinstance(value, str) or not value.strip():
             raise FormatBaselineError(f"配置缺少非空 prompt：prompts.{key}")
@@ -198,8 +206,9 @@ def build_dry_run_payload(
     limit: int,
     batch_size: int,
     run_dir: Path,
+    selected_prompt_versions: list[str] | None = None,
 ) -> dict[str, Any]:
-    prompt_specs = load_prompt_specs(raw_config)
+    prompt_specs = load_prompt_specs(raw_config, selected_prompt_versions)
     return {
         "metadata": {
             "run_name": "aime_format_controlled_seed_baseline_smoke",
@@ -250,19 +259,29 @@ def run_execute(
     run_dir: Path,
     max_retries: int,
     retry_sleep_seconds: float,
+    resume: bool,
+    selected_prompt_versions: list[str] | None = None,
 ) -> dict[str, Any]:
     from src.config import load_experiment_config
-    from src.eval_utils import evaluate_candidate, normalize_records, write_jsonl
+    from src.eval_utils import (
+        evaluate_candidate,
+        normalize_records,
+        read_jsonl,
+        split_effective_records,
+        write_jsonl,
+    )
 
     experiment_config = load_experiment_config(config_path, project_root=PROJECT_ROOT)
     dataset, split_name, split_label = load_official_dataset_for_execute()
     dataset = dataset[:limit]
-    prompt_specs = load_prompt_specs(raw_config)
+    prompt_specs = load_prompt_specs(raw_config, selected_prompt_versions)
 
     per_example_path = run_dir / "per_example_eval.jsonl"
-    all_records: list[dict[str, Any]] = []
+    existing_records = read_jsonl(per_example_path) if resume else []
+    all_records: list[dict[str, Any]] = list(existing_records)
     summaries: dict[str, dict[str, Any]] = {}
     for spec in prompt_specs:
+        existing_success_records, _ = split_effective_records(existing_records, prompt_version=spec.name)
         records, _ = evaluate_candidate(
             dataset=dataset,
             candidate={"system_prompt": spec.system_prompt},
@@ -272,11 +291,20 @@ def run_execute(
             api_key=experiment_config.api_key,
             api_base=experiment_config.api_base,
             batch_size=batch_size,
+            existing_prompt_records=existing_success_records,
             checkpoint_path=per_example_path,
             max_retries=max_retries,
             retry_sleep_seconds=retry_sleep_seconds,
         )
-        all_records.extend(records)
+        completed_keys = {
+            (str(record["prompt_version"]), str(record["sample_id"]))
+            for record in all_records
+        }
+        all_records.extend(
+            record
+            for record in records
+            if (str(record["prompt_version"]), str(record["sample_id"])) not in completed_keys
+        )
         summaries[spec.name] = summarize_records(records)
 
     all_records = normalize_records(all_records)
@@ -301,6 +329,7 @@ def run_execute(
             "batch_size": batch_size,
             "max_retries": max_retries,
             "retry_sleep_seconds": retry_sleep_seconds,
+            "resume": resume,
         },
         "summaries": summaries,
     }
@@ -407,6 +436,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--max-retries", type=int, default=0, help="执行模式下的批次重试次数。")
     parser.add_argument("--retry-sleep-seconds", type=float, default=2.0, help="执行模式下的重试等待秒数。")
+    parser.add_argument("--resume", action="store_true", help="执行模式下复用已有 per_example_eval.jsonl 成功记录。")
+    parser.add_argument("--run-dir", default=None, help="复用已有运行目录；默认创建新目录。")
+    parser.add_argument(
+        "--prompt-version",
+        action="append",
+        choices=PROMPT_KEYS,
+        help="只执行指定 prompt version；可重复传入。默认执行全部 prompt。",
+    )
     return parser.parse_args()
 
 
@@ -425,8 +462,13 @@ def main() -> None:
     if args.retry_sleep_seconds < 0:
         raise FormatBaselineError("--retry-sleep-seconds 不能小于 0。")
 
-    output_dir = (PROJECT_ROOT / str(raw_config["output_dir"])).resolve()
-    run_dir = create_run_dir(output_dir)
+    if args.run_dir:
+        run_dir = (PROJECT_ROOT / args.run_dir).resolve()
+        if not run_dir.exists():
+            raise FormatBaselineError(f"--run-dir 指向的目录不存在：{run_dir}")
+    else:
+        output_dir = (PROJECT_ROOT / str(raw_config["output_dir"])).resolve()
+        run_dir = create_run_dir(output_dir)
     write_yaml(run_dir / "config_resolved.yaml", raw_config)
 
     if args.execute:
@@ -438,6 +480,8 @@ def main() -> None:
             run_dir=run_dir,
             max_retries=args.max_retries,
             retry_sleep_seconds=args.retry_sleep_seconds,
+            resume=args.resume,
+            selected_prompt_versions=args.prompt_version,
         )
         output_name = "format_controlled_seed_baseline_smoke_result.json"
     else:
@@ -447,6 +491,7 @@ def main() -> None:
             limit=limit,
             batch_size=batch_size,
             run_dir=run_dir,
+            selected_prompt_versions=args.prompt_version,
         )
         output_name = "format_controlled_seed_baseline_smoke_dry_run.json"
 
