@@ -42,6 +42,7 @@
 | 证据层 | 对应报告 | 结论强度 |
 |---|---|---|
 | 5-seed official_budget | `reports/aime_official_budget_5seed_report.md` | 支持 DeepSeek backend 下的中等强度多 seed 稳定性 |
+| qualitative examples | `reports/aime_official_budget_qualitative_examples.md` | 逐题展示 question / prediction / gold / score，解释格式遵循与少量退化样例 |
 | prompt length audit | `reports/aime_official_budget_prompt_length_audit_result.md` | 支持“长度显著增长，但不能单调解释收益” |
 | post-hoc length-control audit | `reports/aime_official_budget_posthoc_length_control_result.md` | 支持“当前 artifacts 不支持直接跑简单长度上限式 Length-Controlled GEPA” |
 | candidate selection design | `reports/aime_length_controlled_candidate_selection_design.md` | 设计层，不是实验结果 |
