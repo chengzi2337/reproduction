@@ -139,12 +139,26 @@ optimized score: 1
 4. optimized prompt 并不保证逐题不退化，仍存在 seed 对而 optimized 错或空回答的样例。
 5. 因此最终结论仍应写成“5 / 5 seeds 上 optimized prompt 优于 seed prompt”，而不是“optimized prompt 在每一道题上都更好”。
 
+answer extractability audit 进一步量化了这个判断：
+
+- seed official score: `0.204`
+- optimized official score: `0.722666666667`
+- seed relaxed extractable score: `0.922666666667`
+- optimized relaxed extractable score: `0.938666666667`
+- official score gain: `0.518666666667`
+- relaxed extractable score gain: `0.016`
+- seed format loss: `539`
+- optimized format loss: `162`
+
+因此，5-seed official_budget 结果支持 official evaluator 下的稳定提升；但 observed official-score gain 不能解释为 pure reasoning improvement，相当大比例来自 output-protocol adherence improvement。
+
 ## 结论边界
 
 可以写：
 
 - 逐题 artifacts 能解释一部分分数差异；
 - 格式遵循是 optimized prompt 收益的重要组成部分；
+- answer extractability audit 显示 relaxed extractable score 只提升 `0.016`；
 - qualitative examples 支持最终报告更直观地展示复现结果。
 
 不能写：

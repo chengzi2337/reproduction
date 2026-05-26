@@ -43,6 +43,7 @@
 |---|---|---|
 | 5-seed official_budget | `reports/aime_official_budget_5seed_report.md` | 支持 DeepSeek backend 下的中等强度多 seed 稳定性 |
 | qualitative examples | `reports/aime_official_budget_qualitative_examples.md` | 逐题展示 question / prediction / gold / score，解释格式遵循与少量退化样例 |
+| answer extractability audit | `reports/aime_official_budget_answer_extractability_audit_result.md` | 显示 relaxed extractable score 只提升 0.016，official-score gain 不能解释为 pure reasoning improvement |
 | prompt length audit | `reports/aime_official_budget_prompt_length_audit_result.md` | 支持“长度显著增长，但不能单调解释收益” |
 | post-hoc length-control audit | `reports/aime_official_budget_posthoc_length_control_result.md` | 支持“当前 artifacts 不支持直接跑简单长度上限式 Length-Controlled GEPA” |
 | candidate selection design | `reports/aime_length_controlled_candidate_selection_design.md` | 设计层，不是实验结果 |
@@ -73,6 +74,8 @@
 可写结论：
 
 > 在 DeepSeek backend 下，AIME official_budget 已表现出中等强度多 seed 稳定性：5 / 5 个 seed 中，optimized prompt 的 test score 均高于 seed prompt。
+
+更精确地说，该稳定提升成立于当前 GEPA/AIME official evaluator 下。answer extractability audit 显示，official score gain 为 `0.518666666667`，但 relaxed extractable score gain 只有 `0.016`；seed prompt 的 `format_loss_count` 为 `539`，optimized prompt 为 `162`。因此 observed official-score gain 不能解释为 pure reasoning improvement，相当大比例来自 output-protocol adherence improvement。
 
 仍需保留的波动说明：
 
@@ -166,6 +169,8 @@ post-hoc audit 基于已有 5 个 official_budget run 的 candidate-level artifa
 
 Qualitative examples show that the seed prompt already asks for `### <answer>`, but its short format instruction is often not followed; optimized prompts improve both task behavior and output-protocol adherence, so the observed score gains should not be interpreted as pure reasoning improvement.
 
+Answer extractability audit further quantifies this: relaxed extractable score improves only from `0.922666666667` to `0.938666666667` (`+0.016`), while official score improves from `0.204` to `0.722666666667` (`+0.518666666667`). This supports interpreting the result as stable improvement under the official evaluator, not as a pure mathematical-reasoning gain.
+
 最终报告应使用的边界措辞：
 
 - 可以说：`GEPA method-level reproduction with DeepSeek backend`
@@ -181,4 +186,4 @@ Qualitative examples show that the seed prompt already asks for `### <answer>`, 
 
 如果目标是稳定交付，建议以本文档作为 Stage 1 revalidation 的最终汇总报告，不再继续扩展新 seed 或直接运行 Length-Controlled GEPA。
 
-如果后续继续 length-control 方向，建议只进入 fake-result artifact wiring implementation，并把它明确标为 runner engineering preparation，而不是新实验。
+如果后续继续分析 score 组成，建议先设计 format-controlled seed baseline，并且第一步只做小范围 smoke 级别实验设计；只有明确批准后才执行。

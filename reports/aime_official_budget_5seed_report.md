@@ -97,6 +97,10 @@
 
 > `AIME official_budget` 在 `DeepSeek` 后端下，已经表现出中等强度的多 seed 稳定性：`5 / 5` 个 seed 上，`optimized prompt` 都优于 `seed prompt`。
 
+更严格的口径是：该结论成立于当前 `GEPA/AIME official evaluator` 下。answer extractability audit 显示，`official_score_gain = 0.518666666667`，但 `relaxed_extractable_score_gain = 0.016`；seed prompt 的 `format_loss_count = 539`，optimized prompt 的 `format_loss_count = 162`。因此，这个 observed official-score gain 不能解释为 pure reasoning improvement，相当大比例来自 output-protocol adherence improvement。
+
+换言之，当前结果可以支持“official evaluator 下的稳定提升”，但不应写成“数学推理能力被纯粹提升了 0.5187”。
+
 这比此前的 `3-seed` 结论更强，因为当前结果已经不只是“初步稳定”，而是经过五个不同 seed 的重复验证后仍保持方向一致。
 
 ### 仍然存在的波动
@@ -159,8 +163,9 @@
 
 当前结果可以支持：
 
-- `GEPA method-level reproduction with DeepSeek backend` 在 `AIME official_budget` 下具备中等强度多 seed 稳定性
+- `GEPA method-level reproduction with DeepSeek backend` 在 `AIME official_budget` official evaluator 下具备中等强度多 seed 稳定性
 - `optimized prompt` 在 `5 / 5` 个 seed 上都优于 `seed prompt`
+- observed official-score gain 同时包含任务求解行为改进和 output-protocol adherence improvement
 
 当前结果仍然不能支持：
 
@@ -168,13 +173,15 @@
 - 原论文全部结论已被严格复现
 - 多 benchmark / 多 backend 的泛化稳定性
 - “prompt 越长越好”
+- observed official-score gain 是 pure reasoning improvement
 
 ## 下一步建议
 
-既然 `5-seed` 已经完成，下一步不应继续机械增加 seed，而应进入你前面预先规定的后续顺序：
+既然 `5-seed`、prompt length audit、post-hoc length-control audit 和 answer extractability audit 已经完成，下一步不应继续机械增加 seed，也不应直接跑 `Length-Controlled GEPA`。
 
-1. 先做 prompt length audit
-2. 再讨论 `Length-Controlled GEPA`
+更稳妥的下一步是先设计 format-controlled seed baseline：
+
+> 在不使用 GEPA 优化的情况下，仅加强 seed prompt 的最终答案格式约束，观察 official score 是否显著上升。
 
 如果后续要做小创新，我建议把问题收束成一句话：
 
