@@ -2,15 +2,15 @@
 
 ## 定位
 
-- 本报告只记录 MiMo 的 timeout / generation stability diagnostic。
-- 它不是 GEPA 结果。
-- 它不是 official_budget 结果。
-- 它不是 pilot。
-- 它不是 5-seed。
-- 它不是 MiMo vs GLM 排名。
-- 所有真实调用都只允许解释为 diagnostic，不允许写成 performance claim。
+- 本报告只记录 `MiMo` 的 timeout / generation stability diagnostic。
+- 它不是 `GEPA` 结果。
+- 它不是 `official_budget` 结果。
+- 它不是 `pilot`。
+- 它不是 `5-seed`。
+- 它不是 `MiMo vs GLM` 排名。
+- 所有真实调用都只允许解释为 `diagnostic`，不允许写成 performance claim。
 
-## 边界标记
+## 边界标识
 
 - `model_called = true`
 - `api_called = true`
@@ -19,187 +19,158 @@
 - `not_gepa_result = true`
 - `not_official_budget = true`
 - `not_performance_claim = true`
+- `no_gepa_optimize_called = true`
+- `mimo_only = true`
+- `not_strict_stage4b_result = true`
 
-## 本轮真实执行范围
+## 已执行子矩阵
 
-本轮在 `WSL Ubuntu-22.04-Fresh` 中执行，分成两个受控子矩阵：
+- 子矩阵 A：`test-1`，`L3/L4`，`non_streaming/streaming`，`timeout=60/240`
+- 子矩阵 B：`test-2,test-5`，`L3/L4`，`non_streaming/streaming`，`timeout=60`
+- 子矩阵 C：`test-2,test-5`，`L3/L4`，`non_streaming`，`timeout=240`
 
-1. `test-1`
-   - `prompt_layer = l3_original_seed, l4_strong_format`
-   - `mode = non_streaming, streaming`
-   - `timeout = 60, 240`
-2. `test-2, test-5`
-   - `prompt_layer = l3_original_seed, l4_strong_format`
-   - `mode = non_streaming, streaming`
-   - `timeout = 60`
+所有真实执行都在 `WSL` 中完成，且每轮 AIME 请求前后都执行了 `Return exactly: OK` health check。
 
-说明：
+## health check 结论
 
-- 所有请求都使用 `raw_sdk`
-- 所有请求都保留 `sleep_between_requests = 60`
-- 所有请求都保留 `max_retries = 0`
-- 没有注入 `thinking.disabled`
-- 没有注入 `max_completion_tokens`
-- 没有改 temperature
+- `Stage 4A raw_sdk provider probe` 正常。
+- 本轮所有已执行子矩阵的 health check 都正常。
+- 因此当前 blocker 不是 `endpoint / key / model-id / 基础网络不可用`。
 
-## health check 结果
+## 关键观测
 
-所有已执行轮次的 pre / post health check 都正常：
+### 1. `test-1` 不是全面失败
 
-- `non_streaming @ 60s`：`OK`
-- `non_streaming @ 240s`：`OK`
-- `streaming @ 60s`：`OK`
-- `streaming @ 240s`：`OK`
+- `test-1` 在 `non_streaming + L4 + 60s` 下可以完成并得到 `official_correct`。
+- `test-1` 在 `non_streaming + L3 + 60s` 下会 timeout，但把 timeout 提高到 `240s` 后可以完成。
+- `test-1` 的 `streaming` 路径在 `60s` 和 `240s` 下都能完成，并在约 `3.6s-8.9s` 内观察到首 token。
 
-这意味着本轮观测到的 AIME timeout 不能先写成 key / endpoint / model-id / 网络不可用问题。
+这说明 `MiMo` 不是完全不会做 AIME，也不是所有 strict/default AIME 请求都会失败。
 
-## timeout decomposition 结论
+### 2. `test-2/test-5` 的 `non_streaming + 60s` 稳定失败
 
-### 1. `60s` 对 MiMo strict non-streaming path 偏紧，但不是对所有组合都同样偏紧
+| sample_id | prompt_layer | mode | timeout | completed | first_token_observed | 备注 |
+|---|---|---|---:|---:|---:|---|
+| `test-2` | `L3` | `non_streaming` | 60 | 0 | 0 | 首 token 前 timeout |
+| `test-2` | `L4` | `non_streaming` | 60 | 0 | 0 | 首 token 前 timeout |
+| `test-5` | `L3` | `non_streaming` | 60 | 0 | 0 | 首 token 前 timeout |
+| `test-5` | `L4` | `non_streaming` | 60 | 0 | 0 | 首 token 前 timeout |
 
-已观察到：
+这说明 harder samples 在 strict/default 的非流式完整响应路径上明显更脆弱。
 
-- `test-1 + l3_original_seed + non_streaming + 60s`：timeout
-- `test-2 + l3_original_seed + non_streaming + 60s`：timeout
-- `test-5 + l3_original_seed + non_streaming + 60s`：timeout
-- `test-2 + l4_strong_format + non_streaming + 60s`：timeout
-- `test-5 + l4_strong_format + non_streaming + 60s`：timeout
+### 3. `streaming` 能缓解 timeout，但不是 strict `60s` 成功
 
-但也观察到：
+| sample_id | prompt_layer | mode | timeout | completed | ttft_seconds | wall_clock_seconds | 结果 |
+|---|---|---|---:|---:|---:|---:|---|
+| `test-2` | `L3` | `streaming` | 60 | 1 | 4.118691 | 317.841182 | `format_loss` |
+| `test-2` | `L4` | `streaming` | 60 | 1 | 3.192898 | 114.654710 | `official_correct` |
+| `test-5` | `L3` | `streaming` | 60 | 1 | 5.324237 | 347.127510 | `format_loss` |
+| `test-5` | `L4` | `streaming` | 60 | 1 | 3.745361 | 281.663626 | `official_correct` |
 
-- `test-1 + l4_strong_format + non_streaming + 60s`：完成，`official_correct`
+这里最重要的现象不是“能流出来”，而是：
 
-因此当前更准确的写法是：
+- `streaming` 在约 `3s-5s` 内就能拿到首 token。
+- 但总墙钟会继续拉长到约 `114s-347s`。
 
-- `60s` 对 MiMo 的 strict non-streaming path 在真实 AIME 样本上明显过紧
-- 但它不是“所有样本、所有 prompt layer 一律不够”的简单结论
+因此当前 provider / SDK 上的 `streaming` timeout 语义并不表现为严格墙钟 `60s` 上限。它可以作为机制诊断证据，但不能直接当成 strict `non_streaming 60s` 的成功对照。
 
-### 2. 当前观察到的 non-streaming timeout 发生在首 token 之前
+### 4. `non_streaming + 240s` 只部分救回 `test-2/test-5`
 
-所有 non-streaming timeout 记录都满足：
+| sample_id | prompt_layer | mode | timeout | completed | latency_seconds | finish_reason | 结果 |
+|---|---|---|---:|---:|---:|---|---|
+| `test-2` | `L3` | `non_streaming` | 240 | 1 | 64.896690 | `stop` | `format_loss` |
+| `test-5` | `L3` | `non_streaming` | 240 | 1 | 68.392059 | `stop` | `reasoning_error` |
+| `test-2` | `L4` | `non_streaming` | 240 | 0 | 241.749521 | `null` | `timeout` |
+| `test-5` | `L4` | `non_streaming` | 240 | 0 | 241.849006 | `null` | `timeout` |
 
-- `first_token_observed = false`
-- `content_nonempty = false`
-- `finish_reason = null`
-- `error_type = APITimeoutError`
+这一步把关键缺口补上后，可以排除一种过度简化的解释：当前现象不能概括成“`60s` 太短，拉到 `240s` 就都能救回”。
 
-所以这批 timeout 目前更像：
+更准确地说：
 
-- 首 token 前等待过长
-- 或 non-streaming 完整响应返回路径等待过长
+- `L3 original_seed` 下，`non_streaming + 240s` 可以让 `test-2/test-5` 返回完整响应。
+- 但返回质量并不稳定：一个是 `format_loss`，一个是 `reasoning_error`。
+- `L4 strong_format` 下，`non_streaming + 240s` 对 `test-2/test-5` 仍然在首 token 前 timeout。
 
-而不是“已经开始稳定吐 token，但因为输出过长才超时”。
+## prompt layer 影响
 
-### 3. streaming 与 non-streaming 的行为差异非常明显
+- `L4 strong_format` 对协议遵循有明显帮助。
+- 在 `streaming` 路径上，`L4` 把 `test-2/test-5` 从 `format_loss` 拉回到了 `official_correct`。
+- 但在 `non_streaming` 路径上，`L4` 没有稳定降低 timeout；相反，对 `test-2/test-5`，`L4 + non_streaming + 240s` 仍然 timeout。
 
-对同样的真实 AIME 样本：
+因此可以写成：
 
-- `non_streaming + 60s` 多次在首 token 前 timeout
-- `streaming + 60s` 所有已测样本都在数秒内拿到首 token，并最终完成
+- `L4` 改善了 output protocol adherence。
+- `L4` 没有解决 MiMo strict/default `non_streaming` 路径上的 generation stability 问题。
 
-已观测到的 `time_to_first_token_seconds`：
+不能写成：
 
-- `test-1 + l3 + streaming + 60s`：`3.56s`
-- `test-1 + l4 + streaming + 60s`：`3.84s`
-- `test-2 + l3 + streaming + 60s`：`4.12s`
-- `test-5 + l3 + streaming + 60s`：`5.32s`
-- `test-2 + l4 + streaming + 60s`：`3.19s`
-- `test-5 + l4 + streaming + 60s`：`3.75s`
+- `L4` 证明 MiMo reasoning 更强。
+- `format_loss` 就是 reasoning failure。
 
-因此当前最强的机制结论之一是：
+## timeout 分层归因
 
-- MiMo 在真实 AIME prompt 上，`streaming` 明显优于 `non_streaming`
-- 问题不只是“模型完全不会起 token”，而是 non-streaming 路径在 strict 60s 下极不稳定
+### 可以成立的归因
 
-### 4. streaming path 的 timeout 语义不是严格墙钟上限
+1. `MiMo` 的基础 provider 没坏。
+2. 当前主要 blocker 集中在真实 AIME prompt 下的 strict/default `non_streaming` 完整响应路径。
+3. 对 harder samples，`timeout=60s` 明显过紧，但“加到 `240s` 就全部恢复”这个说法不成立。
+4. `streaming` 说明后端其实在继续生成，因为它能快速给出首 token 并最终完成。
+5. 当前机制更像是长推理 / 长生成导致的 generation latency，而不是基础 API 不通。
 
-在 `streaming + 60s` 下，已经出现多次总耗时远超 `60s` 但请求仍成功完成：
+### 不能过度外推的地方
 
-- `test-2 + l3 + streaming + 60s`：`317.84s`
-- `test-5 + l3 + streaming + 60s`：`347.13s`
-- `test-2 + l4 + streaming + 60s`：`114.65s`
-- `test-5 + l4 + streaming + 60s`：`281.66s`
+1. 不能写成 `MiMo` 数学能力差。
+2. 不能写成 `MiMo` strict Stage 4B 已经跑通。
+3. 不能写成 `streaming + 60s` 等同于 strict `non_streaming + 60s` 成功。
+4. 不能写成 `240s` 已经证明 `non_streaming` 路径足以支撑后续 `GEPA`。
 
-因此当前不能把 `streaming + 60s` 解释成“真正的 60 秒 strict timeout 对照组”。
+## 当前三分判断
 
-更准确的写法是：
+### 判断一：基础 provider 正常
 
-- 当前 SDK / provider 的 `stream=True` 路径没有表现为严格墙钟 `60s`
-- 后续如果要拿 streaming 做更严谨对照，需要单独加 application-level wall-clock guard
+- `Stage 4A raw_sdk provider probe` 正常。
+- 本轮 health check 正常。
+- 因此问题不在基础连通性。
 
-### 5. prompt layer 会显著影响输出协议，但对 non-streaming 60s 的稳定性改善不一致
+### 判断二：strict/default `non_streaming` 路径才是主要 blocker
 
-已观察到：
+- `test-2/test-5` 在 `non_streaming + 60s` 下稳定 timeout。
+- `test-2/test-5` 在 `non_streaming + 240s` 下也只在 `L3` 部分救回，`L4` 仍稳定 timeout。
+- 这说明 `non_streaming` 完整响应路径对真实 AIME harder samples 不稳。
 
-- `test-1`
-  - `l3 + non_streaming + 240s`：完成，但 `format_loss`
-  - `l4 + non_streaming + 240s`：完成，`official_correct`
-  - `l3 + streaming + 60/240s`：`official_correct`
-  - `l4 + streaming + 60/240s`：`official_correct`
-- `test-2 / test-5`
-  - `l3 + streaming + 60s`：完成，但 `format_loss`
-  - `l4 + streaming + 60s`：完成，`official_correct`
-  - `l4 + non_streaming + 60s`：仍然 timeout
+### 判断三：`streaming` 可以明显缓解，但不能等同 strict `60s`
 
-因此当前更准确的结论是：
+- `streaming` 可以在几秒内给出首 token，并最终完成。
+- 但总墙钟远超 `60s`。
+- 所以它更像一条可诊断、可后续扩展的替代路径，而不是 strict `60s` 的直接成功证据。
 
-- `strong_format` 对输出协议有明显帮助
-- 它可以把 `streaming` 路径上的 `format_loss` 拉回 `official_correct`
-- 但它没有稳定解决 harder samples 在 `non_streaming + 60s` 下的 timeout
+## 对后续工作的含义
 
-### 6. timeout 具有样本特异性
+- 当前状态不支持直接进入 `GEPA`。
+- 当前状态也不支持直接把 `MiMo non_streaming 60s` 扩成 `30-sample`。
+- 如果继续走 `non_streaming`，后续只能写成 `extended_timeout_diagnostic`，不能写成 strict `60s` 对照。
+- 如果继续走 `streaming`，必须单独建立 `streaming_path_only` 诊断，并补上应用层墙钟记录或 `application wall-clock guard`。
 
-当前最小样本集已经出现明显分层：
+## 下一步建议
 
-- `test-1`
-  - `non_streaming + l3 + 60s`：timeout
-  - `non_streaming + l4 + 60s`：可完成
-- `test-2 / test-5`
-  - `non_streaming + l3 + 60s`：timeout
-  - `non_streaming + l4 + 60s`：仍 timeout
-
-因此可以写：
-
-- timeout 确实集中在特定 harder samples 上
-- `test-2 / test-5` 比 `test-1` 更像 persistent blocker
-
-## 当前可支持的判断
-
-### 可以支持
-
-- MiMo 当前 blocker 不是 provider 不可用，因为 health check 和 Stage 4A probe 都正常
-- MiMo 当前 blocker 主要落在真实 AIME prompt 下的 strict non-streaming generation stability
-- `streaming` 和 `non_streaming` 的表现确实显著不同
-- `strong_format` 更像协议修正器，不是稳定性万能修复器
-- 对 harder samples，`streaming` 能启动并完成，但其 60s 不是严格墙钟
-
-### 不可以支持
-
-- 不能把 non-streaming timeout 写成数学能力差
-- 不能把 `format_loss` 写成 reasoning failure
-- 不能把 streaming 成功直接写成 strict Stage 4B 成功
-- 不能把这批结果直接写成可以进入 GEPA strict sanity
-
-## 对后续 Stage 4B / GEPA 前置条件的判断
-
-当前判断：
-
-- **strict non-streaming 60s path**：不具备稳定 rerun 前置条件
-- **extended-time non-streaming path**：只在 `test-1` 上看到恢复，证据还不够
-- **streaming diagnostic path**：具备继续诊断价值，但必须单列，不等同 strict path
-- **controlled-generation path**：当前还不应该先跳过去，因为 strict/default 的 timeout 语义问题还没完全拆干净
-
-因此更稳妥的下一步是：
-
-1. 继续在 strict/default 框架内补 `test-2 / test-5` 的 `240s` 对照
-2. 如需把 streaming 用作后续参考，先补 application-level wall-clock guard
-3. 在 strict/default 证据补齐前，不把 MiMo 写成已具备 GEPA sanity 前置条件
+1. 不进入 `GEPA`。
+2. 不直接跑 `MiMo 30-sample`。
+3. 如果继续补 strict/default 线，建议把后续工作命名为 `MiMo extended-timeout diagnostic`，并显式标记：
+   - `extended_timeout_diagnostic = true`
+   - `not_strict_60s_comparison = true`
+   - `not_gepa_result = true`
+   - `not_model_ranking = true`
+4. 如果后续目标是“找到可稳定完成真实 AIME 的 MiMo 路径”，建议优先转向：
+   - `MiMo streaming extended-timeout diagnostic`
+   - 或 `MiMo application-level wall-clock guarded streaming diagnostic`
+5. 在这些工作完成前，不把 MiMo 写成 strict path 已经可用于后续 rerun 或 GEPA sanity。
 
 ## 结论边界
 
-- 可以写：timeout 是否与 timeout 设置、mode、prompt layer、sample_id、health check 结果相关
-- 可以写：是否发生在首 token 前，还是生成开始后长时间不结束
-- 可以写：是否存在输出协议改善但稳定性未改善
-- 不可以写：MiMo 数学能力差
-- 不可以写：output-protocol failure 就是 reasoning failure
-- 不可以写：strict Stage 4B 已成功或可以直接进入 GEPA
+- 可以写：provider 正常 / health check 正常 / timeout 与 `mode`、`timeout_setting`、`prompt_layer`、`sample_id` 有关。
+- 可以写：首 token 是否出现、总墙钟是否过长、`streaming` 与 `non_streaming` 是否存在明显差异。
+- 可以写：`L4` 改善协议遵循，但没有稳定解决 `non_streaming` generation stability。
+- 不可以写：`MiMo` 数学能力差。
+- 不可以写：output-protocol failure 就是 reasoning failure。
+- 不可以写：strict Stage 4B 已经成功。
+- 不可以写：已经具备直接进入 `GEPA` 的前置条件。
