@@ -33,7 +33,7 @@ DEFAULT_APPLICATION_WALL_CLOCK_TIMEOUT_SECONDS = 600.0
 DEFAULT_SDK_TIMEOUT_SECONDS = 600.0
 STREAMING_MODE = "streaming"
 
-DIAGNOSTIC_FLAGS: dict[str, bool] = {
+BASE_DIAGNOSTIC_FLAGS: dict[str, bool] = {
     "diagnostic_only": True,
     "not_gepa_result": True,
     "not_official_budget": True,
@@ -47,6 +47,18 @@ DIAGNOSTIC_FLAGS: dict[str, bool] = {
     "no_gepa_optimize_called": True,
     "stage4b_mimo_streaming_extended_timeout_diagnostic": True,
 }
+
+
+def build_diagnostic_flags(thinking_type: str) -> dict[str, bool]:
+    flags = dict(BASE_DIAGNOSTIC_FLAGS)
+    if str(thinking_type).strip().lower() == "disabled":
+        flags.update(
+            {
+                "controlled_generation_diagnostic": True,
+                "not_strict_default_path": True,
+            }
+        )
+    return flags
 
 
 class Stage4BMiMoStreamingExtendedTimeoutDiagnosticError(RuntimeError):
@@ -117,6 +129,12 @@ def parse_args() -> argparse.Namespace:
         choices=tuple(PROMPT_VARIANTS.keys()),
         default="l4_strong_format",
         help="当前默认且仅建议使用 L4 strong_format_seed_prompt。",
+    )
+    parser.add_argument(
+        "--thinking-type",
+        choices=("enabled", "disabled"),
+        default="enabled",
+        help="MiMo thinking 配置；默认 enabled。设为 disabled 时进入 controlled-generation diagnostic。",
     )
     parser.add_argument(
         "--application-wall-clock-timeout",
@@ -255,6 +273,13 @@ def make_prompt_spec(prompt_variant: PromptVariantSpec) -> Any:
     return BASE.PromptSpec(name=prompt_variant.prompt_variant, system_prompt=prompt_variant.system_prompt)
 
 
+def build_extra_body(thinking_type: str) -> dict[str, Any] | None:
+    normalized = str(thinking_type or "").strip().lower()
+    if normalized not in {"enabled", "disabled"}:
+        return None
+    return {"thinking": {"type": normalized}}
+
+
 def normalize_stream_chunk_payload(chunk: Any) -> dict[str, Any] | None:
     payload = BASE.to_jsonable(chunk)
     if not isinstance(payload, dict):
@@ -366,6 +391,8 @@ def create_record(
     sdk_timeout_seconds: float,
     sleep_between_requests: float,
     max_retries: int,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     prompt_spec = make_prompt_spec(prompt_variant)
     record = BASE.base_record(
@@ -382,6 +409,7 @@ def create_record(
             "prompt_variant_description": prompt_variant.description,
             "application_wall_clock_timeout_seconds": application_wall_clock_timeout_seconds,
             "sdk_timeout_seconds": sdk_timeout_seconds,
+            "thinking_type": thinking_type,
             "sleep_between_requests": sleep_between_requests,
             "max_retries": max_retries,
             "started_at": None,
@@ -398,7 +426,7 @@ def create_record(
             "rate_limit_observed": False,
             "stream_close_attempted": False,
             "stream_close_succeeded": False,
-            **DIAGNOSTIC_FLAGS,
+            **diagnostic_flags,
         }
     )
     return record
@@ -411,6 +439,8 @@ def create_health_record(
     sdk_timeout_seconds: float,
     application_wall_clock_timeout_seconds: float,
     phase: str,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     return {
         "provider": provider_config.provider,
@@ -419,6 +449,7 @@ def create_health_record(
         "mode": STREAMING_MODE,
         "phase": phase,
         "prompt": "Return exactly: OK",
+        "thinking_type": thinking_type,
         "sdk_timeout_seconds": sdk_timeout_seconds,
         "application_wall_clock_timeout_seconds": application_wall_clock_timeout_seconds,
         "content_exact_ok": False,
@@ -430,7 +461,7 @@ def create_health_record(
         "started_at": None,
         "completed_at": None,
         "raw_response_path": None,
-        **DIAGNOSTIC_FLAGS,
+        **diagnostic_flags,
     }
 
 
@@ -481,6 +512,8 @@ def execute_health_check(
     application_wall_clock_timeout_seconds: float,
     phase: str,
     run_dir: Path,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     record = create_health_record(
         provider_config=provider_config,
@@ -488,6 +521,8 @@ def execute_health_check(
         sdk_timeout_seconds=sdk_timeout_seconds,
         application_wall_clock_timeout_seconds=application_wall_clock_timeout_seconds,
         phase=phase,
+        thinking_type=thinking_type,
+        diagnostic_flags=diagnostic_flags,
     )
     missing = provider_config.missing_config_reasons()
     if missing:
@@ -512,6 +547,7 @@ def execute_health_check(
             temperature=0,
             timeout=float(sdk_timeout_seconds),
             stream=True,
+            extra_body=build_extra_body(thinking_type),
         )
         record["http_status"] = _extract_stream_http_status(stream)
         content_parts: list[str] = []
@@ -584,6 +620,8 @@ def execute_single_case(
     sleep_between_requests: float,
     max_retries: int,
     run_dir: Path,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     record = create_record(
         provider_config=provider_config,
@@ -595,6 +633,8 @@ def execute_single_case(
         sdk_timeout_seconds=sdk_timeout_seconds,
         sleep_between_requests=sleep_between_requests,
         max_retries=max_retries,
+        thinking_type=thinking_type,
+        diagnostic_flags=diagnostic_flags,
     )
     missing = provider_config.missing_config_reasons()
     if missing:
@@ -636,6 +676,7 @@ def execute_single_case(
             temperature=0,
             timeout=float(sdk_timeout_seconds),
             stream=True,
+            extra_body=build_extra_body(thinking_type),
         )
         record["http_status"] = _extract_stream_http_status(stream)
         worker = threading.Thread(target=_stream_worker, args=(stream, event_queue), daemon=True)
@@ -806,6 +847,8 @@ def build_dry_run_records(
     sdk_timeout_seconds: float,
     sleep_between_requests: float,
     max_retries: int,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     missing = provider_config.missing_config_reasons()
@@ -820,6 +863,8 @@ def build_dry_run_records(
             sdk_timeout_seconds=sdk_timeout_seconds,
             sleep_between_requests=sleep_between_requests,
             max_retries=max_retries,
+            thinking_type=thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
         record.update(
             {
@@ -840,6 +885,8 @@ def build_dry_run_health_checks(
     backend_path: str,
     sdk_timeout_seconds: float,
     application_wall_clock_timeout_seconds: float,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     missing = provider_config.missing_config_reasons()
@@ -850,6 +897,8 @@ def build_dry_run_health_checks(
             sdk_timeout_seconds=sdk_timeout_seconds,
             application_wall_clock_timeout_seconds=application_wall_clock_timeout_seconds,
             phase=phase,
+            thinking_type=thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
         if missing:
             record["error_type"] = "ConfigPreview"
@@ -869,6 +918,8 @@ def execute_plan(
     sleep_between_requests: float,
     max_retries: int,
     run_dir: Path,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     per_example_path = run_dir / "per_example_eval.jsonl"
     health_check_path = run_dir / "health_checks.jsonl"
@@ -882,6 +933,8 @@ def execute_plan(
         application_wall_clock_timeout_seconds=application_wall_clock_timeout_seconds,
         phase="pre",
         run_dir=run_dir,
+        thinking_type=thinking_type,
+        diagnostic_flags=diagnostic_flags,
     )
     health_checks.append(pre_health)
     BASE.append_jsonl(health_check_path, [pre_health])
@@ -899,6 +952,8 @@ def execute_plan(
             sleep_between_requests=sleep_between_requests,
             max_retries=max_retries,
             run_dir=run_dir,
+            thinking_type=thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
         records.append(record)
         BASE.append_jsonl(per_example_path, [record])
@@ -910,6 +965,8 @@ def execute_plan(
         application_wall_clock_timeout_seconds=application_wall_clock_timeout_seconds,
         phase="post",
         run_dir=run_dir,
+        thinking_type=thinking_type,
+        diagnostic_flags=diagnostic_flags,
     )
     health_checks.append(post_health)
     BASE.append_jsonl(health_check_path, [post_health])
@@ -919,7 +976,7 @@ def execute_plan(
     return {"records": records, "health_checks": health_checks}
 
 
-def summarize_records(records: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize_records(records: list[dict[str, Any]], diagnostic_flags: dict[str, bool]) -> dict[str, Any]:
     total = len(records)
     latency_values = [float(item.get("latency_seconds", 0.0)) for item in records if item.get("latency_seconds")]
     ttft_values = [
@@ -972,11 +1029,11 @@ def summarize_records(records: list[dict[str, Any]]) -> dict[str, Any]:
         "finish_reason_distribution": finish_reason_distribution,
         "first_token_observed_count": sum(bool(item.get("first_token_observed")) for item in records),
         "content_nonempty_count": sum(bool(item.get("content_nonempty")) for item in records),
-        **DIAGNOSTIC_FLAGS,
+        **diagnostic_flags,
     }
 
 
-def summarize_health_checks(health_checks: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize_health_checks(health_checks: list[dict[str, Any]], diagnostic_flags: dict[str, bool]) -> dict[str, Any]:
     latency_values = [float(item.get("latency_seconds", 0.0)) for item in health_checks if item.get("latency_seconds")]
     return {
         "check_count": len(health_checks),
@@ -984,7 +1041,7 @@ def summarize_health_checks(health_checks: list[dict[str, Any]]) -> dict[str, An
         "error_count": sum(1 for item in health_checks if item.get("error_type")),
         "avg_latency_seconds": round(sum(latency_values) / len(latency_values), 6) if latency_values else 0.0,
         "phases_seen": sorted({str(item.get("phase")) for item in health_checks}),
-        **DIAGNOSTIC_FLAGS,
+        **diagnostic_flags,
     }
 
 
@@ -1055,18 +1112,24 @@ def build_failure_cases(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return failures
 
 
-def build_run_summary(*, records: list[dict[str, Any]], health_checks: list[dict[str, Any]], execute: bool) -> dict[str, Any]:
+def build_run_summary(
+    *,
+    records: list[dict[str, Any]],
+    health_checks: list[dict[str, Any]],
+    execute: bool,
+    diagnostic_flags: dict[str, bool],
+) -> dict[str, Any]:
     return {
         "generated_at": create_timestamp(),
         "mode": "execute" if execute else "dry_run",
         "record_count": len(records),
         "health_check_count": len(health_checks),
-        "aggregate_summary": summarize_records(records) if execute else {},
+        "aggregate_summary": summarize_records(records, diagnostic_flags) if execute else {},
         "sample_summaries": build_sample_summaries(records) if execute else [],
-        "health_check_summary": summarize_health_checks(health_checks) if execute else {},
+        "health_check_summary": summarize_health_checks(health_checks, diagnostic_flags) if execute else {},
         "failure_cases_count": len(build_failure_cases(records)) if execute else 0,
         "failure_cases": build_failure_cases(records) if execute else [],
-        **DIAGNOSTIC_FLAGS,
+        **diagnostic_flags,
     }
 
 
@@ -1083,6 +1146,8 @@ def build_input_snapshot(
     max_retries: int,
     run_dir: Path,
     execute: bool,
+    thinking_type: str,
+    diagnostic_flags: dict[str, bool],
 ) -> dict[str, Any]:
     return {
         "metadata": {
@@ -1092,13 +1157,14 @@ def build_input_snapshot(
             "model_called": bool(execute),
             "api_called": bool(execute),
             "new_experiment_executed": bool(execute),
-            **DIAGNOSTIC_FLAGS,
+            **diagnostic_flags,
         },
         "requested_execution": {
             "provider": provider_config.provider,
             "backend_path": backend_path,
             "mode": STREAMING_MODE,
             "prompt_variant": prompt_variant.name,
+            "thinking_type": thinking_type,
             "sample_ids": [entry["sample_id"] for entry in sample_entries],
             "application_wall_clock_timeout_seconds": application_wall_clock_timeout_seconds,
             "sdk_timeout_seconds": sdk_timeout_seconds,
@@ -1128,6 +1194,7 @@ def render_report(
     requested_execution = payload["requested_execution"]
     provider_config = payload["provider_config"]
     dataset_meta = payload["dataset_meta"]
+    controlled_generation = bool(metadata.get("controlled_generation_diagnostic"))
     lines: list[str] = [
         "# Stage 4B MiMo streaming extended-timeout diagnostic 结果",
         "",
@@ -1155,32 +1222,44 @@ def render_report(
         "- `not_model_ranking = true`",
         "- `not_performance_claim = true`",
         "- `diagnostic_only = true`",
-        "",
-        "## 请求计划",
-        "",
-        f"- provider：`{requested_execution['provider']}`",
-        f"- backend path：`{requested_execution['backend_path']}`",
-        f"- mode：`{requested_execution['mode']}`",
-        f"- prompt variant：`{requested_execution['prompt_variant']}`",
-        f"- sample ids：`{', '.join(requested_execution['sample_ids'])}`",
-        f"- application_wall_clock_timeout_seconds：`{requested_execution['application_wall_clock_timeout_seconds']}`",
-        f"- sdk_timeout_seconds：`{requested_execution['sdk_timeout_seconds']}`",
-        f"- sleep_between_requests：`{requested_execution['sleep_between_requests']}` 秒",
-        f"- max_retries：`{requested_execution['max_retries']}`",
-        f"- concurrency：`{requested_execution['concurrency']}`",
-        f"- split：`{dataset_meta['split_label']}`",
-        "",
-        "## 配置状态",
-        "",
-        f"- model：`{provider_config['model'] or '<missing>'}`",
-        f"- api_key_env：`{provider_config['api_key_env']}`",
-        f"- api_base_present：`{str(provider_config['api_base_present']).lower()}`",
-        f"- model_present：`{str(provider_config['model_present']).lower()}`",
-        f"- missing_config_reasons：`{', '.join(provider_config['missing_config_reasons']) if provider_config['missing_config_reasons'] else 'none'}`",
-        "",
-        "## 执行状态",
-        "",
     ]
+    if controlled_generation:
+        lines.extend(
+            [
+                "- `controlled_generation_diagnostic = true`",
+                "- `not_strict_default_path = true`",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## 请求计划",
+            "",
+            f"- provider：`{requested_execution['provider']}`",
+            f"- backend path：`{requested_execution['backend_path']}`",
+            f"- mode：`{requested_execution['mode']}`",
+            f"- prompt variant：`{requested_execution['prompt_variant']}`",
+            f"- thinking_type：`{requested_execution['thinking_type']}`",
+            f"- sample ids：`{', '.join(requested_execution['sample_ids'])}`",
+            f"- application_wall_clock_timeout_seconds：`{requested_execution['application_wall_clock_timeout_seconds']}`",
+            f"- sdk_timeout_seconds：`{requested_execution['sdk_timeout_seconds']}`",
+            f"- sleep_between_requests：`{requested_execution['sleep_between_requests']}` 秒",
+            f"- max_retries：`{requested_execution['max_retries']}`",
+            f"- concurrency：`{requested_execution['concurrency']}`",
+            f"- split：`{dataset_meta['split_label']}`",
+            "",
+            "## 配置状态",
+            "",
+            f"- model：`{provider_config['model'] or '<missing>'}`",
+            f"- api_key_env：`{provider_config['api_key_env']}`",
+            f"- api_base_present：`{str(provider_config['api_base_present']).lower()}`",
+            f"- model_present：`{str(provider_config['model_present']).lower()}`",
+            f"- missing_config_reasons：`{', '.join(provider_config['missing_config_reasons']) if provider_config['missing_config_reasons'] else 'none'}`",
+            "",
+            "## 执行状态",
+            "",
+        ]
+    )
 
     if metadata["mode"] == "dry_run":
         lines.extend(
@@ -1307,6 +1386,7 @@ def main() -> None:
     enforce_bounds(args)
     provider_config = build_provider_config(args)
     prompt_variant = load_prompt_variant(args.prompt_variant)
+    diagnostic_flags = build_diagnostic_flags(args.thinking_type)
     sample_entries, dataset_meta = build_selected_samples(list(args.sample_ids))
     output_root = PROJECT_ROOT / args.output_dir
     report_path = PROJECT_ROOT / args.report_path
@@ -1329,6 +1409,8 @@ def main() -> None:
         max_retries=args.max_retries,
         run_dir=run_dir,
         execute=args.execute,
+        thinking_type=args.thinking_type,
+        diagnostic_flags=diagnostic_flags,
     )
 
     if args.execute:
@@ -1342,6 +1424,8 @@ def main() -> None:
             sleep_between_requests=args.sleep_between_requests,
             max_retries=args.max_retries,
             run_dir=run_dir,
+            thinking_type=args.thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
         records = execution_result["records"]
         health_checks = execution_result["health_checks"]
@@ -1355,18 +1439,27 @@ def main() -> None:
             sdk_timeout_seconds=float(args.sdk_timeout),
             sleep_between_requests=args.sleep_between_requests,
             max_retries=args.max_retries,
+            thinking_type=args.thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
         health_checks = build_dry_run_health_checks(
             provider_config=provider_config,
             backend_path=args.backend_path,
             sdk_timeout_seconds=float(args.sdk_timeout),
             application_wall_clock_timeout_seconds=float(args.application_wall_clock_timeout),
+            thinking_type=args.thinking_type,
+            diagnostic_flags=diagnostic_flags,
         )
 
     per_example_path = run_dir / "per_example_eval.jsonl"
     health_check_path = run_dir / "health_checks.jsonl"
     failure_cases = build_failure_cases(records) if args.execute else []
-    run_summary = build_run_summary(records=records, health_checks=health_checks, execute=args.execute)
+    run_summary = build_run_summary(
+        records=records,
+        health_checks=health_checks,
+        execute=args.execute,
+        diagnostic_flags=diagnostic_flags,
+    )
     results_payload = {
         "metadata": payload["metadata"],
         "execution": payload["requested_execution"],
@@ -1375,7 +1468,7 @@ def main() -> None:
         "aggregate_summary": run_summary["aggregate_summary"],
         "sample_summaries": run_summary["sample_summaries"],
         "health_check_summary": run_summary["health_check_summary"],
-        **DIAGNOSTIC_FLAGS,
+        **diagnostic_flags,
     }
 
     write_json(run_dir / "input_snapshot.json", payload)

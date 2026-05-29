@@ -59,6 +59,8 @@ def test_build_dry_run_records_sets_schema_flags_and_does_not_call_model() -> No
         sdk_timeout_seconds=600.0,
         sleep_between_requests=60.0,
         max_retries=0,
+        thinking_type="enabled",
+        diagnostic_flags=streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert len(records) == 1
@@ -86,7 +88,8 @@ def test_summarize_health_checks_counts_ok_and_error() -> None:
                 "latency_seconds": 2.0,
                 "error_type": "TimeoutError",
             },
-        ]
+        ],
+        streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert summary["check_count"] == 2
@@ -148,6 +151,8 @@ def test_application_wall_clock_timeout_before_first_token_is_classified_and_clo
         sleep_between_requests=60.0,
         max_retries=0,
         run_dir=tmp_path,
+        thinking_type="enabled",
+        diagnostic_flags=streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert record["status"] == "timeout"
@@ -218,6 +223,8 @@ def test_application_wall_clock_timeout_mid_generation_keeps_partial_content(mon
         sleep_between_requests=60.0,
         max_retries=0,
         run_dir=tmp_path,
+        thinking_type="enabled",
+        diagnostic_flags=streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert record["status"] == "timeout"
@@ -281,6 +288,8 @@ def test_streaming_reasoning_only_output_does_not_mark_content_nonempty(monkeypa
         sleep_between_requests=60.0,
         max_retries=0,
         run_dir=tmp_path,
+        thinking_type="enabled",
+        diagnostic_flags=streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert record["reasoning_content_present"] is True
@@ -336,7 +345,8 @@ def test_streaming_first_token_latency_statistics_are_recorded() -> None:
                 "content_nonempty": True,
                 "error_type": None,
             },
-        ]
+        ],
+        streaming_script.build_diagnostic_flags("enabled"),
     )
 
     assert summary["avg_time_to_first_token_seconds"] == pytest.approx(2.0)
@@ -398,6 +408,68 @@ def test_dry_run_main_does_not_call_execute_and_does_not_leak_api_key(
         tmp_path / "reports" / "stage4b_mimo_streaming_extended_timeout_diagnostic_result.md"
     ).read_text(encoding="utf-8")
     assert "top-secret-mimo-key" not in report_text
+
+
+def test_disabled_thinking_is_sent_via_extra_body(monkeypatch, tmp_path: Path) -> None:
+    captured: dict[str, object] = {}
+
+    class _Chunk:
+        def __init__(self, payload: dict[str, object]) -> None:
+            self.payload = payload
+
+    class _Stream:
+        def __init__(self) -> None:
+            self.response = SimpleNamespace(status_code=200)
+            self._items = [
+                _Chunk({"choices": [{"delta": {"content": "### 42"}, "finish_reason": "stop"}]}),
+            ]
+
+        def __iter__(self):
+            return iter(self._items)
+
+        def close(self) -> None:
+            return None
+
+    class _ChatCompletions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            return _Stream()
+
+    class _Chat:
+        def __init__(self) -> None:
+            self.completions = _ChatCompletions()
+
+    class _FakeClient:
+        def __init__(self, **kwargs) -> None:
+            self.chat = _Chat()
+
+    monkeypatch.setattr(streaming_script, "OpenAI", _FakeClient)
+    provider = streaming_script.BASE.ProviderConfig(
+        provider="mimo",
+        api_base="https://example.com",
+        api_key_env="MIMO_API_KEY",
+        api_key="secret-key",
+        model="mimo-model",
+        litellm_provider_string=None,
+    )
+
+    record = streaming_script.execute_single_case(
+        provider_config=provider,
+        backend_path="raw_sdk",
+        prompt_variant=streaming_script.PROMPT_VARIANTS["l4_strong_format"],
+        sample_entry={"sample_id": "test-1", "question": "Q", "gold": "### 42"},
+        application_wall_clock_timeout_seconds=600.0,
+        sdk_timeout_seconds=600.0,
+        sleep_between_requests=60.0,
+        max_retries=0,
+        run_dir=tmp_path,
+        thinking_type="disabled",
+        diagnostic_flags=streaming_script.build_diagnostic_flags("disabled"),
+    )
+
+    assert captured["extra_body"] == {"thinking": {"type": "disabled"}}
+    assert record["controlled_generation_diagnostic"] is True
+    assert record["not_strict_default_path"] is True
 
 
 def test_missing_env_config_stays_explicit_in_dry_run_report(tmp_path: Path, monkeypatch) -> None:
