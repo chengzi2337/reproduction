@@ -167,6 +167,36 @@ while not self._should_stop(state):
 - GEPA 先对 3 个 validation 样本做了 seed full eval
 - 所以结果自然记录为 `total_metric_calls = 3`
 
+## 新增补充：它也不是严格硬上限
+
+后续用 `disabled-thinking` 做单臂 optimization-entry sanity 时，实际观察到：
+
+- `requested_max_metric_calls = 6`
+- `effective_min_metric_calls = 4`
+- `optimization_loop_entered = true`
+- `total_metric_calls = 9`
+
+这说明当前实现里的 `max_metric_calls` 还有第二层语义：
+
+- 它是 **循环边界 stop condition**
+- 不是 **单 iteration 内部的严格硬上限**
+
+也就是说，一旦预算足够让 GEPA 进入 optimization loop，当前 iteration 内部仍可能继续完成：
+
+- 旧候选的训练子集评估
+- 新候选的训练子集评估
+- 以及其他同 iteration 内已启动的评估
+
+然后在下一次循环边界检查时才停下来。
+
+因此，后续解读 Stage 4C 或更大实验时，不能把：
+
+- `requested max_metric_calls = N`
+
+直接等同于：
+
+- `result.total_metric_calls <= N`
+
 ## 对 Stage 4C 的直接影响
 
 如果后续还想保留“`max_metric_calls = 1`”这个配置，就必须接受它当前的真实含义是：

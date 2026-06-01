@@ -36,9 +36,9 @@ DEFAULT_SLEEP_SECONDS = 120.0
 DEFAULT_MAX_METRIC_CALLS = 1
 DEFAULT_DIAGNOSTIC_VAL_LIMIT = 3
 DEFAULT_SEED_PROMPT = "strong_format"
-DEFAULT_THINKING_TYPES: tuple[str, ...] = ("default", "disabled")
+DEFAULT_THINKING_TYPES: tuple[str, ...] = ("disabled",)
 
-DIAGNOSTIC_FLAGS: dict[str, bool] = {
+BASE_DIAGNOSTIC_FLAGS: dict[str, bool] = {
     "stage4c_glm_streaming_gepa_sanity": True,
     "diagnostic_only": True,
     "not_official_budget": True,
@@ -47,7 +47,6 @@ DIAGNOSTIC_FLAGS: dict[str, bool] = {
     "not_strict_default_path": True,
     "streaming_path_only": True,
     "glm_backend": True,
-    "paired_thinking_diagnostic": True,
 }
 
 HEALTH_CHECK_PROMPT = "Return exactly: OK"
@@ -83,6 +82,32 @@ class ThinkingArmSpec:
     emergency_guard_timeout_seconds: int
 
 
+@dataclass
+class OptimizationLoopTracker:
+    optimization_started: bool = False
+    optimization_ended: bool = False
+    iteration_start_count: int = 0
+    iteration_indices: list[int] | None = None
+    total_iterations_reported: int | None = None
+    total_metric_calls_reported: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.iteration_indices is None:
+            self.iteration_indices = []
+
+    def on_optimization_start(self, event: dict[str, Any]) -> None:
+        self.optimization_started = True
+
+    def on_iteration_start(self, event: dict[str, Any]) -> None:
+        self.iteration_start_count += 1
+        self.iteration_indices.append(int(event["iteration"]))
+
+    def on_optimization_end(self, event: dict[str, Any]) -> None:
+        self.optimization_ended = True
+        self.total_iterations_reported = int(event["total_iterations"])
+        self.total_metric_calls_reported = int(event["total_metric_calls"])
+
+
 def _load_stage4b_base_module() -> ModuleType:
     script_path = PROJECT_ROOT / "scripts" / "stage4b_eval_fixed_prompt_aime_mimopro_glm47.py"
     spec = importlib.util.spec_from_file_location("stage4c_glm_gepa_base_script", script_path)
@@ -103,7 +128,7 @@ SEED_PROMPTS: dict[str, dict[str, str]] = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Stage 4C GLM streaming GEPA micro-sanity。默认 dry-run，不调用模型或 GEPA。"
+        description="Stage 4C GLM streaming GEPA sanity。默认 dry-run，不调用模型或 GEPA。"
     )
     parser.add_argument("--glm-api-base", default=os.getenv("GLM_API_BASE", ""), help="GLM API base。")
     parser.add_argument("--glm-api-key-env", default="GLM_API_KEY", help="GLM API key 的环境变量名。")
@@ -111,25 +136,40 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--paired-thinking-diagnostic",
         action="store_true",
-        help="执行 paired thinking diagnostic；当前 Stage 4C 要求显式开启。",
+        help="显式执行 paired thinking diagnostic；未开启时允许单臂 sanity。",
     )
     parser.add_argument(
         "--thinking-types",
         nargs="+",
         choices=("default", "disabled", "enabled"),
         default=list(DEFAULT_THINKING_TYPES),
-        help="thinking arm 顺序；默认 default disabled。",
+        help="thinking arm 顺序；当前默认只跑 disabled。",
     )
     parser.add_argument("--max-metric-calls", type=int, default=DEFAULT_MAX_METRIC_CALLS, help="GEPA 最大 metric calls。")
-    parser.add_argument("--diagnostic-val-limit", type=int, default=DEFAULT_DIAGNOSTIC_VAL_LIMIT, help="GEPA micro-sanity 使用的 val subset 大小。")
-    parser.add_argument("--seed-prompt", choices=tuple(SEED_PROMPTS), default=DEFAULT_SEED_PROMPT, help="Stage 4C 当前固定使用 strong_format。")
-    parser.add_argument("--sleep-between-requests", type=float, default=DEFAULT_SLEEP_SECONDS, help="相邻底层请求之间的等待秒数。")
+    parser.add_argument(
+        "--diagnostic-val-limit",
+        type=int,
+        default=DEFAULT_DIAGNOSTIC_VAL_LIMIT,
+        help="Stage 4C sanity 使用的 validation subset 大小。",
+    )
+    parser.add_argument(
+        "--seed-prompt",
+        choices=tuple(SEED_PROMPTS),
+        default=DEFAULT_SEED_PROMPT,
+        help="Stage 4C 当前固定使用 strong_format。",
+    )
+    parser.add_argument(
+        "--sleep-between-requests",
+        type=float,
+        default=DEFAULT_SLEEP_SECONDS,
+        help="相邻底层请求之间的等待秒数。",
+    )
     parser.add_argument("--max-retries", type=int, default=0, help="底层请求重试次数；当前必须为 0。")
     parser.add_argument("--streaming", action="store_true", help="显式标记使用 streaming；当前 Stage 4C 必须开启。")
     parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_DIR, help="outputs 根目录。")
     parser.add_argument("--report-path", default=DEFAULT_REPORT_PATH, help="结果报告路径。")
     parser.add_argument("--run-dir", default=None, help="复用现有 run_dir；默认新建。")
-    parser.add_argument("--execute", action="store_true", help="显式执行真实 GEPA micro-sanity。")
+    parser.add_argument("--execute", action="store_true", help="显式执行真实 GEPA sanity。")
     return parser.parse_args()
 
 
@@ -193,12 +233,10 @@ def build_arm_specs(thinking_types: list[str]) -> list[ThinkingArmSpec]:
 
 
 def enforce_bounds(args: argparse.Namespace, arm_specs: list[ThinkingArmSpec]) -> None:
-    if not args.paired_thinking_diagnostic:
-        raise Stage4CGLMStreamingGEPASanityError("Stage 4C 必须显式传入 --paired-thinking-diagnostic。")
     if not args.streaming:
         raise Stage4CGLMStreamingGEPASanityError("Stage 4C 必须显式传入 --streaming。")
-    if args.max_metric_calls != 1:
-        raise Stage4CGLMStreamingGEPASanityError("Stage 4C 当前固定要求 --max-metric-calls 1。")
+    if args.max_metric_calls <= 0:
+        raise Stage4CGLMStreamingGEPASanityError("--max-metric-calls 必须大于 0。")
     if args.diagnostic_val_limit <= 0:
         raise Stage4CGLMStreamingGEPASanityError("--diagnostic-val-limit 必须大于 0。")
     if args.seed_prompt != "strong_format":
@@ -209,6 +247,12 @@ def enforce_bounds(args: argparse.Namespace, arm_specs: list[ThinkingArmSpec]) -
         raise Stage4CGLMStreamingGEPASanityError("--sleep-between-requests 不能小于 0。")
     if not arm_specs:
         raise Stage4CGLMStreamingGEPASanityError("至少需要一个 thinking arm。")
+    if args.paired_thinking_diagnostic and len(arm_specs) < 2:
+        raise Stage4CGLMStreamingGEPASanityError("paired thinking diagnostic 至少需要两个 thinking arm。")
+    if not args.paired_thinking_diagnostic and len(arm_specs) > 1:
+        raise Stage4CGLMStreamingGEPASanityError(
+            "未开启 --paired-thinking-diagnostic 时，只允许单个 thinking arm；如需多 arm，请显式开启 paired 模式。"
+        )
 
 
 def build_dataset_payload(limit: int) -> dict[str, Any]:
@@ -224,6 +268,29 @@ def build_dataset_payload(limit: int) -> dict[str, Any]:
         "valset_size_full": len(valset),
         "diagnostic_val_limit": limit,
         "valset_size_used": len(limited_valset),
+    }
+
+
+def build_diagnostic_flags(*, paired_thinking: bool) -> dict[str, bool]:
+    return {
+        **BASE_DIAGNOSTIC_FLAGS,
+        "paired_thinking_diagnostic": paired_thinking,
+        "single_thinking_diagnostic": not paired_thinking,
+    }
+
+
+def compute_effective_min_metric_calls(dataset_payload: dict[str, Any]) -> int:
+    return int(dataset_payload["valset_size_used"]) + 1
+
+
+def build_metric_call_semantics(dataset_payload: dict[str, Any], max_metric_calls: int) -> dict[str, Any]:
+    seed_full_eval_metric_calls = int(dataset_payload["valset_size_used"])
+    effective_min_metric_calls = compute_effective_min_metric_calls(dataset_payload)
+    return {
+        "seed_full_eval_metric_calls": seed_full_eval_metric_calls,
+        "effective_min_metric_calls": effective_min_metric_calls,
+        "requested_max_metric_calls": int(max_metric_calls),
+        "requested_budget_reaches_loop_entry": int(max_metric_calls) >= effective_min_metric_calls,
     }
 
 
@@ -375,7 +442,7 @@ def build_request_record(
         "raw_response_preview": "",
         "full_response_path": None,
         "timeout_source": None,
-        **DIAGNOSTIC_FLAGS,
+        **BASE_DIAGNOSTIC_FLAGS,
     }
 
 
@@ -711,8 +778,9 @@ def build_optimize_kwargs(
     seed_prompt_name: str,
     max_metric_calls: int,
     arm_dir: Path,
+    callbacks: list[Any] | None = None,
 ) -> dict[str, Any]:
-    return {
+    optimize_kwargs = {
         "seed_candidate": SEED_PROMPTS[seed_prompt_name],
         "trainset": dataset_payload["trainset"],
         "valset": dataset_payload["valset"],
@@ -722,6 +790,9 @@ def build_optimize_kwargs(
         "seed": 42,
         "run_dir": str(arm_dir),
     }
+    if callbacks:
+        optimize_kwargs["callbacks"] = callbacks
+    return optimize_kwargs
 
 
 def summarize_request_records(records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -784,8 +855,11 @@ def execute_thinking_arm(
     sleep_between_requests: float,
     max_retries: int,
     arm_dir: Path,
+    paired_thinking: bool,
 ) -> dict[str, Any]:
     arm_dir.mkdir(parents=True, exist_ok=True)
+    paired_flags = build_diagnostic_flags(paired_thinking=paired_thinking)
+    budget_semantics = build_metric_call_semantics(dataset_payload, max_metric_calls)
     health_checks: list[dict[str, Any]] = []
     request_records: list[dict[str, Any]] = []
     pre_health = execute_health_check(
@@ -805,8 +879,12 @@ def execute_thinking_arm(
             "health_before": pre_health,
             "health_after": None,
             "request_summary": summarize_request_records(request_records),
+            "optimization_loop_entered": False,
+            "optimization_iterations_started": 0,
+            "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+            "gepa_budget_semantics": budget_semantics,
             "failure_reason": "pre_health_check_failed",
-            **DIAGNOSTIC_FLAGS,
+            **paired_flags,
         }
         BASE.write_jsonl(arm_dir / "per_request_eval.jsonl", request_records)
         BASE.write_jsonl(arm_dir / "health_checks.jsonl", health_checks)
@@ -820,12 +898,14 @@ def execute_thinking_arm(
         sleep_between_requests=sleep_between_requests,
         max_retries=max_retries,
     )
+    loop_tracker = OptimizationLoopTracker()
     optimize_kwargs = build_optimize_kwargs(
         provider_config=provider_config,
         dataset_payload=dataset_payload,
         seed_prompt_name=seed_prompt_name,
         max_metric_calls=max_metric_calls,
         arm_dir=arm_dir,
+        callbacks=[loop_tracker],
     )
     try:
         import gepa
@@ -851,6 +931,9 @@ def execute_thinking_arm(
             "optimize_completed": True,
             "health_before": pre_health,
             "health_after": post_health,
+            "optimization_loop_entered": loop_tracker.iteration_start_count > 0,
+            "optimization_iterations_started": loop_tracker.iteration_start_count,
+            "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
             "gepa_result_summary": {
                 "best_idx": best_idx,
                 "best_score": best_score,
@@ -858,9 +941,15 @@ def execute_thinking_arm(
                 "num_candidates": int(result.num_candidates),
                 "num_val_instances": int(result.num_val_instances),
                 "num_full_val_evals": int(result.num_full_val_evals),
+                "optimization_loop_entered": loop_tracker.iteration_start_count > 0,
+                "optimization_iterations_started": loop_tracker.iteration_start_count,
+                "total_iterations_reported": loop_tracker.total_iterations_reported,
+                "seed_full_eval_metric_calls": budget_semantics["seed_full_eval_metric_calls"],
+                "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
             },
+            "gepa_budget_semantics": budget_semantics,
             "request_summary": summarize_request_records(request_records),
-            **DIAGNOSTIC_FLAGS,
+            **paired_flags,
         }
     except Exception as exc:  # pragma: no cover - 真实 GEPA 路径
         request_records.extend(bridge.records)
@@ -884,8 +973,12 @@ def execute_thinking_arm(
             "error_type": type(exc).__name__,
             "error_message_sanitized": error_message,
             "error_body_sanitized": error_body,
+            "optimization_loop_entered": loop_tracker.iteration_start_count > 0,
+            "optimization_iterations_started": loop_tracker.iteration_start_count,
+            "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+            "gepa_budget_semantics": budget_semantics,
             "request_summary": summarize_request_records(request_records),
-            **DIAGNOSTIC_FLAGS,
+            **paired_flags,
         }
 
     BASE.write_jsonl(arm_dir / "per_request_eval.jsonl", request_records)
@@ -905,6 +998,7 @@ def _arm_worker(queue: Any, payload: dict[str, Any]) -> None:
             sleep_between_requests=payload["sleep_between_requests"],
             max_retries=payload["max_retries"],
             arm_dir=Path(payload["arm_dir"]),
+            paired_thinking=bool(payload["paired_thinking"]),
         )
         queue.put({"status": "ok", "result": result})
     except Exception as exc:  # pragma: no cover - 防御路径
@@ -921,8 +1015,11 @@ def execute_arm_with_emergency_guard(
     sleep_between_requests: float,
     max_retries: int,
     run_dir: Path,
+    paired_thinking: bool,
 ) -> dict[str, Any]:
     arm_dir = run_dir / "arms" / arm_spec.thinking_type
+    diagnostic_flags = build_diagnostic_flags(paired_thinking=paired_thinking)
+    budget_semantics = build_metric_call_semantics(dataset_payload, max_metric_calls)
     ctx = mp.get_context("fork" if os.name != "nt" else "spawn")
     queue = ctx.Queue()
     payload = {
@@ -941,6 +1038,7 @@ def execute_arm_with_emergency_guard(
         "sleep_between_requests": sleep_between_requests,
         "max_retries": max_retries,
         "arm_dir": str(arm_dir),
+        "paired_thinking": paired_thinking,
     }
     process = ctx.Process(target=_arm_worker, args=(queue, payload))
     process.start()
@@ -959,7 +1057,11 @@ def execute_arm_with_emergency_guard(
             "health_before": None,
             "health_after": None,
             "request_summary": summarize_request_records([]),
-            **DIAGNOSTIC_FLAGS,
+            "optimization_loop_entered": False,
+            "optimization_iterations_started": 0,
+            "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+            "gepa_budget_semantics": budget_semantics,
+            **diagnostic_flags,
         }
         write_json(arm_dir / "arm_result.json", result)
         return result
@@ -980,7 +1082,11 @@ def execute_arm_with_emergency_guard(
         "health_before": None,
         "health_after": None,
         "request_summary": summarize_request_records([]),
-        **DIAGNOSTIC_FLAGS,
+        "optimization_loop_entered": False,
+        "optimization_iterations_started": 0,
+        "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+        "gepa_budget_semantics": budget_semantics,
+        **diagnostic_flags,
     }
     write_json(arm_dir / "arm_result.json", result)
     return result
@@ -997,7 +1103,10 @@ def build_input_snapshot(
     max_retries: int,
     run_dir: Path,
     execute: bool,
+    paired_thinking: bool,
 ) -> dict[str, Any]:
+    diagnostic_flags = build_diagnostic_flags(paired_thinking=paired_thinking)
+    budget_semantics = build_metric_call_semantics(dataset_payload, max_metric_calls)
     return {
         "metadata": {
             "generated_at": create_timestamp(),
@@ -1006,7 +1115,7 @@ def build_input_snapshot(
             "model_called": bool(execute),
             "api_called": bool(execute),
             "new_experiment_executed": bool(execute),
-            **DIAGNOSTIC_FLAGS,
+            **diagnostic_flags,
         },
         "provider_config": {
             "provider": provider_config.provider,
@@ -1016,7 +1125,8 @@ def build_input_snapshot(
             "missing_config_reasons": provider_config.missing_config_reasons(),
         },
         "requested_execution": {
-            "paired_thinking_diagnostic": True,
+            "paired_thinking_diagnostic": paired_thinking,
+            "single_thinking_diagnostic": not paired_thinking,
             "thinking_types": [item.thinking_type for item in arm_specs],
             "seed_prompt": seed_prompt_name,
             "streaming": True,
@@ -1025,6 +1135,9 @@ def build_input_snapshot(
             "sleep_between_requests": sleep_between_requests,
             "max_retries": max_retries,
             "arm_specs": [asdict(item) for item in arm_specs],
+            "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+            "seed_full_eval_metric_calls": budget_semantics["seed_full_eval_metric_calls"],
+            "requested_budget_reaches_loop_entry": budget_semantics["requested_budget_reaches_loop_entry"],
         },
         "dataset_meta": {
             "dataset_source": dataset_payload["dataset_source"],
@@ -1040,9 +1153,14 @@ def build_dry_run_results(
     *,
     provider_config: Any,
     arm_specs: list[ThinkingArmSpec],
+    dataset_payload: dict[str, Any],
+    max_metric_calls: int,
+    paired_thinking: bool,
 ) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     missing = provider_config.missing_config_reasons()
+    diagnostic_flags = build_diagnostic_flags(paired_thinking=paired_thinking)
+    budget_semantics = build_metric_call_semantics(dataset_payload, max_metric_calls)
     for arm_spec in arm_specs:
         results.append(
             {
@@ -1053,9 +1171,13 @@ def build_dry_run_results(
                 "health_before": None,
                 "health_after": None,
                 "request_summary": summarize_request_records([]),
+                "optimization_loop_entered": False,
+                "optimization_iterations_started": 0,
+                "effective_min_metric_calls": budget_semantics["effective_min_metric_calls"],
+                "gepa_budget_semantics": budget_semantics,
                 "error_type": "ConfigPreview" if missing else None,
                 "error_message_sanitized": "; ".join(missing) if missing else None,
-                **DIAGNOSTIC_FLAGS,
+                **diagnostic_flags,
             }
         )
     return results
@@ -1077,7 +1199,7 @@ def build_failure_cases(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return failures
 
 
-def build_run_summary(*, results: list[dict[str, Any]], execute: bool) -> dict[str, Any]:
+def build_run_summary(*, results: list[dict[str, Any]], execute: bool, paired_thinking: bool) -> dict[str, Any]:
     return {
         "generated_at": create_timestamp(),
         "mode": "execute" if execute else "dry_run",
@@ -1085,7 +1207,7 @@ def build_run_summary(*, results: list[dict[str, Any]], execute: bool) -> dict[s
         "completed_arms": [item["thinking_type"] for item in results if item.get("status") == "ok"],
         "blocked_arms": [item["thinking_type"] for item in results if item.get("status") == "blocked_by_health_check"],
         "failure_cases": build_failure_cases(results) if execute else [],
-        **DIAGNOSTIC_FLAGS,
+        **build_diagnostic_flags(paired_thinking=paired_thinking),
     }
 
 
@@ -1093,12 +1215,18 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
     metadata = payload["metadata"]
     requested = payload["requested_execution"]
     provider_config = payload["provider_config"]
+    paired_thinking = bool(requested["paired_thinking_diagnostic"])
+    effective_min_metric_calls = int(requested["effective_min_metric_calls"])
+    requested_max_metric_calls = int(requested["max_metric_calls"])
+    requested_scope_label = (
+        "optimization-entry sanity" if requested_max_metric_calls >= effective_min_metric_calls else "seed-evaluation sanity"
+    )
     lines = [
         "# Stage 4C GLM streaming GEPA sanity 结果",
         "",
         "## 定位",
         "",
-        "- 本报告只记录 GLM streaming GEPA micro-sanity paired diagnostic。",
+        "- 本报告只记录 GLM streaming GEPA sanity。",
         "- 它不是 official_budget。",
         "- 它不是模型排名。",
         "- 它不是 strict default path 对比。",
@@ -1119,11 +1247,22 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
             f"- provider：`{provider_config['provider']}`",
             f"- model：`{provider_config['model'] or '<missing>'}`",
             f"- api_base_present：`{str(provider_config['api_base_present']).lower()}`",
+            f"- execution_mode：`{'paired' if paired_thinking else 'single'}`",
             f"- thinking_types：`{', '.join(requested['thinking_types'])}`",
             f"- seed_prompt：`{requested['seed_prompt']}`",
             f"- max_metric_calls：`{requested['max_metric_calls']}`",
             f"- diagnostic_val_limit：`{requested['diagnostic_val_limit']}`",
+            f"- seed_full_eval_metric_calls：`{requested['seed_full_eval_metric_calls']}`",
+            f"- effective_min_metric_calls：`{requested['effective_min_metric_calls']}`",
+            f"- requested_scope_label：`{requested_scope_label}`",
             f"- sleep_between_requests：`{requested['sleep_between_requests']}`",
+            "",
+            "## 语义说明",
+            "",
+            f"- 任何 `max_metric_calls < {effective_min_metric_calls}` 的 Stage 4C run，都只能解释为 `seed-evaluation sanity`。",
+            f"- 当前配置下，seed full evaluation 本身会先消耗 `valset_size_used = {requested['seed_full_eval_metric_calls']}` 个 metric calls。",
+            "- 当前 `max_metric_calls` 还是循环边界 stop condition，不是严格的单迭代硬上限；一旦进入 optimization loop，单次 iteration 仍可能继续消耗多个 metric calls。",
+            "- 因此，先前 `max_metric_calls = 1` 的 paired run 只能降格解释为 seed-evaluation sanity，不能当作 optimization-loop 结果。",
             "",
             "## 执行状态",
             "",
@@ -1133,13 +1272,13 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
         lines.extend(
             [
                 "- 当前状态：dry-run manifest 已生成，未调用模型，未调用 `gepa.optimize()`。",
-                "- 只验证了 paired thinking 顺序、timeout 预算配置、artifact schema 与报告骨架。",
+                "- 只验证了 thinking 模式、timeout 预算配置、artifact schema 与报告骨架。",
             ]
         )
     else:
         lines.extend(
             [
-                "- 当前状态：真实 paired diagnostic 已执行。",
+                f"- 当前状态：真实 `{'paired' if paired_thinking else 'single'}` sanity 已执行。",
                 f"- completed_arms：`{', '.join(run_summary['completed_arms']) or 'none'}`",
                 f"- blocked_arms：`{', '.join(run_summary['blocked_arms']) or 'none'}`",
             ]
@@ -1150,8 +1289,8 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
             "",
             "## Arm 汇总",
             "",
-            "| thinking_type | status | optimize_called | optimize_completed | health_before | health_after | total_metric_calls | request_count | timeout_count | avg_first_token | max_first_token |",
-            "|---|---|---:|---:|---|---|---:|---:|---:|---:|---:|",
+            "| thinking_type | status | optimize_called | optimize_completed | optimization_loop_entered | iterations_started | effective_min_metric_calls | total_metric_calls | health_before | health_after | request_count | timeout_count | avg_first_token | max_first_token |",
+            "|---|---|---:|---:|---|---:|---:|---:|---|---|---:|---:|---:|---:|",
         ]
     )
     for item in results:
@@ -1163,8 +1302,9 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
         request_summary = item.get("request_summary") or {}
         lines.append(
             f"| `{item['thinking_type']}` | `{item.get('status')}` | {int(bool(item.get('optimize_called')))} | "
-            f"{int(bool(item.get('optimize_completed')))} | `{health_before}` | `{health_after}` | "
-            f"{gepa_summary.get('total_metric_calls', 0)} | {request_summary.get('request_count', 0)} | "
+            f"{int(bool(item.get('optimize_completed')))} | `{str(bool(item.get('optimization_loop_entered'))).lower()}` | "
+            f"{item.get('optimization_iterations_started', 0)} | {item.get('effective_min_metric_calls')} | "
+            f"{gepa_summary.get('total_metric_calls', 0)} | `{health_before}` | `{health_after}` | {request_summary.get('request_count', 0)} | "
             f"{request_summary.get('timeout_count', 0)} | {request_summary.get('avg_time_to_first_token_seconds')} | "
             f"{request_summary.get('max_time_to_first_token_seconds')} |"
         )
@@ -1190,7 +1330,8 @@ def render_report(payload: dict[str, Any], results: list[dict[str, Any]], run_su
             "",
             "## 结论边界",
             "",
-            "- 可以写：default / disabled thinking 两个 arm 是否跑通、health check 是否正常、请求级 timeout 类型与首 token 延迟特征。",
+            "- 可以写：当前预算下是否进入 optimization loop、health check 是否正常、请求级 timeout 类型与首 token 延迟特征。",
+            "- 可以写：如果 `optimization_loop_entered = false`，该 run 只构成 seed-evaluation sanity。",
             "- 不能写：GLM 比 MiMo 强，或 GLM 已适合 official_budget / GEPA 正式复现。",
         ]
     )
@@ -1207,6 +1348,7 @@ def run_execute(
     sleep_between_requests: float,
     max_retries: int,
     run_dir: Path,
+    paired_thinking: bool,
 ) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     for arm_spec in arm_specs:
@@ -1220,6 +1362,7 @@ def run_execute(
                 sleep_between_requests=sleep_between_requests,
                 max_retries=max_retries,
                 run_dir=run_dir,
+                paired_thinking=paired_thinking,
             )
         )
     return results
@@ -1229,6 +1372,7 @@ def main() -> None:
     args = parse_args()
     arm_specs = build_arm_specs(args.thinking_types)
     enforce_bounds(args, arm_specs)
+    paired_thinking = bool(args.paired_thinking_diagnostic)
     provider_config = build_glm_provider_config(args)
     dataset_payload = build_dataset_payload(args.diagnostic_val_limit)
     report_path = (PROJECT_ROOT / args.report_path).resolve()
@@ -1249,6 +1393,7 @@ def main() -> None:
         max_retries=args.max_retries,
         run_dir=run_dir,
         execute=args.execute,
+        paired_thinking=paired_thinking,
     )
     write_json(run_dir / "input_snapshot.json", input_snapshot)
 
@@ -1262,17 +1407,24 @@ def main() -> None:
             sleep_between_requests=args.sleep_between_requests,
             max_retries=args.max_retries,
             run_dir=run_dir,
+            paired_thinking=paired_thinking,
         )
     else:
-        results = build_dry_run_results(provider_config=provider_config, arm_specs=arm_specs)
+        results = build_dry_run_results(
+            provider_config=provider_config,
+            arm_specs=arm_specs,
+            dataset_payload=dataset_payload,
+            max_metric_calls=args.max_metric_calls,
+            paired_thinking=paired_thinking,
+        )
 
     paired_results = {
         "generated_at": create_timestamp(),
         "mode": "execute" if args.execute else "dry_run",
         "results": results,
-        **DIAGNOSTIC_FLAGS,
+        **build_diagnostic_flags(paired_thinking=paired_thinking),
     }
-    run_summary = build_run_summary(results=results, execute=args.execute)
+    run_summary = build_run_summary(results=results, execute=args.execute, paired_thinking=paired_thinking)
     write_json(run_dir / "paired_results.json", paired_results)
     write_json(run_dir / "run_summary.json", run_summary)
     write_json(run_dir / "failure_cases.json", run_summary["failure_cases"])

@@ -4,6 +4,7 @@ import importlib.util
 import json
 import sys
 import time
+from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -48,10 +49,19 @@ def _read_text(path: Path) -> str:
 
 
 def test_build_arm_specs_default_and_disabled() -> None:
-    specs = stage4c_script.build_arm_specs(["default", "disabled"])
-    assert [item.thinking_type for item in specs] == ["default", "disabled"]
-    assert specs[0].first_token_timeout_seconds == 1800
-    assert specs[1].first_token_timeout_seconds == 300
+    specs = stage4c_script.build_arm_specs(["disabled"])
+    assert [item.thinking_type for item in specs] == ["disabled"]
+    assert specs[0].first_token_timeout_seconds == 300
+
+
+def test_effective_min_metric_calls_is_seed_eval_plus_one() -> None:
+    payload = {
+        "valset_size_used": 3,
+    }
+    semantics = stage4c_script.build_metric_call_semantics(payload, max_metric_calls=6)
+    assert semantics["seed_full_eval_metric_calls"] == 3
+    assert semantics["effective_min_metric_calls"] == 4
+    assert semantics["requested_budget_reaches_loop_entry"] is True
 
 
 def test_patch_litellm_for_streaming_restores_functions() -> None:
@@ -113,11 +123,14 @@ def test_execute_thinking_arm_pre_health_failure_blocks_optimize(monkeypatch, tm
         sleep_between_requests=0.0,
         max_retries=0,
         arm_dir=tmp_path / "arm-default",
+        paired_thinking=False,
     )
 
     assert calls == ["before"]
     assert result["status"] == "blocked_by_health_check"
     assert result["optimize_called"] is False
+    assert result["optimization_loop_entered"] is False
+    assert result["effective_min_metric_calls"] == 2
     assert (tmp_path / "arm-default" / "arm_result.json").exists()
 
 
@@ -186,7 +199,6 @@ def test_main_dry_run_does_not_call_execute_and_does_not_leak_key(monkeypatch, t
         "argv",
         [
             "stage4c_run_glm_streaming_gepa_sanity.py",
-            "--paired-thinking-diagnostic",
             "--streaming",
             "--report-path",
             str(report_path.relative_to(tmp_path)).replace("\\", "/"),
@@ -204,6 +216,7 @@ def test_main_dry_run_does_not_call_execute_and_does_not_leak_key(monkeypatch, t
     run_summary = json.loads(_read_text(run_dir / "run_summary.json"))
 
     assert paired_results["diagnostic_only"] is True
+    assert paired_results["single_thinking_diagnostic"] is True
     assert run_summary["not_model_ranking"] is True
     assert "top-secret-glm-key" not in report_text
     for artifact in (
@@ -215,7 +228,7 @@ def test_main_dry_run_does_not_call_execute_and_does_not_leak_key(monkeypatch, t
         assert "top-secret-glm-key" not in _read_text(artifact)
 
 
-def test_main_execute_calls_run_execute_in_default_then_disabled_order(monkeypatch, tmp_path: Path) -> None:
+def test_main_execute_calls_run_execute_in_disabled_only_mode(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(stage4c_script, "PROJECT_ROOT", tmp_path)
     monkeypatch.setenv("GLM_API_KEY", "secret-key")
     monkeypatch.setattr(stage4c_script, "build_dataset_payload", lambda limit: _dataset_payload())
@@ -223,28 +236,21 @@ def test_main_execute_calls_run_execute_in_default_then_disabled_order(monkeypat
 
     def fake_run_execute(**kwargs):
         observed["thinking_types"] = [item.thinking_type for item in kwargs["arm_specs"]]
+        observed["paired_thinking"] = kwargs["paired_thinking"]
         return [
-            {
-                "thinking_type": "default",
-                "status": "ok",
-                "optimize_called": True,
-                "optimize_completed": True,
-                "health_before": {"status": "ok"},
-                "health_after": {"status": "ok"},
-                "gepa_result_summary": {"total_metric_calls": 1},
-                "request_summary": {"request_count": 2, "timeout_count": 0},
-                **stage4c_script.DIAGNOSTIC_FLAGS,
-            },
             {
                 "thinking_type": "disabled",
                 "status": "ok",
                 "optimize_called": True,
                 "optimize_completed": True,
+                "optimization_loop_entered": True,
+                "optimization_iterations_started": 1,
+                "effective_min_metric_calls": 2,
                 "health_before": {"status": "ok"},
                 "health_after": {"status": "ok"},
-                "gepa_result_summary": {"total_metric_calls": 1},
+                "gepa_result_summary": {"total_metric_calls": 2},
                 "request_summary": {"request_count": 2, "timeout_count": 0},
-                **stage4c_script.DIAGNOSTIC_FLAGS,
+                **stage4c_script.build_diagnostic_flags(paired_thinking=False),
             },
         ]
 
@@ -256,7 +262,44 @@ def test_main_execute_calls_run_execute_in_default_then_disabled_order(monkeypat
         "argv",
         [
             "stage4c_run_glm_streaming_gepa_sanity.py",
+            "--streaming",
+            "--execute",
+            "--report-path",
+            str(report_path.relative_to(tmp_path)).replace("\\", "/"),
+        ],
+    )
+
+    stage4c_script.main()
+
+    assert observed["thinking_types"] == ["disabled"]
+    assert observed["paired_thinking"] is False
+    assert "disabled" in _read_text(report_path)
+    assert "seed-evaluation sanity" in _read_text(report_path)
+
+
+def test_main_execute_calls_run_execute_in_paired_order_when_requested(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(stage4c_script, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("GLM_API_KEY", "secret-key")
+    monkeypatch.setattr(stage4c_script, "build_dataset_payload", lambda limit: _dataset_payload())
+    observed: dict[str, object] = {}
+
+    def fake_run_execute(**kwargs):
+        observed["thinking_types"] = [item.thinking_type for item in kwargs["arm_specs"]]
+        observed["paired_thinking"] = kwargs["paired_thinking"]
+        return []
+
+    monkeypatch.setattr(stage4c_script, "run_execute", fake_run_execute)
+    report_path = tmp_path / "reports" / "stage4c_glm_streaming_gepa_sanity_result.md"
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "stage4c_run_glm_streaming_gepa_sanity.py",
             "--paired-thinking-diagnostic",
+            "--thinking-types",
+            "default",
+            "disabled",
             "--streaming",
             "--execute",
             "--report-path",
@@ -267,8 +310,7 @@ def test_main_execute_calls_run_execute_in_default_then_disabled_order(monkeypat
     stage4c_script.main()
 
     assert observed["thinking_types"] == ["default", "disabled"]
-    assert "default" in _read_text(report_path)
-    assert "disabled" in _read_text(report_path)
+    assert observed["paired_thinking"] is True
 
 
 def test_arm_worker_reconstructs_provider_config_with_properties(monkeypatch, tmp_path: Path) -> None:
@@ -315,6 +357,7 @@ def test_arm_worker_reconstructs_provider_config_with_properties(monkeypatch, tm
             "sleep_between_requests": 0.0,
             "max_retries": 0,
             "arm_dir": str(tmp_path / "arm-default"),
+            "paired_thinking": False,
         },
     )
 
@@ -326,5 +369,69 @@ def test_arm_worker_reconstructs_provider_config_with_properties(monkeypatch, tm
 def test_script_source_targets_glm_streaming_gepa_sanity() -> None:
     source = _read_text(SCRIPT_PATH)
     assert "gepa.optimize" in source
-    assert "paired_thinking_diagnostic" in source
+    assert "optimization_loop_entered" in source
     assert '"mimo"' not in source
+
+
+def test_mock_execute_thinking_arm_marks_loop_entry_for_metric_calls_6_and_9(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        stage4c_script,
+        "execute_health_check",
+        lambda **kwargs: {"status": "ok", "content_exact_ok": True},
+    )
+    monkeypatch.setattr(stage4c_script, "patch_litellm_for_streaming", lambda bridge: nullcontext())
+    monkeypatch.setattr(stage4c_script, "temporary_openai_compatible_env", lambda **kwargs: nullcontext())
+
+    class _FakeResult:
+        best_idx = 0
+        val_aggregate_scores = [0.0]
+        total_metric_calls = 6
+        num_candidates = 1
+        num_val_instances = 3
+        num_full_val_evals = 1
+
+    def fake_optimize(**kwargs):
+        callbacks = kwargs.get("callbacks") or []
+        for callback in callbacks:
+            if hasattr(callback, "on_optimization_start"):
+                callback.on_optimization_start({"trainset_size": 1, "valset_size": len(kwargs["valset"]), "config": {}})
+            if kwargs["max_metric_calls"] > len(kwargs["valset"]) and hasattr(callback, "on_iteration_start"):
+                callback.on_iteration_start({"iteration": 1, "state": None})
+            if hasattr(callback, "on_optimization_end"):
+                callback.on_optimization_end({"best_candidate_idx": 0, "total_iterations": 1, "total_metric_calls": kwargs["max_metric_calls"], "final_state": None})
+        return _FakeResult()
+
+    monkeypatch.setitem(sys.modules, "gepa", SimpleNamespace(optimize=fake_optimize))
+
+    dataset_payload = {
+        "trainset": [{"input": "q1", "answer": "### 1"}],
+        "valset": [
+            {"input": "q2", "answer": "### 2"},
+            {"input": "q3", "answer": "### 3"},
+            {"input": "q4", "answer": "### 4"},
+        ],
+        "testset_available": False,
+        "dataset_source": "fake-dataset",
+        "adaptation_notes": ["fake-note"],
+        "trainset_size": 1,
+        "valset_size_full": 3,
+        "diagnostic_val_limit": 3,
+        "valset_size_used": 3,
+    }
+
+    for max_metric_calls in (6, 9):
+        result = stage4c_script.execute_thinking_arm(
+            provider_config=_provider(),
+            arm_spec=stage4c_script.build_arm_specs(["disabled"])[0],
+            dataset_payload=dataset_payload,
+            seed_prompt_name="strong_format",
+            max_metric_calls=max_metric_calls,
+            sleep_between_requests=0.0,
+            max_retries=0,
+            arm_dir=tmp_path / f"arm-disabled-{max_metric_calls}",
+            paired_thinking=False,
+        )
+        assert result["optimization_loop_entered"] is True
+        assert result["optimization_iterations_started"] == 1
+        assert result["effective_min_metric_calls"] == 4
+        assert result["gepa_budget_semantics"]["requested_budget_reaches_loop_entry"] is True
