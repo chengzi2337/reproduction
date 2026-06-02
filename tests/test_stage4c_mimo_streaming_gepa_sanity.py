@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -114,6 +115,37 @@ def test_dry_run_main_does_not_call_model_or_gepa_and_writes_stub(monkeypatch, t
     assert "secret-key" not in report_text
     assert "secret-key" not in json.dumps(input_snapshot, ensure_ascii=False)
     assert str(PROJECT_ROOT) not in report_text
+
+
+def test_enforce_bounds_allows_only_one_or_two_metric_calls(monkeypatch) -> None:
+    monkeypatch.delenv("MIMO_API_KEY", raising=False)
+    monkeypatch.setenv("MIMO_API_BASE", "https://example.com/v1")
+    monkeypatch.setenv("MIMO_MODEL", "mimo-v2.5-pro")
+
+    args_two = argparse.Namespace(
+        provider="mimo",
+        api_key_env="MIMO_API_KEY",
+        api_base_env="MIMO_API_BASE",
+        model_env="MIMO_MODEL",
+        output_dir="outputs",
+        report_path="reports/report.md",
+        run_dir=None,
+        first_token_timeout=1800.0,
+        sdk_timeout=1800.0,
+        emergency_after_first_token=None,
+        max_metric_calls=2,
+        diagnostic_val_limit=1,
+        execute=False,
+    )
+    runtime_two = stage4c_script.build_runtime_config(args_two)
+    stage4c_script.enforce_bounds(args_two, runtime_two)
+
+    args_three = argparse.Namespace(
+        **{**args_two.__dict__, "max_metric_calls": 3}
+    )
+    runtime_three = stage4c_script.build_runtime_config(args_three)
+    with pytest.raises(stage4c_script.Stage4CMiMoStreamingGEPASanityError, match="max_metric_calls=1 或 2"):
+        stage4c_script.enforce_bounds(args_three, runtime_three)
 
 
 def test_build_streaming_completion_kwargs_injects_enabled_without_default_caps() -> None:
@@ -327,8 +359,8 @@ def test_execute_only_branch_calls_gepa_optimize(monkeypatch, tmp_path: Path) ->
     class _Result:
         best_idx = 0
         val_aggregate_scores = [1.0]
-        total_metric_calls = 1
-        num_candidates = 1
+        total_metric_calls = 2
+        num_candidates = 2
         num_val_instances = 1
         num_full_val_evals = 1
 
@@ -356,15 +388,25 @@ def test_execute_only_branch_calls_gepa_optimize(monkeypatch, tmp_path: Path) ->
                 str(report_path),
                 "--run-dir",
                 str(run_dir),
+                "--max-metric-calls",
+                "2",
             ],
         )
 
     stage4c_script.main()
 
+    report_text = report_path.read_text(encoding="utf-8")
     run_summary = json.loads((run_dir / "run_summary.json").read_text(encoding="utf-8"))
+    input_snapshot = json.loads((run_dir / "input_snapshot.json").read_text(encoding="utf-8"))
     assert calls["optimize"] == 1
     assert run_summary["optimize_attempted"] is True
     assert run_summary["optimize_succeeded"] is True
+    assert run_summary["result_summary"]["total_metric_calls"] == 2
+    assert run_summary["result_summary"]["num_candidates"] == 2
+    assert input_snapshot["requested_execution"]["max_metric_calls"] == 2
+    assert input_snapshot["requested_execution"]["requested_budget_reaches_loop_entry"] is True
+    assert input_snapshot["requested_execution"]["stage4c_scope"] == "optimization_loop_entry_followup"
+    assert "optimization-loop entry passed" in report_text
 
 
 def test_health_check_failure_blocks_execute(monkeypatch, tmp_path: Path) -> None:

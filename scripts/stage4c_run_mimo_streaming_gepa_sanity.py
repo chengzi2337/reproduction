@@ -38,6 +38,7 @@ DEFAULT_API_BASE = "https://token-plan-cn.xiaomimimo.com/v1"
 DEFAULT_FIRST_TOKEN_TIMEOUT_SECONDS = 1800.0
 DEFAULT_SDK_TIMEOUT_SECONDS = 1800.0
 DEFAULT_DIAGNOSTIC_VAL_LIMIT = 1
+ALLOWED_MAX_METRIC_CALLS = (1, 2)
 
 DIAGNOSTIC_FLAGS: dict[str, bool] = {
     "diagnostic_only": True,
@@ -154,8 +155,8 @@ def build_runtime_config(args: argparse.Namespace) -> RuntimeConfig:
 def enforce_bounds(args: argparse.Namespace, runtime_config: RuntimeConfig) -> None:
     if args.provider != DEFAULT_PROVIDER:
         raise Stage4CMiMoStreamingGEPASanityError("当前仅允许 provider=mimo。")
-    if runtime_config.max_metric_calls != 1:
-        raise Stage4CMiMoStreamingGEPASanityError("Stage 4C sanity 当前固定要求 max_metric_calls=1。")
+    if runtime_config.max_metric_calls not in ALLOWED_MAX_METRIC_CALLS:
+        raise Stage4CMiMoStreamingGEPASanityError("Stage 4C sanity 当前仅允许 max_metric_calls=1 或 2。")
     if runtime_config.diagnostic_val_limit <= 0:
         raise Stage4CMiMoStreamingGEPASanityError("--diagnostic-val-limit 必须大于 0。")
     if runtime_config.first_token_timeout_seconds <= 0:
@@ -275,6 +276,75 @@ def build_metric_call_semantics(*, valset_size_used: int, max_metric_calls: int)
     }
 
 
+def classify_stage4c_scope(metric_call_semantics: dict[str, Any]) -> str:
+    if metric_call_semantics["requested_budget_reaches_loop_entry"]:
+        return "optimization_loop_entry_followup"
+    return "seed_evaluation_sanity"
+
+
+def interpret_execute_result(
+    *,
+    run_summary: dict[str, Any],
+    execution: dict[str, Any],
+) -> tuple[str, list[str]]:
+    if not run_summary["optimize_attempted"]:
+        return "未进入 optimize", ["- 本次未进入 `gepa.optimize()`，因此没有 Stage 4C execute 结论。"]
+
+    result_summary = run_summary.get("result_summary") or {}
+    error_type = run_summary.get("error_type")
+    total_metric_calls = result_summary.get("total_metric_calls")
+    num_candidates = result_summary.get("num_candidates")
+    effective_min_metric_calls = execution["effective_min_metric_calls"]
+
+    if run_summary["optimize_succeeded"]:
+        if (
+            isinstance(total_metric_calls, int)
+            and total_metric_calls >= effective_min_metric_calls
+            and isinstance(num_candidates, int)
+            and num_candidates > 1
+        ):
+            return (
+                "optimization-loop entry passed",
+                [
+                    "- 该 run 已超过 seed-evaluation 所需的最小 metric call 门槛。",
+                    f"- `total_metric_calls = {total_metric_calls}`，`num_candidates = {num_candidates}`，已出现非 seed candidate 证据。",
+                    "- 当前可写成 `MiMo streaming GEPA optimization-loop entry passed`。",
+                    "- 但这仍然不是 full-val、smoke 或 official_budget 结论。",
+                ],
+            )
+        if (
+            isinstance(total_metric_calls, int)
+            and total_metric_calls >= effective_min_metric_calls
+            and isinstance(num_candidates, int)
+            and num_candidates <= 1
+        ):
+            return (
+                "additional metric call passed, but candidate-generation evidence insufficient",
+                [
+                    "- 该 run 已完成超过 seed-evaluation 的额外 metric call。",
+                    f"- `total_metric_calls = {total_metric_calls}`，但 `num_candidates = {num_candidates}`。",
+                    "- 因此当前只能写成 `additional metric call passed, but candidate-generation evidence insufficient`。",
+                ],
+            )
+        return (
+            "seed-evaluation only",
+            [
+                "- optimize 虽返回成功，但当前 artifact 仍只支持 `seed-evaluation sanity` 口径。",
+                f"- `total_metric_calls = {total_metric_calls}`，`effective_min_metric_calls = {effective_min_metric_calls}`。",
+            ],
+        )
+
+    detail_lines = [
+        "- optimize 未成功完成，当前不能写成 loop entry passed。",
+        f"- `error_type = {error_type}`。",
+    ]
+    if isinstance(total_metric_calls, int):
+        detail_lines.append(f"- 失败前已记录 `total_metric_calls = {total_metric_calls}`。")
+    if isinstance(num_candidates, int):
+        detail_lines.append(f"- 失败前已记录 `num_candidates = {num_candidates}`。")
+    return ("optimization-loop entry blocked", detail_lines)
+
+
 def build_optimize_kwargs(
     *,
     runtime_config: RuntimeConfig,
@@ -346,6 +416,7 @@ def build_input_snapshot(
             "seed_full_eval_metric_calls": metric_call_semantics["seed_full_eval_metric_calls"],
             "effective_min_metric_calls": metric_call_semantics["effective_min_metric_calls"],
             "requested_budget_reaches_loop_entry": metric_call_semantics["requested_budget_reaches_loop_entry"],
+            "stage4c_scope": classify_stage4c_scope(metric_call_semantics),
             "execute_optimize": bool(execute),
             "seed_prompt_source": "src.gepa_official_runner.SEED_PROMPT",
             "dataset_source": dataset_source,
@@ -451,6 +522,7 @@ def render_report(payload: dict[str, Any], run_summary: dict[str, Any]) -> str:
         f"- emergency_after_first_token_seconds：`{execution['emergency_after_first_token_seconds']}`",
         f"- max_metric_calls：`{execution['max_metric_calls']}`",
         f"- execute_optimize：`{str(execution['execute_optimize']).lower()}`",
+        f"- stage4c_scope：`{execution['stage4c_scope']}`",
         f"- task_lm：`{execution['task_lm']}`",
         f"- reflection_lm：`{execution['reflection_lm']}`",
         f"- seed_prompt_source：`{execution['seed_prompt_source']}`",
@@ -460,6 +532,7 @@ def render_report(payload: dict[str, Any], run_summary: dict[str, Any]) -> str:
         f"- valset_size_used：`{dataset_meta['valset_size_used']}`",
         f"- diagnostic_val_limit：`{execution['diagnostic_val_limit']}`",
         f"- effective_min_metric_calls：`{execution['effective_min_metric_calls']}`",
+        f"- requested_budget_reaches_loop_entry：`{str(execution['requested_budget_reaches_loop_entry']).lower()}`",
         f"- testset_size：`{dataset_meta['testset_size']}`",
         f"- gepa_optimize_called：`{str(run_summary['optimize_attempted']).lower()}`",
         "- no_api_key_written：`true`",
@@ -481,6 +554,7 @@ def render_report(payload: dict[str, Any], run_summary: dict[str, Any]) -> str:
                 "- 本次只验证 Stage 4C 脚手架、MiMo streaming bridge 契约、artifact schema 和报告骨架。",
                 "- health check：未真实执行；真实 `--execute` 前后都必须执行 `Return exactly: OK`。",
                 f"- 当前 budget 语义：seed full evaluation 会先消耗 `valset_size_used = {dataset_meta['valset_size_used']}` 个 metric calls；只有 `max_metric_calls >= {execution['effective_min_metric_calls']}` 才可能进入 optimization loop。",
+                f"- 当前 scope：`{execution['stage4c_scope']}`。",
                 "",
                 "## 待执行判读框架",
                 "",
@@ -511,6 +585,41 @@ def render_report(payload: dict[str, Any], run_summary: dict[str, Any]) -> str:
             f"- bridge_call_count：`{run_summary['bridge_call_count']}`",
         ]
     )
+    result_summary = run_summary.get("result_summary") or {}
+    loop_entry_label, loop_entry_lines = interpret_execute_result(run_summary=run_summary, execution=execution)
+    lines.extend(
+        [
+            "",
+            "## optimize 结果摘要",
+            "",
+            f"- best_idx：`{result_summary.get('best_idx')}`",
+            f"- best_score：`{result_summary.get('best_score')}`",
+            f"- total_metric_calls：`{result_summary.get('total_metric_calls')}`",
+            f"- num_candidates：`{result_summary.get('num_candidates')}`",
+            f"- num_val_instances：`{result_summary.get('num_val_instances')}`",
+            f"- num_full_val_evals：`{result_summary.get('num_full_val_evals')}`",
+            "",
+            "## 判读",
+            "",
+            f"- 当前判读标签：`{loop_entry_label}`",
+            *loop_entry_lines,
+        ]
+    )
+    if run_summary["bridge_calls"]:
+        lines.extend(
+            [
+                "",
+                "## 首条 bridge 调用快照",
+                "",
+                f"- first_token_observed：`{run_summary['bridge_calls'][0].get('first_token_observed')}`",
+                f"- time_to_first_token_seconds：`{run_summary['bridge_calls'][0].get('time_to_first_token_seconds')}`",
+                f"- time_after_first_token_seconds：`{run_summary['bridge_calls'][0].get('time_after_first_token_seconds')}`",
+                f"- time_to_complete_seconds：`{run_summary['bridge_calls'][0].get('time_to_complete_seconds')}`",
+                f"- finish_reason：`{run_summary['bridge_calls'][0].get('finish_reason')}`",
+                f"- content_nonempty：`{run_summary['bridge_calls'][0].get('content_nonempty')}`",
+                f"- error_type：`{run_summary['bridge_calls'][0].get('error_type')}`",
+            ]
+        )
     return "\n".join(lines) + "\n"
 
 
