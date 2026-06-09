@@ -93,13 +93,19 @@ def probe_model_with_openai_client(
     api_key: str,
     api_base: str,
     model_name: str,
+    extra_body: dict | None = None,
+    extra_kwargs: dict | None = None,
 ) -> ProbeResult:
     client = build_openai_client(api_key=api_key, api_base=api_base)
     try:
+        request_kwargs = dict(extra_kwargs or {})
+        if extra_body:
+            request_kwargs["extra_body"] = extra_body
         completion = client.chat.completions.create(
             model=model_name,
             messages=[{"role": "user", "content": PROBE_TEXT}],
             temperature=0,
+            **request_kwargs,
         )
         content = _message_content(completion)
         if "OK" not in content:
