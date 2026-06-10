@@ -2093,3 +2093,564 @@
    - 备注：仅有既有 LF/CRLF warning，无新增空白错误
 3. `list_sessions`：
    - 结果：无活跃会话，无残留实验进程
+
+## 论文 artifact 与当前云 API adapted 实现漂移门禁
+
+时间：2026-06-09 15:34:14 +08:00
+
+### 核查目标
+
+用户要求先判断当前项目实现与原论文项目实现是否存在重大漂移；如果没有明显问题，再继续扩大实验；如果有明显问题，必须先反馈，不继续消耗 API 预算。
+
+### 已核查证据
+
+1. 论文快照配置：
+   - 文件：`.codex/gepa-paper-snapshot/scripts/experiment_configs.py`
+   - Qwen 配置为 `model=openai/arbor:qwen/qwen3-8b`、`api_base=http://localhost:{portnum}/v1/`、`temperature=0.6`、`top_p=0.95`、`top_k=20`。
+   - IFBench GEPA budget 追溯到 `('IFBench', 'IFBenchCoT2StageProgram', 'MIPROv2-Heavy'): 3593`。
+2. 论文快照运行入口：
+   - 文件：`.codex/gepa-paper-snapshot/scripts/run_experiments.py`
+   - `create_lm()` 硬编码 `max_tokens=16384`、`num_retries=0`，并在 `openai/arbor` 模型路径上使用 `ArborProvider`。
+3. 论文快照 IFBench 数据切分：
+   - 文件：`.codex/gepa-paper-snapshot/gepa_artifact/benchmarks/IFBench/ifbench_data.py`
+   - `val_set=train_val_set[:300]`，`train_set=train_val_set[300:600]`，`test_set=IFBench_test.jsonl`。
+4. 当前云 API adapted runner：
+   - 文件：`scripts/run_ifbench_qwen3_smoke.py`
+   - 默认后端是 DashScope OpenAI-compatible，默认模型是 `qwen3-8b`，默认 `max_tokens=8192`，optimizer 是 `GEPA-Tiny`，并支持 `--train-size`、`--val-size`、`--test-size` 和 `--split-seed` 截断抽样。
+5. 当前实验结果：
+   - 报告：`reports/ifbench_qwen3_smoke_reproduction.md`
+   - 跨数据 split 汇总为 `+1.0`、`-15.0`、`-9.0`，平均 delta `-7.67`。
+
+### 门禁判定
+
+- 存在重大漂移，不应直接继续扩大 benchmark。
+- 漂移原因包括：模型后端从本地 Arbor 变为 DashScope 云 API、`max_tokens` 从 `16384` 变为 `8192`、GEPA budget 从论文级 `3593` 变为小实验 `120`、数据规模从 artifact 全量固定切分变为 20/20/50 截断 split、运行入口从原生 `scripts.run_experiments` 变为工程 wrapper。
+- 当前实验仍然有效，但有效范围是“DashScope Qwen3 adapted IFBench 小 benchmark 方法验证”，不是论文 strict reproduction。
+
+### 决策
+
+- 按用户要求停止继续运行新的云 API benchmark。
+- 下一步先向用户反馈漂移结论，再由用户决定进入“复现纰漏审计论文路线”还是“云 API adapted 方法改良路线”。
+
+## IFBench 论文级 budget 与原生入口可行性核查
+
+时间：2026-06-09 15:47:45 +08:00
+
+### 用户问题
+
+用户明确表示先不考虑 `openai/arbor:qwen/qwen3-8b` 和 `max_tokens=16384`，询问以下两项当前是否能做到：
+
+1. IFBench GEPA budget `3593`
+2. artifact 原生入口 `scripts.run_experiments`
+
+### 代码证据
+
+1. 论文快照 `scripts/run_experiments.py`：
+   - `add_max_metric_calls` 分支会调用 `get_max_invocations(...)`，为 IFBench + GEPA 填入 `MIPROv2-Heavy=3593`。
+   - 主入口 `if __name__ == "__main__"` 强制要求 `OPENAI_API_KEY` 与 `WANDB_API_KEY`。
+   - `create_lm()` 硬编码 `max_tokens=16384`，并在 `openai/arbor` 模型路径上使用 `ArborProvider`。
+   - 原生入口中 `GEPA` 分支会把 `use_wandb=True` 和 `wandb_api_key` 注入 optimizer。
+2. 当前 `scripts/run_ifbench_qwen3_smoke.py`：
+   - worker 内部导入 `scripts.run_experiments as runner`，复用 `runner.run_experiment_and_write_results(...)` 核心函数。
+   - wrapper 替换 `runner.create_lm`，因此可以使用 DashScope API、`max_tokens=8192`、重试和节流参数。
+   - wrapper 构造 GEPA optimizer 时直接设置 `max_metric_calls=args.max_metric_calls`，因此可以传入 `3593`。
+   - wrapper 可设置 `--train-size 300 --val-size 300 --test-size 294`，对应 artifact loader 的全量 IFBench 池。
+
+### 无模型调用预检
+
+命令：
+
+```cmd
+set PYTHONUTF8=1&& set QWEN_API_KEY=dummy-preflight-key&& python scripts\run_ifbench_qwen3_smoke.py --optimizer GEPA --max-metric-calls 3593 --train-size 300 --val-size 300 --test-size 294 --lm-name q3-ifb-paper-budget --skip-probe --preflight-only
+```
+
+结果：
+
+- `preflight 通过，未启动 benchmark。`
+- 未调用模型，未消耗 API。
+
+### 判定
+
+- IFBench GEPA budget `3593`：可以做到，当前 wrapper 已接受该参数；真正风险是成本、时长和 API 稳定性。
+- artifact 原生核心函数：可以做到，当前 wrapper 已复用 `runner.run_experiment_and_write_results(...)`。
+- artifact 裸命令入口 `python -m scripts.run_experiments`：不建议零改动直接做。原因是它仍会触发原生 `create_lm()` 的 `max_tokens=16384`、W&B 注入和原生环境变量假设；若要云 API 路线可运行，需要保留 wrapper/monkeypatch 或新增一个明确标注的 paper-adapted runner。
+
+## 编码前检查 - IFBench paper-adapted 模式
+
+时间：2026-06-09 16:05:00 +08:00
+
+□ 已查阅上下文摘要文件：`.codex/context-summary-ifbench-paper-adapted.md`
+□ 将使用以下可复用组件：
+
+- `scripts/run_ifbench_qwen3_smoke.py::run_worker`：继续复用原 `scripts.run_experiments.run_experiment_and_write_results(...)` 核心执行函数。
+- `scripts/run_ifbench_qwen3_smoke.py::build_worker_command`：继续复用父子进程参数透传模式。
+- `scripts/run_ifbench_qwen3_smoke.py::assert_run_integrity`：继续复用结果完整性门禁。
+- `.codex/gepa-paper-snapshot/scripts/experiment_configs.py`：作为 IFBench paper budget 与 GEPA init 参数证据。
+
+□ 将遵循命名约定：Python 函数与变量使用 snake_case，新增常量使用大写。
+□ 将遵循代码风格：运行时依赖仍在函数内导入，用户可见说明保持简体中文。
+□ 确认不重复造轮子，证明：新增 `--paper-adapted` 只在现有 wrapper 上扩展参数和 OptimizerConfig 分支，不新增第二套 runner。
+
+## IFBench paper-adapted 模式实施记录
+
+时间：2026-06-09 16:18:00 +08:00
+
+### 实施内容
+
+1. 在 `scripts/run_ifbench_qwen3_smoke.py` 新增 `--paper-adapted` 显式模式。
+2. paper-adapted 模式默认采用：
+   - `train_size=300`
+   - `val_size=300`
+   - `test_size=294`
+   - GEPA `max_metric_calls=3593`
+   - 默认 `lm_name=qwen3-8b-dashscope-paper-adapted`
+3. paper-adapted GEPA 的 optimizer 名称改为 `GEPA`，不再写作 `GEPA-Tiny`。
+4. paper-adapted GEPA 不注入 tiny 模式专用的 `skip_perfect_score=False`，保留 artifact GEPA 默认值 `skip_perfect_score=True`。
+5. 继续复用原 artifact 核心函数：
+   - `scripts.run_experiments.run_experiment_and_write_results(...)`
+6. 保留必要云 API 适配：
+   - `create_lm` 使用 DashScope OpenAI-compatible API
+   - `max_tokens=8192`
+   - W&B 禁用
+   - API key 仅从环境变量注入
+
+### 口径门禁
+
+1. `--paper-adapted` 不允许同时使用 `--split-seed`，避免偏离 artifact 前缀切分。
+2. 如果显式传入 `--train-size`、`--val-size`、`--test-size` 或 GEPA `--max-metric-calls`，必须与 paper-adapted 固定口径一致，否则拒绝运行。
+3. 不传 `--paper-adapted` 时，原 smoke / GEPA-Tiny 默认行为保持不变。
+
+### 本地验证
+
+1. 单元测试：
+   - 命令：`python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-paper-adapted -p no:cacheprovider`
+   - 结果：`33 passed`
+2. 编译检查：
+   - 命令：`python -m compileall scripts/run_ifbench_qwen3_smoke.py tests/test_ifbench_qwen3_smoke.py`
+   - 结果：通过
+3. 无模型调用 preflight：
+   - 命令：`cmd /c "set PYTHONUTF8=1&& set QWEN_API_KEY=dummy-preflight-key&& python scripts\run_ifbench_qwen3_smoke.py --paper-adapted --optimizer GEPA --skip-probe --preflight-only"`
+   - 结果：`preflight 通过，未启动 benchmark。`
+4. 密钥形态扫描：
+   - 命令：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex`
+   - 结果：`0` 命中（`rg` 退出码 1，无输出）
+5. 空白检查：
+   - 命令：`git diff --check`
+   - 结果：退出码 `0`
+   - 备注：仅有既有 LF/CRLF warning，无新增空白错误。
+
+### 编码后声明 - IFBench paper-adapted 模式
+
+1. 复用了以下既有组件：
+   - `scripts.run_experiments.run_experiment_and_write_results(...)`：保留原 runner 的核心执行流程。
+   - `IFBench.init_dataset` 原始 loader：先加载 artifact 固定 `300/300/294` 池，再由 wrapper 记录 manifest。
+   - `OptimizerConfig`：继续按 artifact 的 optimizer 配置结构传入 GEPA。
+2. 遵循了以下项目约定：
+   - 命名约定：新增常量使用大写，新增 helper 使用 snake_case。
+   - 代码风格：不新增外部依赖，不新增第二套 runner，仍通过参数控制行为。
+   - 文件组织：代码在 `scripts/`，测试在 `tests/`，上下文与验证记录在 `.codex/`。
+3. 对比了以下相似实现：
+   - GEPA-Tiny：paper-adapted 与其共享 wrapper 骨架，但改用论文级名称、预算和 GEPA 默认行为。
+   - 原 `experiment_configs.py`：paper-adapted 复用 GEPA 主参数，区别仅是云 API 后端适配。
+   - 原 `run_experiments.py`：paper-adapted 继续调用核心函数，避免逻辑重写。
+4. 未重复造轮子的证明：
+   - 没有新增 runner 文件，没有复制原 `run_experiments.py`。
+   - 只在现有 wrapper 中增加模式分支，并通过测试确保 smoke 默认行为未改变。
+
+## IFBench paper-adapted Baseline 第一次真实运行
+
+时间：2026-06-09 16:52:00 +08:00
+
+### 运行口径
+
+- 命令口径：`--paper-adapted --skip-probe --yes --request-timeout-seconds 240 --process-timeout-seconds 21600 --parallel-straggler-timeout-seconds 0`
+- optimizer：`Baseline`
+- split：`train=300`、`val=300`、`test=294`
+- 后端：DashScope OpenAI-compatible `qwen3-8b`
+- 说明：API key 仅通过进程环境变量注入，未写入文件。
+
+### 结果
+
+- run 目录：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted`
+- 进度：`metric_logs/test.jsonl` 达到 `258/294`
+- 硬失败：`run_log_stderr.txt` 出现 `litellm.Timeout`、`APITimeoutError`、`ReadTimeout`
+- 失败样本：`example_key=241`
+- 动作：按门禁终止进程树，避免继续消耗 API。
+
+### 判定
+
+- 第一次 Baseline 真实运行不可比，不能用于最终分数。
+- 失败类型是云 API runtime timeout，不是 IFBench 数据、runner 复用或 paper-adapted 参数实现错误。
+- 下一步采用同一 paper-adapted 口径重跑 Baseline，仅将请求 timeout 从 `240` 提高到 `600`，不增加 retry，不改变数据、算法或 GEPA 配置。
+
+## IFBench paper-adapted 线程口径修正
+
+时间：2026-06-09 17:02:00 +08:00
+
+### 发现
+
+- artifact `generate_launch_commands.py` 中 `num_threads = getattr(benchmark_meta, 'num_threads', None) or 32`。
+- 当前 wrapper 默认 `num_threads=1`，若直接用于 paper-adapted，会偏离原 artifact launch 行动。
+- 第二次 Baseline 重跑启动后发现该问题，已在仅完成少量样本时终止，避免继续消耗错误口径的 API。
+
+### 修正
+
+- `--paper-adapted` 现在固定 `num_threads=32`。
+- 如果用户显式传入非 32 的 `--num-threads`，会在运行前拒绝。
+- 普通 smoke 模式仍保留原默认 `num_threads=1`，避免破坏历史小实验。
+
+### 验证
+
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-paper-adapted-threads -p no:cacheprovider`：`33 passed`
+- `python -m compileall scripts/run_ifbench_qwen3_smoke.py tests/test_ifbench_qwen3_smoke.py`：通过
+- `cmd /c "set PYTHONUTF8=1&& set QWEN_API_KEY=dummy-preflight-key&& python scripts\run_ifbench_qwen3_smoke.py --paper-adapted --optimizer GEPA --skip-probe --preflight-only"`：`preflight 通过，未启动 benchmark。`
+
+## IFBench paper-adapted 线程上限二次修正
+
+时间：2026-06-09 17:10:00 +08:00
+
+### 发现
+
+- 将 paper-adapted 固定为 `num_threads=32` 后，原 runner 在本机直接触发：
+  - `assert num_threads <= (benchmark_meta.num_threads or os.cpu_count())`
+- 本机 `os.cpu_count()` 为 `16`，因此原 runner 在本机允许的最大线程数是 `16`。
+- 第三次 Baseline 启动未进入真实模型评测，失败发生在原 runner 参数断言阶段。
+
+### 修正
+
+- 保留 artifact launch 目标常量 `PAPER_ADAPTED_LAUNCH_NUM_THREADS=32`。
+- paper-adapted 实际默认线程数改为 `min(32, os.cpu_count())`，本机为 `16`。
+- 若用户显式传入非本机可运行上限的 `--num-threads`，仍会拒绝，避免口径漂移。
+
+### 验证
+
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-paper-adapted-thread-cap -p no:cacheprovider`：`33 passed`
+- `python -m compileall scripts/run_ifbench_qwen3_smoke.py tests/test_ifbench_qwen3_smoke.py`：通过
+
+## IFBench paper-adapted Baseline 并发运行阻塞
+
+时间：2026-06-09 17:06:00 +08:00
+
+### 运行口径
+
+- 命令口径：`--paper-adapted --skip-probe --yes --force --request-timeout-seconds 600 --process-timeout-seconds 28800 --parallel-straggler-timeout-seconds 0`
+- optimizer：`Baseline`
+- paper-adapted 线程：`min(32, os.cpu_count()) = 16`
+- split：`train=300`、`val=300`、`test=294`
+- 说明：不加 retry，不改变数据、算法、metric 或 GEPA 配置。
+
+### 结果
+
+- run 目录：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted`
+- 进度：`metric_logs/test.jsonl` 达到 `100/294`
+- 硬失败：`run_log_stderr.txt` 出现 `litellm.RateLimitError`
+- 失败样本：`example_key=5`
+- 动作：按门禁终止进程树，避免继续消耗 API。
+
+### 判定
+
+- 该 run 不可比，不能作为 Baseline 分数。
+- 这证明 artifact 级并发口径在当前 DashScope API 限额下不可运行。
+- 如果继续云 API 实验，需要另开“低并发 cloud-runtime”口径，例如 `num_threads=1` 或带节流/重试；这将是明确记录的运行环境适配，不应混称为 artifact 并发口径。
+
+### 本地门禁
+
+- 密钥形态扫描：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex`，结果 `0` 命中。
+- 空白检查：`git diff --check`，结果退出码 `0`，仅既有 LF/CRLF warning。
+
+## IFBench paper-adapted 低并发执行前环境体检
+
+时间：2026-06-09 18:25:00 +08:00
+
+### 范围
+
+- 目标：确认继续低并发 cloud-runtime adapted Baseline/GEPA 前，本地环境、artifact 依赖、runner 入口、API 探针和密钥留痕没有阻塞。
+- 分支：`codex/qwen-ifbench-cloud-reproduction`
+- HEAD：`a7c4868c70dba386449844fdd4ab5d73ec8fbcbf`
+- Python：`D:\software\anaconda\python.exe`，版本 `3.13.5`
+- uv：`0.11.15`
+- 本机 CPU：`16`
+
+### 本地验证
+
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py tests/test_ifbench_dashscope_compatibility.py tests/test_no_secret_leak.py -q --basetemp .codex\tmp\pytest-ifbench-env-20260609 -p no:cacheprovider`：`43 passed`
+- `python -m pytest tests/test_gepa_official_runner.py tests/test_minimal_official_path_sanity.py tests/test_aime_upstream_strict_suite.py -q --basetemp .codex\tmp\pytest-runner-env-20260609 -p no:cacheprovider`：`12 passed`，仅 DSPy 依赖弃用警告。
+- `python -m compileall scripts\run_ifbench_qwen3_smoke.py tests\test_ifbench_qwen3_smoke.py tests\test_ifbench_dashscope_compatibility.py tests\test_no_secret_leak.py`：通过。
+- `python -m pytest -q --basetemp .codex\tmp\pytest-full-env-20260609 -p no:cacheprovider`：`320 passed, 11 warnings`。
+### artifact 与入口验证
+
+- artifact worker Python：`.codex\gepa-artifact\.venv\Scripts\python.exe` 存在。
+- artifact `.venv` 导入检查：`spacy=True`、`dspy=True`、`litellm=True`、`openai=True`。
+- IFBench 导入检查：`ifbench_import=ok`、`benchmark_count=1`。
+- paper-adapted Baseline preflight：通过，未启动 benchmark。
+- paper-adapted GEPA preflight：通过，未启动 benchmark。
+- 普通 GEPA tiny preflight：通过，未启动 benchmark。
+- paper-adapted 配置检查：worker Python 指向 artifact `.venv`，`num_threads=16`，`max_metric_calls=3593`，optimizer 名称为 `GEPA`。
+- 原 artifact 配置：Qwen 为 `openai/arbor:qwen/qwen3-8b`，`temperature=0.6`，`top_p=0.95`，`max_context_length=8192`。
+- 原 artifact budget：`('IFBench', 'IFBenchCoT2StageProgram', 'MIPROv2-Heavy') = 3593`。
+- 原 launch 筛选：在 `PYTHONUTF8=1` 下可生成 IFBench/Qwen 的 Baseline 与 GEPA 两条原生命令，`bm_idx=3`、`program_idx=0`、`opt_idx=0/3`、`num_threads=32`。
+
+### 发现与处理
+
+- 裸 Windows artifact 若未设置 `PYTHONUTF8=1`，IFBench JSONL 会触发 `UnicodeDecodeError: 'gbk' codec can't decode byte`。
+- 当前 wrapper 在父进程启动 worker 时已设置 `PYTHONUTF8=1`，因此后续 adapted run 覆盖该环境要求。
+- 全量 `scripts.generate_launch_commands` 会初始化所有 benchmark，首次尝试耗时过长；后续改用同逻辑定向筛选 IFBench/Qwen 命令完成验证。
+### API 与安全留痕
+
+- 最小 DashScope/Qwen API probe：`ok=true`，模型 `qwen3-8b` 返回 `OK`，随后 `preflight 通过，未启动 benchmark。`
+- API key 仅通过进程环境变量注入，未写入任何文件。
+- 密钥形态扫描：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex`，无输出，退出码 `1` 表示未找到匹配。
+- 残留进程检查：未发现匹配 `run_ifbench_qwen3_smoke|pytest|scripts.generate_launch_commands` 的 Python 进程。
+- `git diff --check`：退出码 `0`，仅既有 LF/CRLF warning。
+- 清理：删除本轮生成且读取异常的 `.codex/tmp/launch_commands_gepa_artifact_20260609.txt` 临时诊断文件。
+
+### 判定
+
+- 当前环境足以继续执行低并发 cloud-runtime adapted IFBench/Qwen Baseline 与 GEPA。
+- 该结论不等价于 strict Arbor runtime reproduction；后续报告必须继续标注 DashScope、低并发、`max_tokens=8192` 和 `PYTHONUTF8=1` 等 runtime adaptation。
+
+## IFBench paper-adapted 低并发 Baseline 启动
+
+时间：2026-06-09 20:02:00 +08:00
+
+### 代码适配
+
+- 新增 `--cloud-low-concurrency` 参数，仅允许与 `--paper-adapted` 同时使用。
+- 该模式固定 `num_threads=1`，并在 `reproduction_type` 中追加 `_low_concurrency`。
+- 未改变 IFBench `300/300/294`、GEPA budget `3593`、metric、optimizer 参数或原 runner 核心入口。
+
+### 启动前门禁
+
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-ifbench-low-concurrency-20260609 -p no:cacheprovider`：`36 passed`
+- `python -m compileall scripts\run_ifbench_qwen3_smoke.py tests\test_ifbench_qwen3_smoke.py`：通过
+- Baseline 低并发 preflight：通过，未启动 benchmark
+- GEPA 低并发 preflight：通过，未启动 benchmark
+- 密钥形态扫描：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex` 无命中
+- `git diff --check`：退出码 `0`，仅既有 LF/CRLF warning
+
+### 后台运行口径
+
+- 父进程 PID：`26296`
+- worker 进程 PID：`48404`、`36344`
+- 命令口径：`python scripts\run_ifbench_qwen3_smoke.py --paper-adapted --cloud-low-concurrency --optimizer Baseline --skip-probe --yes --force --request-timeout-seconds 600 --process-timeout-seconds 86400 --parallel-straggler-timeout-seconds 0`
+- API key：仅通过进程环境变量注入，未写入文件。
+- stdout：`.codex/tmp/ifbench_baseline_low_concurrency_20260609_stdout.log`
+- stderr：`.codex/tmp/ifbench_baseline_low_concurrency_20260609_stderr.log`
+- run 目录：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted`
+- 启动确认：`metric_logs/test.jsonl` 已产生 `19/294` 行，说明真实评测已开始推进。
+
+### 启动后复核
+
+- 进程链：`26296 -> 48404 -> 36344`，均为本次 Baseline worker 路径。
+- metric 复核：`metric_logs/test.jsonl` 达到 `90/294` 行。
+- JSON 完整性：`bad_json=0`。
+- index 唯一性：`unique_idx=90`，无重复 `idx_in_split`，当前范围连续到 `89`。
+- stderr：截至本次复核无输出。
+
+### 完成后状态
+
+- 进程状态：父进程 `26296` 与 worker `48404`、`36344` 均已退出。
+- DSPy 评测进度：已到 `294/294`。
+- `evaluation_results/evaluation_result.txt` 已生成：`score=36.56`，`input_tokens=172009`，`output_tokens=194414`。
+- 完整性门禁：未通过。
+- 原因：`metric_logs/test.jsonl` 只有 `293/294` 行，`bad_json=0`，无重复索引，缺失 `idx_in_split=112`。
+- 判定：该 Baseline 不是 clean baseline，不能直接作为后续 GEPA 对比基线；需要先决定恢复缺失 trace、按可审计规则补齐，或重跑 Baseline。
+
+## IFBench paper-adapted 低并发 Baseline 缺行病因与补齐
+
+时间：2026-06-09 21:40:51 +08:00
+
+### 排查结论
+
+- 原始缺失确认：`metric_logs/test.before_backfill_20260609_2110.jsonl` 为 `293/294` 行，缺失 `idx_in_split=112`，无重复索引，`metric_sum=107.5`。
+- 当前补齐确认：`metric_logs/test.jsonl` 为 `294/294` 行，无缺失索引，无重复索引，`metric_sum=107.5`。
+- 评估结果确认：`evaluation_results/evaluation_result.txt` 为 `score=36.56`、`input_tokens=172009`、`output_tokens=194414`。
+- 病因：`run_log_stderr.txt` 显示 `example_key=112` 的 DSPy 输出只解析出 `reasoning`，缺少签名要求的 `response`，因此抛出 `ValueError: Expected dict_keys(['reasoning', 'response']) but got dict_keys(['reasoning'])`。
+- 机制解释：异常发生在 program/prediction 解析阶段，早于 `MetricWithLogger.forward()`，所以该样本没有写入逐样本 metric 行。
+
+### 补齐规则
+
+- 使用已有 `scripts/run_ifbench_qwen3_smoke.py::backfill_missing_test_metric_rows()` 口径补齐。
+- 补齐记录：`idx_in_split=112`、`example_key=112`、`metric_output=0`。
+- 补齐标记：`recovery_status=filled_missing_metric_row`、`recovery_reason=dspy_evaluate_error_without_metric_row`。
+- 保留原始备份：`metric_logs/test.before_backfill_20260609_2110.jsonl`。
+- 判定：补齐只恢复审计完整性，不伪造成功响应，不改变最终分数。
+
+### 本地门禁
+
+- metric 完整性：`rows=294`、`missing=[]`、`duplicates=[]`、`metric_sum=107.5`。
+- 密钥扫描：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex` 无命中。
+- 后续要求：GEPA 完整跑结束后必须执行相同缺失、重复、总分、stderr 和密钥扫描门禁。
+
+## IFBench paper-adapted 低并发 GEPA 启动与门禁
+
+时间：2026-06-09 22:10:00 +08:00
+
+### 启动前门禁
+
+- 目标：使用与 Baseline 相同的 `paper-adapted + cloud-low-concurrency` 口径启动 GEPA。
+- 命令口径：`python scripts\run_ifbench_qwen3_smoke.py --paper-adapted --cloud-low-concurrency --optimizer GEPA --skip-probe --yes --force --request-timeout-seconds 600 --process-timeout-seconds 86400 --parallel-straggler-timeout-seconds 0`。
+- 本地测试：`python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-ifbench-gepa-start-20260609 -p no:cacheprovider` 返回 `36 passed`。
+- compileall：`scripts\run_ifbench_qwen3_smoke.py` 与 `tests\test_ifbench_qwen3_smoke.py` 通过。
+- GEPA preflight：通过，未启动 benchmark。
+- 密钥扫描：`rg -n "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex` 无命中。
+- API key：仅通过进程环境变量注入，未写入文件。
+
+### 第一次 GEPA 尝试
+
+- 进程链：`3568 -> 50232 -> 29108`。
+- run 目录：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted`。
+- 发现：外层 `--cloud-low-concurrency` 已传入 `--num-threads 1`，但 GEPA optimizer 内部 `init_args` 未传 `num_threads`。
+- 代码证据：`.codex/gepa-artifact/gepa_artifact/gepa/gepa.py` 在 `self.num_threads is None` 时回退到 `os.cpu_count()`，本机为 `16`。
+- 影响：GEPA 优化阶段内部 `dspy.Evaluate` 仍以 16 线程执行，触发 DashScope 429。
+- 硬失败证据：`run_log_stderr.txt` 中 `RateLimitError=148`、`limit_requests=74`。
+- 判定：第一次 GEPA run 不可用，未产出 `evaluation_results/evaluation_result.txt`，已终止进程树。
+- 备份：不可用 run 已由第二次 `--force` 备份为 `IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted_backup_20260609_223056`。
+
+### 低并发补丁
+
+- 修改：新增 `build_gepa_init_args(args)`，并在 `--cloud-low-concurrency` 下传入 `init_args["num_threads"] = args.num_threads`。
+- 作用范围：只控制 GEPA 内部 evaluator 并发；不改变 IFBench 数据、GEPA budget、metric、prompt、optimizer 主逻辑或 final eval 门禁。
+- 新增测试：`test_cloud_low_concurrency_sets_gepa_internal_threads`。
+- 本地验证：`python -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-ifbench-gepa-internal-thread-20260609 -p no:cacheprovider` 返回 `37 passed`。
+- compileall：通过。
+- GEPA preflight：通过，未启动 benchmark。
+- 密钥扫描：无命中。
+
+### 第二次 GEPA 尝试
+
+- 进程链：`33812 -> 14992 -> 54196`。
+- run 目录：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted`。
+- 配置确认：`run_log.txt` 中 GEPA `init_args` 已包含 `'num_threads': 1`。
+- 当前状态：仍在运行，已推进到 `Iteration 16`，尚未进入 final test，尚无 `evaluation_results/evaluation_result.txt`。
+- 当前硬失败门禁：截至本记录，`run_log_stderr.txt` 无 `RateLimit`、`Timeout`、`APITimeout`、`ReadTimeout` 命中。
+- 备注：`run_log_stderr.txt` 非空，主要为 DSPy 解析失败日志；该类错误按当前规则不立即判死，最终以 evaluation result 与 metric 完整性为准。
+
+### 第二次 GEPA 尝试停止
+
+时间：2026-06-10 00:10:00 +08:00
+
+- 停止原因：日志长时间不推进，且 `run_log_stderr.txt` 出现 DashScope 内容审查拒绝错误。
+- timeout 检查：`litellm.Timeout=0`、`APITimeoutError=0`、`ReadTimeout=0`、`Timeout=0`。
+- rate-limit 检查：`RateLimitError=0`。
+- 内容审查错误：`BadRequestError=16`、`inappropriate content=16`。
+- 最后日志时间：`run_log.txt` 为 `2026-06-09 23:09:08`，`run_log_stderr.txt` 为 `2026-06-09 23:17:03`。
+- final result：未生成 `evaluation_results/evaluation_result.txt`。
+- 动作：已停止进程链 `33812 -> 14992 -> 54196`，确认无残留 `run_ifbench_qwen3_smoke.py` 进程。
+- 判定：该 GEPA run 不可用，不能与 Baseline 对比。
+## IFBench DashScope 内容拒绝处理编码前检查
+
+时间：2026-06-10 00:32:03 +08:00
+
+### 问题判断
+
+- 当前被 DashScope 内容审查拒绝的样本不多：已观察到 `badrequest_events=4`，unique keys 为 `4476`、`5053`；stderr marker 展开计数为 `BadRequestError=16`、`inappropriate content=16`。
+- 失败不是 600s timeout，也不是 rate limit：已观察到 `litellm.Timeout=0`、`APITimeoutError=0`、`ReadTimeout=0`、`RateLimitError=0`。
+- 当前 GEPA run 已能推进到约 `Iteration 26`，说明低并发与 GEPA 内部线程修正有效；剩余阻塞点是云 provider 内容审查。
+
+### 编码前检查
+
+- 已查阅上下文摘要文件：`.codex/context-summary-ifbench-provider-rejection.md`。
+- 将使用以下可复用组件：
+- `read_example_key()`: 用于审计记录中的样本 key。
+- `build_run_dir()`: 用于定位 provider rejection 审计 JSON。
+- `backfill_missing_test_metric_rows()`: 作为 0 分失败样本留痕的既有模式参考。
+- 将遵循命名约定：Python snake_case 函数与变量、大写常量。
+- 将遵循代码风格：worker 内延迟导入 artifact 依赖；不改 artifact 原入口；所有适配集中在 `scripts/run_ifbench_qwen3_smoke.py`。
+- 确认不重复造轮子：已检查 runner、DSPy `Evaluate`、DSPy `ParallelExecutor`、GEPA `instruction_proposal`、IFBench metric；当前缺的是 provider 内容拒绝的窄口径审计处理。
+
+### 工具约束
+
+- 当前会话未暴露 `desktop-commander` 与 `github.search_code` 工具；本地文件分析使用 PowerShell/rg 替代，并记录该替代路径。
+- 已使用 Context7 查询 DSPy `Evaluate` 的异常、`failure_score`、`max_errors` 行为；本地 fork 源码仍作为最终判据。
+
+## IFBench DashScope 内容拒绝处理实施与门禁
+
+时间：2026-06-10 00:55:00 +08:00
+
+### 实施内容
+
+- 新增 `ProviderContentRejectionAudit`，在 run 目录写入 `provider_rejections.json`。
+- 新增 `is_provider_content_rejection()`，只识别 `data_inspection_failed`、`inappropriate content`、`Input data may contain inappropriate content`。
+- 在 IFBench program 预测阶段捕获 DashScope 内容审查拒绝，返回空 `response`，由原 IFBench metric 自然计 0 分。
+- 在 GEPA instruction proposal 阶段捕获 DashScope 内容审查拒绝，返回当前指令作为 no-op 候选。
+- 不捕获 timeout、rate-limit、鉴权、模型参数错误或其他 BadRequest；这些仍按硬失败处理。
+- 不改 IFBench 数据、prompt、metric、GEPA budget、optimizer 名称或 `scripts.run_experiments.run_experiment_and_write_results(...)` 主入口。
+
+### 超时口径
+
+- 夜间运行使用 `--request-timeout-seconds 1200`，只延长单次 API 请求等待窗口。
+- 夜间运行使用 `--process-timeout-seconds 172800`，允许父进程最多运行 48 小时。
+- `--parallel-straggler-timeout-seconds 0` 保持不变，继续禁用 ParallelExecutor 的 straggler 重提交，避免同一样本重复消耗 API。
+
+### 本地门禁
+
+- `D:\software\anaconda\python.exe -m compileall scripts\run_ifbench_qwen3_smoke.py tests\test_ifbench_qwen3_smoke.py`：通过。
+- `D:\software\anaconda\python.exe -m pytest tests/test_ifbench_qwen3_smoke.py -q --basetemp .codex\tmp\pytest-provider-rejection-20260610 -p no:cacheprovider`：`43 passed`。
+- GEPA preflight：`--paper-adapted --cloud-low-concurrency --optimizer GEPA --skip-probe --preflight-only --request-timeout-seconds 1200 --process-timeout-seconds 172800 --parallel-straggler-timeout-seconds 0`：通过，未启动 benchmark。
+- 密钥形态扫描：`rg -l "sk-[A-Za-z0-9]{20,}" reports scripts tests .codex`：无命中。
+- `git diff --check -- scripts/run_ifbench_qwen3_smoke.py tests/test_ifbench_qwen3_smoke.py .codex/context-summary-ifbench-provider-rejection.md .codex/operations-log.md`：退出码 `0`，仅既有 LF/CRLF warning。
+- 全量测试：`D:\software\anaconda\python.exe -m pytest -q --basetemp .codex\tmp\pytest-full-provider-rejection-20260610 -p no:cacheprovider`：`330 passed, 11 warnings`；警告为既有 DSPy deprecation。
+
+### 编码后声明
+
+- 复用了 `scripts.run_experiments.run_experiment_and_write_results(...)`、`IFBenchCoT2StageProgram`、`MetricWithLogger`、DSPy `Evaluate(failure_score=0)` 的既有失败语义。
+- 新增逻辑只位于 provider runtime adaptation 层，不作为论文 strict reproduction 声称。
+- 对比现有 Baseline 缺行补齐逻辑，本次处理从运行中提前把 provider 拒绝变为可审计 0 分样本，避免 GEPA 被少数 provider 拒绝中断。
+
+## IFBench paper-adapted 低并发 GEPA 内容拒绝适配版启动
+
+时间：2026-06-10 00:54:00 +08:00
+
+### 启动口径
+
+- 命令口径：`D:\software\anaconda\python.exe scripts\run_ifbench_qwen3_smoke.py --paper-adapted --cloud-low-concurrency --optimizer GEPA --skip-probe --yes --force --request-timeout-seconds 1200 --process-timeout-seconds 172800 --parallel-straggler-timeout-seconds 0`
+- API key：仅通过父进程环境变量 `QWEN_API_KEY` 注入，未写入文件，Python 命令行不包含 key。
+- 单次 API 请求 timeout：`1200s`。
+- 父进程总 timeout：`172800s`。
+- straggler 重提交：`0`，保持禁用。
+- stdout：`.codex/tmp/ifbench_gepa_provider_rejection_20260610_stdout.log`
+- stderr：`.codex/tmp/ifbench_gepa_provider_rejection_20260610_stderr.log`
+
+### 启动确认
+
+- 启动命令的 shell 等待窗口超时，但进程树已通过 `Win32_Process` 确认存在。
+- 父进程：`54344`，命令行为 `run_ifbench_qwen3_smoke.py --paper-adapted --cloud-low-concurrency --optimizer GEPA ...`。
+- worker 进程：`56116 -> 85916`。
+- worker 命令行不包含 API key，仅包含 `--api-key-env QWEN_API_KEY`。
+- 启动后目录查询与 `tasklist` 查询明显变慢；为避免影响夜间实验，停止高频探测，后续按需人工查询进度。
+
+## IFBench paper-adapted 低并发 GEPA 完整结果核验
+
+时间：2026-06-10
+
+### 当前状态
+
+- GEPA 主运行已完成，已生成 `evaluation_results/evaluation_result.txt` 与 `evaluation_results/optimized_program`。
+- Baseline run：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted`。
+- GEPA run：`.codex/gepa-artifact/experiment_runs_data/experiment_runs/seed_0/IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted`。
+
+### 完整性门禁
+
+- Baseline：`test.jsonl=294/294`、`unique_idx=294`、`missing=[]`、`duplicates=[]`、`metric_sum=107.5`、`score=36.56`。
+- GEPA：补齐前 `test.jsonl=293/294`，缺 `idx_in_split=241`。
+- GEPA 缺失样本：`example_key=241`，prompt 为 IFBench 原测试集第 241 条。
+- GEPA 已按既有 `backfill_missing_test_metric_rows()` 语义补齐：`prediction=None`、`metric_output=0`、`recovery_status=filled_missing_metric_row`、`recovery_reason=dspy_evaluate_error_without_metric_row`。
+- GEPA 补齐后：`test.jsonl=294/294`、`unique_idx=294`、`missing=[]`、`duplicates=[]`、`metric_sum=105.5`、`score=35.88`。
+- 补齐前后 GEPA metric sum 均为 `105.5`，因此补齐只完善审计行，不改变实验分数含义。
+
+### 错误分类
+
+- Baseline 缺失 `idx=112` 的原因是 DSPy evaluation 解析失败，已按 0 分审计补齐。
+- GEPA 缺失 `idx=241` 的原因是 DSPy evaluation 解析失败，已按同一规则补 0。
+- GEPA `provider_rejections.json` 记录 `total_events=10`，其中 `program_prediction=9`、`instruction_proposal=1`；该类事件属于 DashScope provider runtime adaptation，不是 test 缺失 `idx=241` 的病因。
+- 日志中未发现实际 `Timeout`、`APITimeout`、`ReadTimeout` 或 `RateLimitError` 硬失败。
+
+### 结果判断
+
+- Baseline：`36.56`。
+- GEPA：`35.88`。
+- 差值：`GEPA - Baseline = -0.68`。
+- 论文 IFBench/Qwen3 Figure 9(b) 手工读数约为 Baseline `36.9`、GEPA `38.6`、提升 `+1.7`。
+- 本次 `DashScope/Qwen3 paper-adapted cloud-low-concurrency` 完整复现没有观察到 GEPA 正向提升，不能支持论文该 benchmark 的 GEPA 提升结论。
+- 密钥扫描：扫描 `reports`、`scripts`、`tests`、`.codex` 下 4331 个文本类文件，`sk-[A-Za-z0-9]{20,}` 命中 0。

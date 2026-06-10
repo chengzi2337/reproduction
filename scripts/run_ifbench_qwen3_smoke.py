@@ -10,6 +10,7 @@ import random
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -20,10 +21,19 @@ ARTIFACT_ROOT = PROJECT_ROOT / ".codex" / "gepa-artifact"
 DEFAULT_API_BASE = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 DEFAULT_MODEL = "qwen3-8b"
 DEFAULT_LM_NAME = "qwen3-8b-dashscope-smoke"
+DEFAULT_PAPER_ADAPTED_LM_NAME = "qwen3-8b-dashscope-paper-adapted"
 BENCHMARK_NAME = "IFBench"
 PROGRAM_NAME = "IFBenchCoT2StageProgram"
 BASELINE_OPTIMIZER_NAME = "Baseline"
 GEPA_TINY_OPTIMIZER_NAME = "GEPA-Tiny"
+PAPER_ADAPTED_GEPA_OPTIMIZER_NAME = "GEPA"
+PAPER_ADAPTED_MAX_METRIC_CALLS = 3593
+PAPER_ADAPTED_TRAIN_SIZE = 300
+PAPER_ADAPTED_VAL_SIZE = 300
+PAPER_ADAPTED_TEST_SIZE = 294
+PAPER_ADAPTED_LAUNCH_NUM_THREADS = 32
+PAPER_ADAPTED_NUM_THREADS = min(PAPER_ADAPTED_LAUNCH_NUM_THREADS, os.cpu_count() or 1)
+PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS = 1
 TEXT_EXTENSIONS = {".json", ".jsonl", ".log", ".md", ".txt", ".yaml", ".yml"}
 RUN_ERROR_MARKERS = (
     "litellm.Timeout",
@@ -31,6 +41,13 @@ RUN_ERROR_MARKERS = (
     "ReadTimeout",
     "RateLimitError",
     "exceeded your current request limit",
+)
+PROVIDER_REJECTION_AUDIT_FILENAME = "provider_rejections.json"
+PROVIDER_REJECTION_MESSAGE_MAX_CHARS = 500
+PROVIDER_CONTENT_REJECTION_MARKERS = (
+    "data_inspection_failed",
+    "inappropriate content",
+    "input data may contain inappropriate content",
 )
 WINDOWS_MAX_PATH = 260
 GEPA_DEEPEST_RELATIVE_PATH = Path(
@@ -42,9 +59,60 @@ class SmokeError(RuntimeError):
     pass
 
 
+class ProviderContentRejectionAudit:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._events: list[dict[str, Any]] = []
+
+    def record(
+        self,
+        scope: str,
+        exc: BaseException,
+        example_key: str | None = None,
+    ) -> dict[str, Any]:
+        event: dict[str, Any] = {
+            "scope": scope,
+            "example_key": example_key,
+            "error_type": exc.__class__.__name__,
+            "message": summarize_provider_rejection(exc),
+        }
+        with self._lock:
+            self._events.append(event)
+        return event
+
+    def snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            events = [dict(event) for event in self._events]
+        counts_by_scope: dict[str, int] = {}
+        counts_by_key: dict[str, int] = {}
+        for event in events:
+            scope = str(event.get("scope") or "unknown")
+            counts_by_scope[scope] = counts_by_scope.get(scope, 0) + 1
+            example_key = event.get("example_key")
+            if example_key is not None:
+                key = str(example_key)
+                counts_by_key[key] = counts_by_key.get(key, 0) + 1
+        return {
+            "total_events": len(events),
+            "counts_by_scope": counts_by_scope,
+            "counts_by_key": counts_by_key,
+            "events": events,
+        }
+
+    def write(self, run_dir: Path) -> Path:
+        run_dir.mkdir(parents=True, exist_ok=True)
+        path = run_dir / PROVIDER_REJECTION_AUDIT_FILENAME
+        path.write_text(
+            json.dumps(self.snapshot(), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        return path
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
     parser = argparse.ArgumentParser(
-        description="运行官方 GEPA artifact 的 IFBench + Qwen3 DashScope adapted Baseline/GEPA-Tiny smoke。"
+        description="运行官方 GEPA artifact 的 IFBench + Qwen3 DashScope adapted 实验。"
     )
     parser.add_argument("--api-key-env", default="QWEN_API_KEY")
     parser.add_argument("--api-base", default=os.getenv("QWEN_API_BASE", DEFAULT_API_BASE))
@@ -78,6 +146,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="传给 DSPy ParallelExecutor 的 straggler 重提交阈值；0 表示禁用重提交。",
     )
     parser.add_argument("--enable-thinking", action="store_true")
+    parser.add_argument(
+        "--paper-adapted",
+        action="store_true",
+        help=(
+            "启用论文级云 API 适配口径：IFBench 300/300/294，GEPA budget=3593，"
+            "并保留原 GEPA 默认行为。"
+        ),
+    )
+    parser.add_argument(
+        "--cloud-low-concurrency",
+        action="store_true",
+        help="仅用于 paper-adapted 云 API 路线，将运行线程固定为 1 并显式标注运行层适配。",
+    )
     parser.add_argument("--skip-probe", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--force", action="store_true", help="将已有同名 run 目录移动到带时间戳的备份目录。")
@@ -94,7 +175,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--worker-recover", action="store_true", help=argparse.SUPPRESS)
-    args = parser.parse_args(argv)
+    args = parser.parse_args(raw_argv)
+    apply_paper_adapted_defaults(args, raw_argv)
     for field_name in ("train_size", "val_size", "test_size"):
         if getattr(args, field_name) < 1:
             cli_name = field_name.replace("_", "-")
@@ -106,6 +188,47 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     if args.split_seed is not None and args.split_seed < 0:
         raise SmokeError("`--split-seed` 不能为负数。")
     return args
+
+
+def option_was_provided(argv: list[str], option: str) -> bool:
+    return any(item == option or item.startswith(f"{option}=") for item in argv)
+
+
+def apply_paper_adapted_defaults(args: argparse.Namespace, argv: list[str]) -> None:
+    if not args.paper_adapted:
+        if args.cloud_low_concurrency:
+            raise SmokeError("`--cloud-low-concurrency` 必须与 `--paper-adapted` 同时使用。")
+        return
+    if args.split_seed is not None:
+        raise SmokeError("`--paper-adapted` 保留 artifact 前缀切分，不允许同时使用 `--split-seed`。")
+
+    paper_num_threads = (
+        PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS
+        if args.cloud_low_concurrency
+        else PAPER_ADAPTED_NUM_THREADS
+    )
+    for field_name, option_name, paper_value in (
+        ("train_size", "--train-size", PAPER_ADAPTED_TRAIN_SIZE),
+        ("val_size", "--val-size", PAPER_ADAPTED_VAL_SIZE),
+        ("test_size", "--test-size", PAPER_ADAPTED_TEST_SIZE),
+        ("num_threads", "--num-threads", paper_num_threads),
+    ):
+        if option_was_provided(argv, option_name) and getattr(args, field_name) != paper_value:
+            raise SmokeError(f"`--paper-adapted` 要求 `{option_name}` 为 {paper_value}。")
+        setattr(args, field_name, paper_value)
+
+    if args.optimizer == "GEPA":
+        if (
+            option_was_provided(argv, "--max-metric-calls")
+            and args.max_metric_calls != PAPER_ADAPTED_MAX_METRIC_CALLS
+        ):
+            raise SmokeError(
+                f"`--paper-adapted` 的 GEPA budget 必须是 {PAPER_ADAPTED_MAX_METRIC_CALLS}。"
+            )
+        args.max_metric_calls = PAPER_ADAPTED_MAX_METRIC_CALLS
+
+    if not option_was_provided(argv, "--lm-name") and args.lm_name == DEFAULT_LM_NAME:
+        args.lm_name = DEFAULT_PAPER_ADAPTED_LM_NAME
 
 
 def normalize_dspy_model(model: str) -> str:
@@ -127,6 +250,8 @@ def normalize_provider_model(model: str) -> str:
 def resolve_optimizer_name(args: argparse.Namespace) -> str:
     if args.optimizer == "Baseline":
         return BASELINE_OPTIMIZER_NAME
+    if getattr(args, "paper_adapted", False):
+        return PAPER_ADAPTED_GEPA_OPTIMIZER_NAME
     return GEPA_TINY_OPTIMIZER_NAME
 
 
@@ -140,6 +265,11 @@ def resolve_lm_name(args: argparse.Namespace) -> str:
 
 
 def build_reproduction_type(args: argparse.Namespace) -> str:
+    if getattr(args, "paper_adapted", False):
+        suffix = "_low_concurrency" if getattr(args, "cloud_low_concurrency", False) else ""
+        if args.optimizer == "Baseline":
+            return f"artifact_ifbench_dashscope_qwen3_paper_adapted_baseline{suffix}"
+        return f"artifact_ifbench_dashscope_qwen3_paper_adapted_gepa{suffix}"
     if args.optimizer == "Baseline":
         return "artifact_ifbench_dashscope_qwen3_adapted_baseline_smoke"
     return "artifact_ifbench_dashscope_qwen3_adapted_gepa_tiny"
@@ -158,6 +288,21 @@ def build_lm_config(args: argparse.Namespace) -> dict[str, Any]:
             "top_k": args.top_k,
         },
     }
+
+
+def build_gepa_init_args(args: argparse.Namespace) -> dict[str, Any]:
+    init_args = {
+        "run_linearized_gepa": False,
+        "use_merge": False,
+        "set_for_merge_minibatch": "val",
+        "track_scores_on": "val",
+        "max_metric_calls": args.max_metric_calls,
+    }
+    if getattr(args, "cloud_low_concurrency", False):
+        init_args["num_threads"] = args.num_threads
+    if not args.paper_adapted:
+        init_args["skip_perfect_score"] = False
+    return init_args
 
 
 def derive_split_seed(split_seed: int, split_name: str) -> int:
@@ -181,14 +326,121 @@ def select_split_items(
 
 
 def read_example_key(example: Any) -> str | None:
-    if isinstance(example, dict):
-        value = example.get("key")
-    else:
-        try:
-            value = example["key"]
-        except (KeyError, TypeError):
-            value = getattr(example, "key", None)
+    value = read_example_field(example, "key")
     return None if value is None else str(value)
+
+
+def read_example_field(example: Any, field_name: str) -> Any | None:
+    if isinstance(example, dict):
+        return example.get(field_name)
+    try:
+        return example[field_name]
+    except (KeyError, TypeError):
+        return getattr(example, field_name, None)
+
+
+def read_example_prompt(example: Any) -> str | None:
+    value = read_example_field(example, "prompt")
+    return None if value is None else str(value)
+
+
+def summarize_provider_rejection(exc: BaseException) -> str:
+    message = " ".join(str(exc).split())
+    return message[:PROVIDER_REJECTION_MESSAGE_MAX_CHARS]
+
+
+def is_provider_content_rejection(exc: BaseException) -> bool:
+    text = f"{exc.__class__.__module__}.{exc.__class__.__name__} {exc}".lower()
+    return any(marker in text for marker in PROVIDER_CONTENT_REJECTION_MARKERS)
+
+
+def load_provider_rejection_audit(run_dir: Path) -> dict[str, Any]:
+    path = run_dir / PROVIDER_REJECTION_AUDIT_FILENAME
+    if not path.exists():
+        return {
+            "total_events": 0,
+            "counts_by_scope": {},
+            "counts_by_key": {},
+            "events": [],
+        }
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SmokeError(f"provider rejection 审计文件 JSON 解析失败：{path}") from exc
+    if not isinstance(payload, dict):
+        raise SmokeError(f"provider rejection 审计文件顶层必须是对象：{path}")
+    return payload
+
+
+def handle_program_provider_rejection(
+    original_call: Any,
+    prediction_factory: Any,
+    audit: ProviderContentRejectionAudit,
+    example_key: str | None,
+    *call_args: Any,
+    **call_kwargs: Any,
+) -> Any:
+    try:
+        return original_call(*call_args, **call_kwargs)
+    except Exception as exc:
+        if not is_provider_content_rejection(exc):
+            raise
+        audit.record("program_prediction", exc, example_key=example_key)
+        return prediction_factory(response="")
+
+
+def build_gepa_instruction_prompt(
+    prompt: str,
+    current_instruction_doc: str,
+    user_examples_and_feedback: str,
+    reference_materials: str | None = None,
+) -> str:
+    full_prompt = prompt.replace("<curr_instructions>", current_instruction_doc)
+    full_prompt = full_prompt.replace("<inputs_outputs_feedback>", user_examples_and_feedback)
+    if reference_materials is not None:
+        full_prompt = full_prompt.replace("<reference_materials>", reference_materials)
+    return full_prompt
+
+
+def extract_gepa_instruction_response(lm_out: str) -> str:
+    lm_out = lm_out.strip()
+    if lm_out.count("```") >= 2:
+        start = lm_out.find("```")
+        end = lm_out.rfind("```")
+        if start >= end or start == -1 or end == -1:
+            return lm_out
+        return lm_out[start + 3 : end].strip()
+    if lm_out.startswith("```"):
+        lm_out = lm_out[3:]
+    if lm_out.endswith("```"):
+        lm_out = lm_out[:-3]
+    return lm_out
+
+
+def call_instruction_lm_with_provider_rejection(
+    prompt: str,
+    lm: Any,
+    current_instruction_doc: str,
+    user_examples_and_feedback: str,
+    max_tokens: int,
+    audit: ProviderContentRejectionAudit | None = None,
+    reference_materials: str | None = None,
+) -> str:
+    full_prompt = build_gepa_instruction_prompt(
+        prompt,
+        current_instruction_doc,
+        user_examples_and_feedback,
+        reference_materials,
+    )
+    try:
+        lm_out = lm(full_prompt, max_tokens=max_tokens)[0].strip()
+    except Exception as exc:
+        if not is_provider_content_rejection(exc):
+            raise
+        if audit is not None:
+            audit.record("instruction_proposal", exc)
+        return current_instruction_doc
+    return extract_gepa_instruction_response(lm_out)
 
 
 def build_split_entry(
@@ -250,7 +502,7 @@ def build_run_dir(lm_name: str, seed: int, optimizer_name: str = BASELINE_OPTIMI
 
 
 def assert_run_path_safe(run_dir: Path, optimizer_name: str) -> None:
-    if os.name != "nt" or optimizer_name != GEPA_TINY_OPTIMIZER_NAME:
+    if os.name != "nt" or optimizer_name == BASELINE_OPTIMIZER_NAME:
         return
     deepest_path = run_dir / GEPA_DEEPEST_RELATIVE_PATH
     if len(str(deepest_path)) >= WINDOWS_MAX_PATH:
@@ -527,6 +779,10 @@ def build_worker_command(args: argparse.Namespace) -> list[str]:
         "--parallel-straggler-timeout-seconds",
         str(args.parallel_straggler_timeout_seconds),
     ]
+    if args.paper_adapted:
+        command.append("--paper-adapted")
+    if args.cloud_low_concurrency:
+        command.append("--cloud-low-concurrency")
     if args.split_seed is not None:
         command.extend(["--split-seed", str(args.split_seed)])
     if args.enable_thinking:
@@ -762,6 +1018,7 @@ def run_parent(args: argparse.Namespace) -> int:
 
     metric_rows = assert_run_integrity(run_dir, args.test_size)
     evaluation_result = parse_evaluation_result(run_dir)
+    provider_rejections = load_provider_rejection_audit(run_dir)
     leaked_files = find_secret_leaks(api_key, default_secret_scan_roots(run_dir))
     if leaked_files:
         joined = "\n".join(str(path) for path in leaked_files)
@@ -791,7 +1048,10 @@ def run_parent(args: argparse.Namespace) -> int:
         "num_retries": args.num_retries,
         "lm_call_sleep_seconds": args.lm_call_sleep_seconds,
         "parallel_straggler_timeout_seconds": args.parallel_straggler_timeout_seconds,
+        "paper_adapted": args.paper_adapted,
+        "cloud_low_concurrency": args.cloud_low_concurrency,
         "evaluation_result": evaluation_result,
+        "provider_rejections": provider_rejections,
         "secret_scan_matches": 0,
         "probe": probe_payload,
         "reproduction_type": build_reproduction_type(args),
@@ -805,18 +1065,23 @@ def run_worker(args: argparse.Namespace) -> int:
         sys.path.insert(0, str(ARTIFACT_ROOT))
     os.chdir(ARTIFACT_ROOT)
 
+    import dspy
     from gepa_artifact.benchmarks.IFBench import benchmark as ifbench_benchmark
     from gepa_artifact.benchmarks.IFBench.ifbench_data import IFBench
+    from gepa_artifact.benchmarks.IFBench.ifbench_program import IFBenchCoT2StageProgram
     from gepa_artifact.utils.optimizers import OptimizerConfig
     from dspy.utils.parallelizer import ParallelExecutor
     import scripts.run_experiments as runner
 
     original_init_dataset = IFBench.init_dataset
+    original_program_call = IFBenchCoT2StageProgram.__call__
     original_parallel_executor_init = ParallelExecutor.__init__
     optimizer_name = resolve_optimizer_name(args)
     effective_lm_name = resolve_lm_name(args)
     run_dir = build_run_dir(effective_lm_name, args.seed, optimizer_name)
     split_manifest_payload: dict[str, Any] | None = None
+    prompt_to_key: dict[str, str | None] = {}
+    provider_rejection_audit = ProviderContentRejectionAudit()
 
     def patched_parallel_executor_init(self: Any, *init_args: Any, **init_kwargs: Any) -> Any:
         init_kwargs["timeout"] = args.parallel_straggler_timeout_seconds
@@ -848,6 +1113,11 @@ def run_worker(args: argparse.Namespace) -> int:
             "test",
         )
         self.dataset = self.train_set + self.val_set + self.test_set
+        prompt_to_key.clear()
+        for item in self.dataset:
+            prompt = read_example_prompt(item)
+            if prompt is not None and prompt not in prompt_to_key:
+                prompt_to_key[prompt] = read_example_key(item)
         split_manifest_payload = {
             "protocol": "seeded_shuffle" if args.split_seed is not None else "legacy_prefix",
             "optimizer_seed": args.seed,
@@ -882,9 +1152,22 @@ def run_worker(args: argparse.Namespace) -> int:
             },
         }
 
-    def create_lm(lm_config: dict[str, Any]) -> Any:
-        import dspy
+    def patched_ifbench_program_call(self: Any, *call_args: Any, **call_kwargs: Any) -> Any:
+        prompt = call_kwargs.get("prompt")
+        if prompt is None and call_args:
+            prompt = call_args[0]
+        example_key = prompt_to_key.get(str(prompt)) if prompt is not None else None
+        return handle_program_provider_rejection(
+            original_program_call,
+            dspy.Prediction,
+            provider_rejection_audit,
+            example_key,
+            self,
+            *call_args,
+            **call_kwargs,
+        )
 
+    def create_lm(lm_config: dict[str, Any]) -> Any:
         config = lm_config.copy()
         config["model"] = config.pop("new_model_name", config["model"])
         config = {key: value for key, value in config.items() if key != "name"}
@@ -909,6 +1192,7 @@ def run_worker(args: argparse.Namespace) -> int:
         return lm
 
     IFBench.init_dataset = patched_init_dataset
+    IFBenchCoT2StageProgram.__call__ = patched_ifbench_program_call
     ParallelExecutor.__init__ = patched_parallel_executor_init
 
     def build_optimizer_config() -> OptimizerConfig:
@@ -938,37 +1222,22 @@ def run_worker(args: argparse.Namespace) -> int:
             user_examples_and_feedback: str,
             reference_materials: str | None = None,
         ) -> str:
-            full_prompt = prompt.replace("<curr_instructions>", current_instruction_doc)
-            full_prompt = full_prompt.replace("<inputs_outputs_feedback>", user_examples_and_feedback)
-            if reference_materials is not None:
-                full_prompt = full_prompt.replace("<reference_materials>", reference_materials)
-            lm_out = lm(full_prompt, max_tokens=args.max_tokens)[0].strip()
-            if lm_out.count("```") >= 2:
-                start = lm_out.find("```")
-                end = lm_out.rfind("```")
-                if start >= end or start == -1 or end == -1:
-                    return lm_out
-                return lm_out[start + 3 : end].strip()
-            lm_out = lm_out.strip()
-            if lm_out.startswith("```"):
-                lm_out = lm_out[3:]
-            if lm_out.endswith("```"):
-                lm_out = lm_out[:-3]
-            return lm_out
+            return call_instruction_lm_with_provider_rejection(
+                prompt=prompt,
+                lm=lm,
+                current_instruction_doc=current_instruction_doc,
+                user_examples_and_feedback=user_examples_and_feedback,
+                reference_materials=reference_materials,
+                max_tokens=args.max_tokens,
+                audit=provider_rejection_audit,
+            )
 
         GEPA.__init__ = patched_gepa_init
         instruction_proposal.call_lm_and_extract_response = patched_call_lm_and_extract_response
         runner.wandb_api_key = ""
         return OptimizerConfig(
             optimizer=GEPA,
-            init_args={
-                "run_linearized_gepa": False,
-                "use_merge": False,
-                "set_for_merge_minibatch": "val",
-                "track_scores_on": "val",
-                "max_metric_calls": args.max_metric_calls,
-                "skip_perfect_score": False,
-            },
+            init_args=build_gepa_init_args(args),
             compile_args={},
             langProBe_configs={
                 "use_valset": True,
@@ -981,19 +1250,22 @@ def run_worker(args: argparse.Namespace) -> int:
     runner.get_optimizers = lambda: [(optimizer_name, build_optimizer_config())]
     runner.create_lm = create_lm
 
-    runner.run_experiment_and_write_results(
-        bm_idx=0,
-        benchmark_name=BENCHMARK_NAME,
-        num_threads=args.num_threads,
-        program_idx=0,
-        prog_name=PROGRAM_NAME,
-        opt_idx=0,
-        optim_name=optimizer_name,
-        lm_config=build_lm_config(args),
-        dry_run=False,
-        use_cache_from_opt=None,
-        seed=args.seed,
-    )
+    try:
+        runner.run_experiment_and_write_results(
+            bm_idx=0,
+            benchmark_name=BENCHMARK_NAME,
+            num_threads=args.num_threads,
+            program_idx=0,
+            prog_name=PROGRAM_NAME,
+            opt_idx=0,
+            optim_name=optimizer_name,
+            lm_config=build_lm_config(args),
+            dry_run=False,
+            use_cache_from_opt=None,
+            seed=args.seed,
+        )
+    finally:
+        provider_rejection_audit.write(run_dir)
     if split_manifest_payload is None:
         raise SmokeError("IFBench 数据集未初始化，无法写入 split manifest。")
     write_split_manifest(run_dir, split_manifest_payload)

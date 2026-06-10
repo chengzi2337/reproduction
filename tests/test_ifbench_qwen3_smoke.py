@@ -25,6 +25,8 @@ def make_args(**overrides):
         "model": "qwen3-8b",
         "optimizer": "Baseline",
         "max_metric_calls": 8,
+        "paper_adapted": False,
+        "cloud_low_concurrency": False,
         "train_size": 2,
         "val_size": 2,
         "test_size": 2,
@@ -67,6 +69,111 @@ def test_build_run_dir_uses_artifact_layout() -> None:
     assert "seed_0" in str(run_dir)
 
 
+def test_provider_content_rejection_detection_is_narrow() -> None:
+    module = load_smoke_module()
+
+    class BadRequestError(Exception):
+        pass
+
+    assert module.is_provider_content_rejection(
+        BadRequestError("Error code: 400 - {'type': 'data_inspection_failed'}")
+    )
+    assert module.is_provider_content_rejection(
+        BadRequestError("Input data may contain inappropriate content.")
+    )
+    assert not module.is_provider_content_rejection(BadRequestError("invalid model parameter"))
+    assert not module.is_provider_content_rejection(RuntimeError("RateLimitError"))
+
+
+def test_provider_rejection_audit_writes_counts(tmp_path: Path) -> None:
+    module = load_smoke_module()
+    audit = module.ProviderContentRejectionAudit()
+    audit.record("program_prediction", RuntimeError("data_inspection_failed"), example_key="4476")
+    audit.record("instruction_proposal", RuntimeError("inappropriate content"))
+    path = audit.write(tmp_path)
+    payload = module.load_provider_rejection_audit(tmp_path)
+    assert path.name == module.PROVIDER_REJECTION_AUDIT_FILENAME
+    assert payload["total_events"] == 2
+    assert payload["counts_by_scope"] == {"program_prediction": 1, "instruction_proposal": 1}
+    assert payload["counts_by_key"] == {"4476": 1}
+
+
+def test_program_provider_rejection_returns_empty_prediction() -> None:
+    module = load_smoke_module()
+
+    class Prediction:
+        def __init__(self, **kwargs) -> None:
+            self.__dict__.update(kwargs)
+
+    def rejected_call(*args, **kwargs):
+        raise RuntimeError("data_inspection_failed: Input data may contain inappropriate content")
+
+    audit = module.ProviderContentRejectionAudit()
+    result = module.handle_program_provider_rejection(
+        rejected_call,
+        Prediction,
+        audit,
+        "5053",
+        prompt="example",
+    )
+    assert result.response == ""
+    assert audit.snapshot()["counts_by_key"] == {"5053": 1}
+
+
+def test_program_provider_rejection_reraises_non_content_error() -> None:
+    module = load_smoke_module()
+
+    def rejected_call(*args, **kwargs):
+        raise RuntimeError("RateLimitError")
+
+    try:
+        module.handle_program_provider_rejection(
+            rejected_call,
+            lambda **kwargs: kwargs,
+            module.ProviderContentRejectionAudit(),
+            "x",
+        )
+    except RuntimeError as exc:
+        assert "RateLimitError" in str(exc)
+    else:
+        raise AssertionError("非内容审查错误必须继续抛出，不能被当成可审计 0 分样本。")
+
+
+def test_instruction_provider_rejection_returns_current_instruction() -> None:
+    module = load_smoke_module()
+
+    def rejected_lm(*args, **kwargs):
+        raise RuntimeError("data_inspection_failed: inappropriate content")
+
+    audit = module.ProviderContentRejectionAudit()
+    result = module.call_instruction_lm_with_provider_rejection(
+        prompt="<curr_instructions>\n<inputs_outputs_feedback>",
+        lm=rejected_lm,
+        current_instruction_doc="原始指令",
+        user_examples_and_feedback="反馈",
+        max_tokens=8192,
+        audit=audit,
+    )
+    assert result == "原始指令"
+    assert audit.snapshot()["counts_by_scope"] == {"instruction_proposal": 1}
+
+
+def test_instruction_response_extraction_preserves_existing_fence_logic() -> None:
+    module = load_smoke_module()
+
+    def lm(*args, **kwargs):
+        return ["```新指令```"]
+
+    result = module.call_instruction_lm_with_provider_rejection(
+        prompt="<curr_instructions>\n<inputs_outputs_feedback>",
+        lm=lm,
+        current_instruction_doc="原始指令",
+        user_examples_and_feedback="反馈",
+        max_tokens=8192,
+    )
+    assert result == "新指令"
+
+
 def test_gepa_run_path_rejects_windows_max_path(monkeypatch) -> None:
     module = load_smoke_module()
     monkeypatch.setattr(module.os, "name", "nt")
@@ -94,6 +201,86 @@ def test_split_sizes_default_to_two_for_smoke() -> None:
     assert args.val_size == 2
     assert args.test_size == 2
     assert args.split_seed is None
+    assert args.paper_adapted is False
+    assert args.cloud_low_concurrency is False
+
+
+def test_paper_adapted_defaults_to_paper_protocol() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--paper-adapted", "--optimizer", "GEPA"])
+    assert args.train_size == module.PAPER_ADAPTED_TRAIN_SIZE
+    assert args.val_size == module.PAPER_ADAPTED_VAL_SIZE
+    assert args.test_size == module.PAPER_ADAPTED_TEST_SIZE
+    assert args.num_threads == module.PAPER_ADAPTED_NUM_THREADS
+    assert args.max_metric_calls == module.PAPER_ADAPTED_MAX_METRIC_CALLS
+    assert args.lm_name == module.DEFAULT_PAPER_ADAPTED_LM_NAME
+    assert module.resolve_optimizer_name(args) == module.PAPER_ADAPTED_GEPA_OPTIMIZER_NAME
+    assert module.build_reproduction_type(args) == "artifact_ifbench_dashscope_qwen3_paper_adapted_gepa"
+
+
+def test_paper_adapted_cloud_low_concurrency_marks_runtime_adaptation() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--paper-adapted", "--cloud-low-concurrency", "--optimizer", "GEPA"])
+    assert args.train_size == module.PAPER_ADAPTED_TRAIN_SIZE
+    assert args.val_size == module.PAPER_ADAPTED_VAL_SIZE
+    assert args.test_size == module.PAPER_ADAPTED_TEST_SIZE
+    assert args.num_threads == module.PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS
+    assert args.max_metric_calls == module.PAPER_ADAPTED_MAX_METRIC_CALLS
+    assert module.resolve_optimizer_name(args) == module.PAPER_ADAPTED_GEPA_OPTIMIZER_NAME
+    assert (
+        module.build_reproduction_type(args)
+        == "artifact_ifbench_dashscope_qwen3_paper_adapted_gepa_low_concurrency"
+    )
+
+
+def test_cloud_low_concurrency_sets_gepa_internal_threads() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--paper-adapted", "--cloud-low-concurrency", "--optimizer", "GEPA"])
+    init_args = module.build_gepa_init_args(args)
+    assert init_args["num_threads"] == module.PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS
+    assert init_args["max_metric_calls"] == module.PAPER_ADAPTED_MAX_METRIC_CALLS
+    assert "skip_perfect_score" not in init_args
+
+
+def test_paper_adapted_rejects_conflicting_protocol() -> None:
+    module = load_smoke_module()
+    conflicting_threads = (
+        module.PAPER_ADAPTED_NUM_THREADS + 1
+        if module.PAPER_ADAPTED_NUM_THREADS < module.PAPER_ADAPTED_LAUNCH_NUM_THREADS
+        else 1
+    )
+    assert module.main(["--paper-adapted", "--train-size", "20", "--preflight-only"]) == 2
+    assert module.main(["--cloud-low-concurrency", "--preflight-only"]) == 2
+    assert (
+        module.main(
+            [
+                "--paper-adapted",
+                "--cloud-low-concurrency",
+                "--num-threads",
+                "2",
+                "--preflight-only",
+            ]
+        )
+        == 2
+    )
+    assert (
+        module.main(["--paper-adapted", "--num-threads", str(conflicting_threads), "--preflight-only"])
+        == 2
+    )
+    assert module.main(["--paper-adapted", "--split-seed", "1", "--preflight-only"]) == 2
+    assert (
+        module.main(
+            [
+                "--paper-adapted",
+                "--optimizer",
+                "GEPA",
+                "--max-metric-calls",
+                "120",
+                "--preflight-only",
+            ]
+        )
+        == 2
+    )
 
 
 def test_split_sizes_must_be_positive() -> None:
@@ -157,6 +344,44 @@ def test_worker_command_passes_split_seed() -> None:
     module = load_smoke_module()
     command = module.build_worker_command(make_args(split_seed=4))
     assert command[command.index("--split-seed") + 1] == "4"
+
+
+def test_worker_command_passes_paper_adapted_mode() -> None:
+    module = load_smoke_module()
+    command = module.build_worker_command(
+        make_args(
+            paper_adapted=True,
+            optimizer="GEPA",
+            max_metric_calls=module.PAPER_ADAPTED_MAX_METRIC_CALLS,
+            train_size=module.PAPER_ADAPTED_TRAIN_SIZE,
+            val_size=module.PAPER_ADAPTED_VAL_SIZE,
+            test_size=module.PAPER_ADAPTED_TEST_SIZE,
+            num_threads=module.PAPER_ADAPTED_NUM_THREADS,
+        )
+    )
+    assert "--paper-adapted" in command
+    assert command[command.index("--max-metric-calls") + 1] == "3593"
+    assert command[command.index("--train-size") + 1] == "300"
+    assert command[command.index("--test-size") + 1] == "294"
+    assert command[command.index("--num-threads") + 1] == str(module.PAPER_ADAPTED_NUM_THREADS)
+
+
+def test_worker_command_passes_cloud_low_concurrency_mode() -> None:
+    module = load_smoke_module()
+    command = module.build_worker_command(
+        make_args(
+            paper_adapted=True,
+            cloud_low_concurrency=True,
+            optimizer="Baseline",
+            train_size=module.PAPER_ADAPTED_TRAIN_SIZE,
+            val_size=module.PAPER_ADAPTED_VAL_SIZE,
+            test_size=module.PAPER_ADAPTED_TEST_SIZE,
+            num_threads=module.PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS,
+        )
+    )
+    assert "--paper-adapted" in command
+    assert "--cloud-low-concurrency" in command
+    assert command[command.index("--num-threads") + 1] == "1"
 
 
 def test_worker_command_disables_parallel_straggler_resubmit_by_default() -> None:
@@ -224,6 +449,29 @@ def test_gepa_optimizer_uses_tiny_name_and_reproduction_type() -> None:
     assert run_dir.name == "IFBench_IFBenchCoT2StageProgram_GEPA-Tiny_qwen3-8b-dashscope-smoke"
     assert module.build_reproduction_type(args) == "artifact_ifbench_dashscope_qwen3_adapted_gepa_tiny"
     assert args.max_metric_calls == 8
+
+
+def test_paper_adapted_baseline_uses_paper_reproduction_type() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--paper-adapted"])
+    assert module.resolve_optimizer_name(args) == module.BASELINE_OPTIMIZER_NAME
+    assert module.build_reproduction_type(args) == "artifact_ifbench_dashscope_qwen3_paper_adapted_baseline"
+    assert args.train_size == module.PAPER_ADAPTED_TRAIN_SIZE
+    assert args.test_size == module.PAPER_ADAPTED_TEST_SIZE
+    assert args.num_threads == module.PAPER_ADAPTED_NUM_THREADS
+
+
+def test_paper_adapted_baseline_low_concurrency_uses_distinct_reproduction_type() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--paper-adapted", "--cloud-low-concurrency"])
+    assert module.resolve_optimizer_name(args) == module.BASELINE_OPTIMIZER_NAME
+    assert (
+        module.build_reproduction_type(args)
+        == "artifact_ifbench_dashscope_qwen3_paper_adapted_baseline_low_concurrency"
+    )
+    assert args.train_size == module.PAPER_ADAPTED_TRAIN_SIZE
+    assert args.test_size == module.PAPER_ADAPTED_TEST_SIZE
+    assert args.num_threads == module.PAPER_ADAPTED_LOW_CONCURRENCY_NUM_THREADS
 
 
 def test_resolve_worker_python_prefers_current_interpreter_when_supported(monkeypatch) -> None:
