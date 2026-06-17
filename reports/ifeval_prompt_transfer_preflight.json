@@ -1,15 +1,15 @@
 {
-  "status": "blocked",
-  "generated_at": "20260617T204636+0800",
+  "status": "ready",
+  "generated_at": "20260617T210650+0800",
   "api_call_enabled": false,
   "full_budget_gepa_enabled": false,
-  "dataset_status": "dataset_missing",
-  "checker_status": "checker_unavailable",
-  "checker_smoke_status": "not_run",
-  "checker_smoke_sample_count": 0,
-  "checker_smoke_error": "缺少 IFEval root 或 dataset path。",
-  "prompt_level_accuracy_available": false,
-  "instruction_level_accuracy_available": false,
+  "dataset_status": "ok",
+  "checker_status": "ok",
+  "checker_smoke_status": "ok",
+  "checker_smoke_sample_count": 3,
+  "checker_smoke_error": null,
+  "prompt_level_accuracy_available": true,
+  "instruction_level_accuracy_available": true,
   "variant_count": 6,
   "variants": [
     {
@@ -103,7 +103,7 @@
       ]
     }
   ],
-  "sample_count_detected": 0,
+  "sample_count_detected": 4,
   "schema": {
     "ifeval_sample": {
       "prompt": {
@@ -149,18 +149,20 @@
     }
   },
   "ifeval_root": {
-    "ifeval_root_status": "missing",
-    "ifeval_root": null,
+    "ifeval_root_status": "ok",
+    "ifeval_root": "C:/Users/lin/Documents/external/google-research/instruction_following_eval",
     "checked_ifeval_roots": [
+      "C:/Users/lin/Documents/external/google-research/instruction_following_eval",
       "C:/Users/lin/Documents/New project 2/external/google-research/instruction_following_eval",
       "C:/Users/lin/Documents/google-research/instruction_following_eval"
     ],
-    "repair_suggestion": "请通过 --ifeval-root 指向本地 google-research/instruction_following_eval，或设置 IFEVAL_ROOT。不要把完整 google-research 仓库提交进当前 repo。"
+    "repair_suggestion": null
   },
   "dataset": {
-    "dataset_status": "dataset_missing",
-    "dataset_path": null,
+    "dataset_status": "ok",
+    "dataset_path": "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
     "checked_paths": [
+      "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
       "C:/Users/lin/Documents/New project 2/data/ifeval.jsonl",
       "C:/Users/lin/Documents/New project 2/data/ifeval.json",
       "C:/Users/lin/Documents/New project 2/data/IFEval/input_data.jsonl",
@@ -168,29 +170,115 @@
       "C:/Users/lin/Documents/New project 2/datasets/ifeval.jsonl",
       "C:/Users/lin/Documents/New project 2/datasets/ifeval.json"
     ],
-    "repair_suggestion": "请准备本地官方 IFEval 数据文件，例如 `--ifeval-root external/google-research/instruction_following_eval`，或通过 --dataset-path 显式指定 input_data.jsonl。",
-    "sample_count_detected": 0,
-    "samples_preview": []
+    "sample_count_detected": 4,
+    "samples_preview": [
+      {
+        "prompt": "Write a 300+ word summary of the wikipedia page \"https://en.wikipedia.org/wiki/Raymond_III,_Count_of_Tripoli\". Do not use any commas and highlight at least 3 sections that has titles in markdown format, for example *highlighted section part 1*, *highlighted section part 2*, *highlighted section part 3*.",
+        "instruction_id_list": [
+          "punctuation:no_comma",
+          "detectable_format:number_highlighted_sections",
+          "length_constraints:number_words"
+        ],
+        "kwargs": [
+          {},
+          {
+            "num_highlights": 3
+          },
+          {
+            "relation": "at least",
+            "num_words": 300
+          }
+        ],
+        "metadata": {
+          "source_path": "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
+          "source_index": 0,
+          "raw_fields": [
+            "instruction_id_list",
+            "key",
+            "kwargs",
+            "prompt"
+          ]
+        }
+      },
+      {
+        "prompt": "I am planning a trip to Japan, and I would like thee to write an itinerary for my journey in a Shakespearean style. You are not allowed to use any commas in your response.",
+        "instruction_id_list": [
+          "punctuation:no_comma"
+        ],
+        "kwargs": [
+          {}
+        ],
+        "metadata": {
+          "source_path": "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
+          "source_index": 1,
+          "raw_fields": [
+            "instruction_id_list",
+            "key",
+            "kwargs",
+            "prompt"
+          ]
+        }
+      },
+      {
+        "prompt": "Write a resume for a fresh high school graduate who is seeking their first job. Make sure to include at least 12 placeholder represented by square brackets, such as [address], [name].",
+        "instruction_id_list": [
+          "detectable_content:number_placeholders"
+        ],
+        "kwargs": [
+          {
+            "num_placeholders": 12
+          }
+        ],
+        "metadata": {
+          "source_path": "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
+          "source_index": 2,
+          "raw_fields": [
+            "instruction_id_list",
+            "key",
+            "kwargs",
+            "prompt"
+          ]
+        }
+      }
+    ],
+    "repair_suggestion": null
   },
   "checker": {
-    "checker_status": "checker_unavailable",
-    "checker_module": null,
-    "imported_modules": [],
-    "import_error": "未提供可用的 --ifeval-root 或 IFEVAL_ROOT。",
-    "repair_suggestion": "请通过 --ifeval-root 指向本地官方 instruction_following_eval 目录。",
+    "checker_status": "ok",
+    "checker_module": "instruction_following_eval.evaluation_lib",
+    "imported_modules": [
+      "instruction_following_eval.evaluation_lib",
+      "instruction_following_eval.instructions",
+      "instruction_following_eval.instructions_registry",
+      "instruction_following_eval.instructions_util"
+    ],
+    "import_error": null,
+    "repair_suggestion": null,
     "llm_judge_enabled": false,
     "rule_checker_required": true
   },
   "checker_smoke": {
-    "checker_smoke_status": "not_run",
-    "checker_smoke_sample_count": 0,
-    "checker_smoke_error": "缺少 IFEval root 或 dataset path。",
-    "prompt_level_accuracy_available": false,
-    "instruction_level_accuracy_available": false
+    "checker_smoke_status": "ok",
+    "checker_smoke_sample_count": 3,
+    "checker_smoke_error": null,
+    "prompt_level_accuracy_available": true,
+    "instruction_level_accuracy_available": true,
+    "strict_follow_all": [
+      false,
+      true,
+      false
+    ],
+    "strict_instruction_counts": [
+      3,
+      1,
+      1
+    ],
+    "loose_follow_all": [
+      false,
+      true,
+      false
+    ]
   },
   "next_real_run_entrypoint": "python scripts/run_ifeval_prompt_transfer.py --enable-api-run --ifeval-root <本地 instruction_following_eval>",
-  "blocked_reasons": [
-    "dataset_missing",
-    "checker_unavailable"
-  ]
+  "blocked_reasons": []
 }

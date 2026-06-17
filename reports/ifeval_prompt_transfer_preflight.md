@@ -11,17 +11,17 @@
 
 ## 结构化状态
 
-- status：`blocked`
+- status：`ready`
 - api_call_enabled：`false`
 - full_budget_gepa_enabled：`false`
-- dataset_status：`dataset_missing`
-- checker_status：`checker_unavailable`
-- checker_smoke_status：`not_run`
-- checker_smoke_sample_count：`0`
-- prompt_level_accuracy_available：`false`
-- instruction_level_accuracy_available：`false`
+- dataset_status：`ok`
+- checker_status：`ok`
+- checker_smoke_status：`ok`
+- checker_smoke_sample_count：`3`
+- prompt_level_accuracy_available：`true`
+- instruction_level_accuracy_available：`true`
 - variant_count：`6`
-- sample_count_detected：`0`
+- sample_count_detected：`4`
 
 ## Prompt variants
 
@@ -41,14 +41,13 @@
 
 ## 阻断原因
 
-- `dataset_missing`
-- `checker_unavailable`
+- 无
 
 ## 修复建议
 
-- ifeval_root：请通过 --ifeval-root 指向本地 google-research/instruction_following_eval，或设置 IFEVAL_ROOT。不要把完整 google-research 仓库提交进当前 repo。
-- dataset：请准备本地官方 IFEval 数据文件，例如 `--ifeval-root external/google-research/instruction_following_eval`，或通过 --dataset-path 显式指定 input_data.jsonl。
-- checker：请通过 --ifeval-root 指向本地官方 instruction_following_eval 目录。
+- ifeval_root：当前无需修复。
+- dataset：当前无需修复。
+- checker：当前无需修复。
 - 推荐命令：`python scripts/ifeval_prompt_transfer_preflight.py --ifeval-root external/google-research/instruction_following_eval`
 
 ## 结论边界
