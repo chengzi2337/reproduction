@@ -1,0 +1,183 @@
+{
+  "status": "blocked",
+  "generated_at": "20260617T201007+0800",
+  "api_call_enabled": false,
+  "full_budget_gepa_enabled": false,
+  "dataset_status": "dataset_missing",
+  "checker_status": "checker_unavailable",
+  "variant_count": 6,
+  "variants": [
+    {
+      "variant_id": "baseline",
+      "display_name": "Baseline",
+      "source": "IFEval 迁移实验基线。",
+      "intended_hypothesis": "不加入 IFBench 约束优先级提示时，作为后续真实运行的对照组。",
+      "prompt_delta": {
+        "text": "",
+        "application": "不改变原始 IFEval prompt，仅保留 runner 的通用包装。",
+        "evidence_status": "待验证假设"
+      },
+      "risk_notes": [
+        "不能把基线结果与 IFBench 结果直接等价。",
+        "真实运行前必须确认 rule checker 与本地 IFEval 数据 schema 匹配。"
+      ]
+    },
+    {
+      "variant_id": "baseline_mhc",
+      "display_name": "Baseline + MHC",
+      "source": "来自 IFBench P2/MHC 手工 hard-constraint priority 观察。",
+      "intended_hypothesis": "手工强调硬约束优先级可能改善 IFEval 的格式、计数和禁止项遵循，但这是待验证迁移假设。",
+      "prompt_delta": {
+        "text": "Hard-constraint priority:\n1. Literal formatting constraints are highest priority: exact separators, newlines, casing, placeholders, prefixes, suffixes, markdown/no-markdown, and whitespace rules.\n2. Counting constraints are hard constraints: exact number of words, sentences, paragraphs, letters, digits, keywords, all-caps words, or repeated phrases.\n3. Prohibitions are hard constraints: banned words, banned punctuation, no whitespace, no commas, no explanation, or no extra text.\n4. If constraints conflict with helpfulness, explanation, style, or completeness, satisfy the hard constraints first.\n5. Before finalizing, mentally verify that the output itself, not merely a statement about the output, satisfies the constraints.",
+        "application": "追加到基线指令后，作为显式 hard-constraint priority 提示。",
+        "evidence_status": "IFBench 观察支持该迁移候选；IFEval 有效性尚未验证。"
+      },
+      "risk_notes": [
+        "MHC 可能降低开放式有用性表达，但 IFEval 关注 rule checker 下的约束满足。",
+        "不得写成 IFEval 已验证有效。"
+      ]
+    },
+    {
+      "variant_id": "verbose_helpfulness",
+      "display_name": "Verbose/helpfulness",
+      "source": "负向对照，用于观察 helpfulness/verbose 倾向是否干扰硬约束。",
+      "intended_hypothesis": "偏向解释性和充分性的话术可能在硬格式或禁止项上引入额外文本，作为迁移研究的对照。",
+      "prompt_delta": {
+        "text": "Be helpful and complete. When useful, explain your answer clearly and provide enough context for the user to understand the response.",
+        "application": "追加到基线指令后，用作 verbose/helpfulness 对照。",
+        "evidence_status": "待验证假设"
+      },
+      "risk_notes": [
+        "该变体预期可能与 IFEval 的精确格式约束冲突。",
+        "真实运行时必须用 rule checker 而非主观 judge 评价。"
+      ]
+    },
+    {
+      "variant_id": "mhc_concise",
+      "display_name": "MHC + concise",
+      "source": "IFBench MHC 与简洁输出倾向的组合迁移候选。",
+      "intended_hypothesis": "硬约束优先级叠加简洁输出可能减少额外文本，从而降低违反格式、计数和禁止项的风险。",
+      "prompt_delta": {
+        "text": "Hard-constraint priority:\n1. Literal formatting constraints are highest priority: exact separators, newlines, casing, placeholders, prefixes, suffixes, markdown/no-markdown, and whitespace rules.\n2. Counting constraints are hard constraints: exact number of words, sentences, paragraphs, letters, digits, keywords, all-caps words, or repeated phrases.\n3. Prohibitions are hard constraints: banned words, banned punctuation, no whitespace, no commas, no explanation, or no extra text.\n4. If constraints conflict with helpfulness, explanation, style, or completeness, satisfy the hard constraints first.\n5. Before finalizing, mentally verify that the output itself, not merely a statement about the output, satisfies the constraints.\n\nBe concise: output only what is needed to satisfy the user's explicit requirements.",
+        "application": "追加到基线指令后，显式压制额外解释。",
+        "evidence_status": "待验证假设"
+      },
+      "risk_notes": [
+        "过度简洁可能遗漏内容类约束。",
+        "需要后续真实运行分 instruction 类型分析。"
+      ]
+    },
+    {
+      "variant_id": "ifbench_gepa_prompt_transfer",
+      "display_name": "IFBench GEPA prompt transfer",
+      "source": "IFBench GEPA 优化 prompt 的迁移占位配置。",
+      "intended_hypothesis": "IFBench 优化出的约束遵循提示可能携带可迁移结构，但不能假定其适配 IFEval。",
+      "prompt_delta": {
+        "text": "Use the IFBench-optimized instruction-following prompt as a transfer candidate, preserving its constraint-first behavior while adapting only the benchmark wrapper.",
+        "application": "后续真实 runner 从受控本地 artifact 读取具体 prompt；本配置不内嵌 artifact 内容。",
+        "evidence_status": "IFBench 有观察；IFEval 仍为待验证。"
+      },
+      "risk_notes": [
+        "本任务不读取或上传 `.codex/gepa-artifact`。",
+        "真实运行前必须把 artifact 读取路径和脱敏策略单独审计。"
+      ]
+    },
+    {
+      "variant_id": "gepa_p2_transfer",
+      "display_name": "GEPA + P2 transfer",
+      "source": "IFBench GEPA prompt 与 P2 hard-constraint priority 的组合迁移候选。",
+      "intended_hypothesis": "GEPA prompt 的学习结构叠加 P2 硬约束优先级，可能比单独 GEPA prompt 更能迁移到 IFEval hard instruction-following。",
+      "prompt_delta": {
+        "text": "Use the IFBench GEPA transfer prompt, then append the P2 hard-constraint priority rule: satisfy literal formatting, counting, and prohibitions before helpfulness, explanation, style, or completeness.",
+        "application": "后续真实 runner 从受控本地 artifact 读取 GEPA prompt，并追加 P2 规则；本任务只做 preflight。",
+        "evidence_status": "组合迁移尚无 IFEval 证据。"
+      },
+      "risk_notes": [
+        "组合提示可能过拟合 IFBench trick，正是后续实验要检验的问题。",
+        "任何 IFEval 结论都必须来自单独显式真实运行。"
+      ]
+    }
+  ],
+  "sample_count_detected": 0,
+  "schema": {
+    "ifeval_sample": {
+      "prompt": {
+        "required": true,
+        "type": "string",
+        "description": "IFEval 原始用户指令文本。"
+      },
+      "instruction_id_list": {
+        "required": true,
+        "type": "list[string]",
+        "description": "rule checker 使用的 IFEval 指令约束标识列表。"
+      },
+      "kwargs": {
+        "required": true,
+        "type": "list[dict] | dict",
+        "description": "每条 instruction 对应的规则参数。"
+      },
+      "metadata": {
+        "required": false,
+        "type": "dict",
+        "description": "本地样本来源、索引和原始字段等审计信息。"
+      }
+    },
+    "prompt_variant": {
+      "variant_id": {
+        "required": true
+      },
+      "display_name": {
+        "required": true
+      },
+      "source": {
+        "required": true
+      },
+      "intended_hypothesis": {
+        "required": true
+      },
+      "prompt_delta": {
+        "required": true
+      },
+      "risk_notes": {
+        "required": true
+      }
+    }
+  },
+  "dataset": {
+    "dataset_status": "dataset_missing",
+    "dataset_path": null,
+    "checked_paths": [
+      "C:/Users/lin/Documents/New project 2/data/ifeval.jsonl",
+      "C:/Users/lin/Documents/New project 2/data/ifeval.json",
+      "C:/Users/lin/Documents/New project 2/data/IFEval/input_data.jsonl",
+      "C:/Users/lin/Documents/New project 2/data/IFEval/ifeval.jsonl",
+      "C:/Users/lin/Documents/New project 2/datasets/ifeval.jsonl",
+      "C:/Users/lin/Documents/New project 2/datasets/ifeval.json"
+    ],
+    "sample_count_detected": 0,
+    "samples_preview": [],
+    "repair_suggestion": "请把本地 IFEval JSONL/JSON 文件放入候选路径，或通过 --dataset-path 显式指定。"
+  },
+  "checker": {
+    "checker_status": "checker_unavailable",
+    "checker_module": null,
+    "llm_judge_enabled": false,
+    "mock_prediction_probe": {
+      "status": "structured_stub",
+      "empty_prediction": "",
+      "structured_result": {
+        "prompt_level_passed": false,
+        "instruction_level_results": [],
+        "failure_reasons": [
+          "rule checker 依赖不可导入，未执行真实规则检查。"
+        ]
+      }
+    },
+    "repair_suggestion": "请安装或接入本地 IFEval rule checker，并暴露可导入的规则评估模块；不要改成 LLM judge。"
+  },
+  "next_real_run_entrypoint": "python scripts/run_ifeval_prompt_transfer.py --enable-api-run --dataset-path <本地 IFEval 文件>",
+  "blocked_reasons": [
+    "dataset_missing",
+    "checker_unavailable"
+  ]
+}
