@@ -16,6 +16,10 @@
 - full_budget_gepa_enabled：`false`
 - dataset_status：`dataset_missing`
 - checker_status：`checker_unavailable`
+- checker_smoke_status：`not_run`
+- checker_smoke_sample_count：`0`
+- prompt_level_accuracy_available：`false`
+- instruction_level_accuracy_available：`false`
 - variant_count：`6`
 - sample_count_detected：`0`
 
@@ -42,9 +46,18 @@
 
 ## 修复建议
 
-- dataset：请把本地 IFEval JSONL/JSON 文件放入候选路径，或通过 --dataset-path 显式指定。
-- checker：请安装或接入本地 IFEval rule checker，并暴露可导入的规则评估模块；不要改成 LLM judge。
+- ifeval_root：请通过 --ifeval-root 指向本地 google-research/instruction_following_eval，或设置 IFEVAL_ROOT。不要把完整 google-research 仓库提交进当前 repo。
+- dataset：请准备本地官方 IFEval 数据文件，例如 `--ifeval-root external/google-research/instruction_following_eval`，或通过 --dataset-path 显式指定 input_data.jsonl。
+- checker：请通过 --ifeval-root 指向本地官方 instruction_following_eval 目录。
+- 推荐命令：`python scripts/ifeval_prompt_transfer_preflight.py --ifeval-root external/google-research/instruction_following_eval`
+
+## 结论边界
+
+- 本阶段仍然不是 IFEval 实验结果。
+- 当前只证明官方数据和 checker 是否已接入。
+- 下一阶段才会运行 prompt-transfer API 评测。
+- IFEval 使用 rule checker，不使用 LLM judge。
 
 ## 后续入口
 
-- `python scripts/run_ifeval_prompt_transfer.py --enable-api-run --dataset-path <本地 IFEval 文件>`
+- `python scripts/run_ifeval_prompt_transfer.py --enable-api-run --ifeval-root <本地 instruction_following_eval>`

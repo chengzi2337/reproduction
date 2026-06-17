@@ -1,10 +1,15 @@
 {
   "status": "blocked",
-  "generated_at": "20260617T201007+0800",
+  "generated_at": "20260617T204636+0800",
   "api_call_enabled": false,
   "full_budget_gepa_enabled": false,
   "dataset_status": "dataset_missing",
   "checker_status": "checker_unavailable",
+  "checker_smoke_status": "not_run",
+  "checker_smoke_sample_count": 0,
+  "checker_smoke_error": "缺少 IFEval root 或 dataset path。",
+  "prompt_level_accuracy_available": false,
+  "instruction_level_accuracy_available": false,
   "variant_count": 6,
   "variants": [
     {
@@ -143,6 +148,15 @@
       }
     }
   },
+  "ifeval_root": {
+    "ifeval_root_status": "missing",
+    "ifeval_root": null,
+    "checked_ifeval_roots": [
+      "C:/Users/lin/Documents/New project 2/external/google-research/instruction_following_eval",
+      "C:/Users/lin/Documents/google-research/instruction_following_eval"
+    ],
+    "repair_suggestion": "请通过 --ifeval-root 指向本地 google-research/instruction_following_eval，或设置 IFEVAL_ROOT。不要把完整 google-research 仓库提交进当前 repo。"
+  },
   "dataset": {
     "dataset_status": "dataset_missing",
     "dataset_path": null,
@@ -154,28 +168,27 @@
       "C:/Users/lin/Documents/New project 2/datasets/ifeval.jsonl",
       "C:/Users/lin/Documents/New project 2/datasets/ifeval.json"
     ],
+    "repair_suggestion": "请准备本地官方 IFEval 数据文件，例如 `--ifeval-root external/google-research/instruction_following_eval`，或通过 --dataset-path 显式指定 input_data.jsonl。",
     "sample_count_detected": 0,
-    "samples_preview": [],
-    "repair_suggestion": "请把本地 IFEval JSONL/JSON 文件放入候选路径，或通过 --dataset-path 显式指定。"
+    "samples_preview": []
   },
   "checker": {
     "checker_status": "checker_unavailable",
     "checker_module": null,
+    "imported_modules": [],
+    "import_error": "未提供可用的 --ifeval-root 或 IFEVAL_ROOT。",
+    "repair_suggestion": "请通过 --ifeval-root 指向本地官方 instruction_following_eval 目录。",
     "llm_judge_enabled": false,
-    "mock_prediction_probe": {
-      "status": "structured_stub",
-      "empty_prediction": "",
-      "structured_result": {
-        "prompt_level_passed": false,
-        "instruction_level_results": [],
-        "failure_reasons": [
-          "rule checker 依赖不可导入，未执行真实规则检查。"
-        ]
-      }
-    },
-    "repair_suggestion": "请安装或接入本地 IFEval rule checker，并暴露可导入的规则评估模块；不要改成 LLM judge。"
+    "rule_checker_required": true
   },
-  "next_real_run_entrypoint": "python scripts/run_ifeval_prompt_transfer.py --enable-api-run --dataset-path <本地 IFEval 文件>",
+  "checker_smoke": {
+    "checker_smoke_status": "not_run",
+    "checker_smoke_sample_count": 0,
+    "checker_smoke_error": "缺少 IFEval root 或 dataset path。",
+    "prompt_level_accuracy_available": false,
+    "instruction_level_accuracy_available": false
+  },
+  "next_real_run_entrypoint": "python scripts/run_ifeval_prompt_transfer.py --enable-api-run --ifeval-root <本地 instruction_following_eval>",
   "blocked_reasons": [
     "dataset_missing",
     "checker_unavailable"

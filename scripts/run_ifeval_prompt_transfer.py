@@ -26,6 +26,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="IFEval prompt-transfer runner stub；默认 dry-run，不调用模型。"
     )
     parser.add_argument("--variant-config", default=str(DEFAULT_VARIANT_CONFIG_PATH))
+    parser.add_argument("--ifeval-root", default=None)
     parser.add_argument("--dataset-path", default=None)
     parser.add_argument("--output-json", default=str(DEFAULT_OUTPUT_JSON_PATH))
     parser.add_argument("--dry-run", action="store_true", help="显式保持 dry-run；默认也是 dry-run。")
@@ -39,9 +40,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def build_runner_status(args: argparse.Namespace) -> dict[str, Any]:
     dataset_path = Path(args.dataset_path) if args.dataset_path else None
+    ifeval_root = Path(args.ifeval_root) if args.ifeval_root else None
     preflight = build_preflight_result(
         variant_config_path=Path(args.variant_config),
         dataset_path=dataset_path,
+        ifeval_root=ifeval_root,
     )
     if args.enable_api_run:
         return {
@@ -58,6 +61,7 @@ def build_runner_status(args: argparse.Namespace) -> dict[str, Any]:
             "preflight_status": preflight["status"],
             "dataset_status": preflight["dataset_status"],
             "checker_status": preflight["checker_status"],
+            "checker_smoke_status": preflight["checker_smoke_status"],
             "variant_count": preflight["variant_count"],
         }
     return {
@@ -69,6 +73,7 @@ def build_runner_status(args: argparse.Namespace) -> dict[str, Any]:
         "preflight_status": preflight["status"],
         "dataset_status": preflight["dataset_status"],
         "checker_status": preflight["checker_status"],
+        "checker_smoke_status": preflight["checker_smoke_status"],
         "variant_count": preflight["variant_count"],
         "blocked_reasons": preflight["blocked_reasons"],
         "next_real_run_requires": [
