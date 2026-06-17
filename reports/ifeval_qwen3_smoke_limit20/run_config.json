@@ -1,0 +1,27 @@
+{
+  "commit_sha": "7fd9fb9506bcdc548b7c52547bc71904af08416a",
+  "dataset_path": "C:/Users/lin/Documents/external/google-research/instruction_following_eval/data/input_data.jsonl",
+  "ifeval_root": "C:/Users/lin/Documents/external/google-research/instruction_following_eval",
+  "model_name": "qwen3-8b",
+  "provider_type": "dashscope_openai_compatible",
+  "provider_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "temperature": 0.0,
+  "top_p": 0.95,
+  "max_tokens": 8192,
+  "limit": 20,
+  "num_threads": 1,
+  "disable_dspy_cache": true,
+  "variants": [
+    "baseline",
+    "baseline_mhc",
+    "verbose_helpfulness",
+    "mhc_concise",
+    "ifbench_gepa_prompt_transfer",
+    "gepa_p2_transfer"
+  ],
+  "start_time": "20260617T212257+0800",
+  "end_time": "20260617T213310+0800",
+  "api_run_enabled": true,
+  "gepa_optimization_enabled": false,
+  "mock_provider": false
+}

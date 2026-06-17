@@ -1,0 +1,9 @@
+{
+  "provider_error_count": 0,
+  "provider_rejection_count": 0,
+  "timeout_count": 0,
+  "provider_status_counts": {
+    "ok": 120
+  },
+  "events": []
+}

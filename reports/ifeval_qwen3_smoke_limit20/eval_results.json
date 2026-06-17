@@ -1,0 +1,119 @@
+{
+  "prompt_level_accuracy": 0.825,
+  "instruction_level_accuracy": 0.8833333333333333,
+  "per_variant": {
+    "baseline": {
+      "prompt_level_accuracy": 0.8,
+      "instruction_level_accuracy": 0.8666666666666667,
+      "prompt_correct": 16,
+      "prompt_total": 20,
+      "instruction_correct": 26,
+      "instruction_total": 30
+    },
+    "baseline_mhc": {
+      "prompt_level_accuracy": 0.85,
+      "instruction_level_accuracy": 0.9,
+      "prompt_correct": 17,
+      "prompt_total": 20,
+      "instruction_correct": 27,
+      "instruction_total": 30
+    },
+    "verbose_helpfulness": {
+      "prompt_level_accuracy": 0.8,
+      "instruction_level_accuracy": 0.8666666666666667,
+      "prompt_correct": 16,
+      "prompt_total": 20,
+      "instruction_correct": 26,
+      "instruction_total": 30
+    },
+    "mhc_concise": {
+      "prompt_level_accuracy": 0.8,
+      "instruction_level_accuracy": 0.8666666666666667,
+      "prompt_correct": 16,
+      "prompt_total": 20,
+      "instruction_correct": 26,
+      "instruction_total": 30
+    },
+    "ifbench_gepa_prompt_transfer": {
+      "prompt_level_accuracy": 0.8,
+      "instruction_level_accuracy": 0.8666666666666667,
+      "prompt_correct": 16,
+      "prompt_total": 20,
+      "instruction_correct": 26,
+      "instruction_total": 30
+    },
+    "gepa_p2_transfer": {
+      "prompt_level_accuracy": 0.9,
+      "instruction_level_accuracy": 0.9333333333333333,
+      "prompt_correct": 18,
+      "prompt_total": 20,
+      "instruction_correct": 28,
+      "instruction_total": 30
+    }
+  },
+  "per_instruction_type_accuracy": {
+    "change_case": {
+      "accuracy": 0.8571428571428571,
+      "total": 42,
+      "correct": 36
+    },
+    "combination": {
+      "accuracy": 1.0,
+      "total": 18,
+      "correct": 18
+    },
+    "detectable_content": {
+      "accuracy": 1.0,
+      "total": 6,
+      "correct": 6
+    },
+    "detectable_format": {
+      "accuracy": 0.9722222222222222,
+      "total": 36,
+      "correct": 35
+    },
+    "keywords": {
+      "accuracy": 0.6666666666666666,
+      "total": 12,
+      "correct": 8
+    },
+    "language": {
+      "accuracy": 1.0,
+      "total": 6,
+      "correct": 6
+    },
+    "length_constraints": {
+      "accuracy": 0.6666666666666666,
+      "total": 30,
+      "correct": 20
+    },
+    "punctuation": {
+      "accuracy": 1.0,
+      "total": 24,
+      "correct": 24
+    },
+    "startend": {
+      "accuracy": 1.0,
+      "total": 6,
+      "correct": 6
+    }
+  },
+  "pairwise_delta": {
+    "baseline_mhc - baseline": {
+      "prompt_level_accuracy_delta": 0.04999999999999993,
+      "instruction_level_accuracy_delta": 0.033333333333333326
+    },
+    "verbose_helpfulness - baseline": {
+      "prompt_level_accuracy_delta": 0.0,
+      "instruction_level_accuracy_delta": 0.0
+    },
+    "mhc_concise - baseline_mhc": {
+      "prompt_level_accuracy_delta": -0.04999999999999993,
+      "instruction_level_accuracy_delta": -0.033333333333333326
+    },
+    "gepa_p2_transfer - ifbench_gepa_prompt_transfer": {
+      "prompt_level_accuracy_delta": 0.09999999999999998,
+      "instruction_level_accuracy_delta": 0.06666666666666665
+    }
+  }
+}
