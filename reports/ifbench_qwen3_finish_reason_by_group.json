@@ -1,0 +1,1304 @@
+{
+  "generated_at": "2026-06-17T18:51:04",
+  "source_dir": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates",
+  "aggregate_count": 8,
+  "aggregates": [
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nb-s2-t06-baseline-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nb-s2-t06-baseline-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nb-s2-t06",
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "repetitions": 1,
+      "replay_kind": "baseline",
+      "variant": "baseline",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 576,
+      "total_length": 11,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 1,
+      "length_groups": [
+        "custom",
+        "format",
+        "sentence",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 106,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 17,
+          "length_count": 3,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "281",
+            "283"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "283",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 179,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "108",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "108",
+              "mean_score": 0.0,
+              "length_count": 1
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 68,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 18,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 42,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "189"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "189",
+              "mean_score": 0.5,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.5
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 146,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "10",
+            "205",
+            "222"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "10",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "205",
+              "mean_score": 0.5,
+              "length_count": 1
+            },
+            {
+              "sample_id": "222",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-deterministic-t0-baseline-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-deterministic-t0-baseline-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-deterministic-t0",
+      "temperature": 0.0,
+      "top_p": 0.95,
+      "repetitions": 3,
+      "replay_kind": "baseline",
+      "variant": "baseline",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 1734,
+      "total_length": 30,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 0,
+      "length_groups": [
+        "count",
+        "custom",
+        "format",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 314,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "49"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "49",
+              "mean_score": 0.0,
+              "length_count": 4
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 56,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "281"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "281",
+              "mean_score": 0.333333,
+              "length_count": 4
+            }
+          ],
+          "length_sample_average_score": 0.333333
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 531,
+          "length_count": 15,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "88",
+            "90",
+            "108",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "88",
+              "mean_score": 0.5,
+              "length_count": 4
+            },
+            {
+              "sample_id": "90",
+              "mean_score": 0.333333,
+              "length_count": 4
+            },
+            {
+              "sample_id": "108",
+              "mean_score": 0.333333,
+              "length_count": 2
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.0,
+              "length_count": 5
+            }
+          ],
+          "length_sample_average_score": 0.291667
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 204,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 54,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 132,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 443,
+          "length_count": 7,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "10",
+            "205",
+            "242",
+            "263"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "10",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "205",
+              "mean_score": 0.666667,
+              "length_count": 2
+            },
+            {
+              "sample_id": "242",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "263",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-baseline-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-baseline-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-exact-t06",
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "repetitions": 3,
+      "replay_kind": "baseline",
+      "variant": "baseline",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 1746,
+      "total_length": 16,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 2,
+      "length_groups": [
+        "custom",
+        "format",
+        "ratio",
+        "sentence",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 318,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 57,
+          "length_count": 3,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "281",
+            "283"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "283",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 539,
+          "length_count": 5,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "108",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "108",
+              "mean_score": 0.0,
+              "length_count": 3
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 203,
+          "length_count": 1,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "151"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "151",
+              "mean_score": 0.166667,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 54,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 130,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "189"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "189",
+              "mean_score": 0.5,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.5
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 445,
+          "length_count": 5,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "205",
+            "241"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "205",
+              "mean_score": 0.5,
+              "length_count": 3
+            },
+            {
+              "sample_id": "241",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.25
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-mhc-t0-optimized-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-mhc-t0-optimized-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-mhc-t0",
+      "temperature": 0.0,
+      "top_p": 0.95,
+      "repetitions": 1,
+      "replay_kind": "optimized",
+      "variant": "mhc",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 576,
+      "total_length": 12,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 0,
+      "length_groups": [
+        "count",
+        "custom",
+        "format",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 104,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "49"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "49",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 19,
+          "length_count": 1,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "281"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 178,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "108",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "108",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 68,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 18,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 44,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 145,
+          "length_count": 5,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "13",
+            "205",
+            "230"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "13",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "205",
+              "mean_score": 0.5,
+              "length_count": 2
+            },
+            {
+              "sample_id": "230",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-missing-baseline-seed1-t06-baseline-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-missing-baseline-seed1-t06-baseline-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-missing-baseline-seed1-t06",
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "repetitions": 1,
+      "replay_kind": "baseline",
+      "variant": "baseline",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 579,
+      "total_length": 8,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 1,
+      "length_groups": [
+        "custom",
+        "format",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 106,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 18,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "281"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 179,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "108",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "108",
+              "mean_score": 0.0,
+              "length_count": 1
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.0,
+              "length_count": 1
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 68,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 18,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 44,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 146,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "200",
+            "220"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "200",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "220",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-deterministic-t0-optimized-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-deterministic-t0-optimized-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-deterministic-t0",
+      "temperature": 0.0,
+      "top_p": 0.95,
+      "repetitions": 3,
+      "replay_kind": "optimized",
+      "variant": "gepa",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 1704,
+      "total_length": 56,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 4,
+      "length_groups": [
+        "count",
+        "custom",
+        "format",
+        "ratio",
+        "sentence",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 313,
+          "length_count": 5,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "49"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "49",
+              "mean_score": 0.0,
+              "length_count": 5
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 48,
+          "length_count": 12,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "277",
+            "281",
+            "283"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "277",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "283",
+              "mean_score": 0.0,
+              "length_count": 4
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 531,
+          "length_count": 15,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "76",
+            "88",
+            "110",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "76",
+              "mean_score": 1.0,
+              "length_count": 3
+            },
+            {
+              "sample_id": "88",
+              "mean_score": 0.833333,
+              "length_count": 6
+            },
+            {
+              "sample_id": "110",
+              "mean_score": 0.666667,
+              "length_count": 2
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.333333,
+              "length_count": 4
+            }
+          ],
+          "length_sample_average_score": 0.708333
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 202,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "151"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "151",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 54,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 128,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "181",
+            "196"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "181",
+              "mean_score": 0.333333,
+              "length_count": 2
+            },
+            {
+              "sample_id": "196",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 428,
+          "length_count": 18,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "13",
+            "205",
+            "219",
+            "220",
+            "243",
+            "246"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "13",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "205",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "219",
+              "mean_score": 0.0,
+              "length_count": 6
+            },
+            {
+              "sample_id": "220",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "243",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "246",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-optimized-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-optimized-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-exact-t06",
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "repetitions": 3,
+      "replay_kind": "optimized",
+      "variant": "gepa",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 1718,
+      "total_length": 44,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 3,
+      "length_groups": [
+        "count",
+        "custom",
+        "format",
+        "sentence",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 316,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "49"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "49",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 50,
+          "length_count": 10,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "277",
+            "281",
+            "283"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "277",
+              "mean_score": 0.333333,
+              "length_count": 4
+            },
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "283",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.111111
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 536,
+          "length_count": 10,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "76",
+            "88",
+            "91",
+            "106",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "76",
+              "mean_score": 1.0,
+              "length_count": 1
+            },
+            {
+              "sample_id": "88",
+              "mean_score": 0.5,
+              "length_count": 4
+            },
+            {
+              "sample_id": "91",
+              "mean_score": 1.0,
+              "length_count": 1
+            },
+            {
+              "sample_id": "106",
+              "mean_score": 0.333333,
+              "length_count": 2
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.666667,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.7
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 204,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 54,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 130,
+          "length_count": 2,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "192"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "192",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 428,
+          "length_count": 20,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "12",
+            "13",
+            "200",
+            "219",
+            "220",
+            "221"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "12",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "13",
+              "mean_score": 0.0,
+              "length_count": 6
+            },
+            {
+              "sample_id": "200",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "219",
+              "mean_score": 0.0,
+              "length_count": 6
+            },
+            {
+              "sample_id": "220",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "221",
+              "mean_score": 1.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.166667
+        }
+      }
+    },
+    {
+      "aggregate": "IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-p2-t0-optimized-aggregate.json",
+      "path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-p2-t0-optimized-aggregate.json",
+      "status": "ok",
+      "program": "IFBenchCoT2StageProgram",
+      "replay_tag": "nocache-p2-t0",
+      "temperature": 0.0,
+      "top_p": 0.95,
+      "repetitions": 2,
+      "replay_kind": "optimized",
+      "variant": "p2",
+      "finish_reason_capture_status": "captured",
+      "finish_reason_captured": true,
+      "total_stop": 1147,
+      "total_length": 28,
+      "total_other_finish_reason": 0,
+      "provider_rejection_events": 0,
+      "parse_failure_count": 2,
+      "length_groups": [
+        "custom",
+        "format",
+        "sentence",
+        "words"
+      ],
+      "groups": {
+        "count": {
+          "sample_count": 53,
+          "stop_count": 212,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "custom": {
+          "sample_count": 10,
+          "stop_count": 34,
+          "length_count": 6,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "277",
+            "281"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "277",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "281",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "format": {
+          "sample_count": 91,
+          "stop_count": 358,
+          "length_count": 6,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "88",
+            "112"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "88",
+              "mean_score": 0.5,
+              "length_count": 4
+            },
+            {
+              "sample_id": "112",
+              "mean_score": 0.5,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.5
+        },
+        "ratio": {
+          "sample_count": 34,
+          "stop_count": 136,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "repeat": {
+          "sample_count": 9,
+          "stop_count": 36,
+          "length_count": 0,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [],
+          "length_sample_scores": [],
+          "length_sample_average_score": null
+        },
+        "sentence": {
+          "sample_count": 22,
+          "stop_count": 84,
+          "length_count": 4,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "191",
+            "192"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "191",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "192",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        },
+        "words": {
+          "sample_count": 75,
+          "stop_count": 287,
+          "length_count": 12,
+          "other_finish_reason_count": 0,
+          "length_sample_ids": [
+            "13",
+            "205",
+            "219",
+            "223"
+          ],
+          "length_sample_scores": [
+            {
+              "sample_id": "13",
+              "mean_score": 0.0,
+              "length_count": 2
+            },
+            {
+              "sample_id": "205",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "219",
+              "mean_score": 0.0,
+              "length_count": 4
+            },
+            {
+              "sample_id": "223",
+              "mean_score": 0.0,
+              "length_count": 2
+            }
+          ],
+          "length_sample_average_score": 0.0
+        }
+      }
+    }
+  ],
+  "p2_length_event_audit": {
+    "status": "ok",
+    "aggregate": "IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-p2-t0-optimized-aggregate.json",
+    "total_length_events": 28,
+    "length_groups": {
+      "custom": 6,
+      "format": 6,
+      "sentence": 4,
+      "words": 12
+    },
+    "dominant_length_group": "words",
+    "dominant_length_group_share": 0.428571,
+    "length_sample_count": 10,
+    "non_length_sample_count": 284,
+    "length_sample_average_score": 0.1,
+    "non_length_sample_average_score": 0.396127,
+    "length_minus_non_length_average_score": -0.296127
+  }
+}

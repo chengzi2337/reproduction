@@ -2,29 +2,43 @@
 
 ## 状态
 
-- 已完成 seed：`2/3`
-- 全部完成：`False`
-- 完成 seed 分数：`[35.88, 35.37]`
-- 分数均值：`35.625`
-- 分数总体标准差：`0.25500000000000256`
+- 路线：`DashScope/Qwen3 paper-adapted cloud-low-concurrency`
+- 复现边界：这不是 strict Arbor/local Qwen reproduction。
+- requested seeds：`[0, 1, 2]`
+- 已完成 seed：`3/3`
+- 全部 requested seeds 完成：`true`
+- 完成 seed 分数：`[35.88, 35.37, 36.22]`
+- 分数均值：`35.82333333333333`
+- 分数总体标准差：`0.34931679350157613`
+- 分数范围：`35.37` 到 `36.22`
 
 ## Seed 明细
 
-| seed | status | protocol | budget | optimizer evals | progress | overshoot | candidates | train rows | val rows | test rows | score | parse failures | provider rejects | hard API errors |
-|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0 | complete | True | 3593 | 3852 | 100.0% | 259 | 12 | 309 | 3572 | 294 | 35.88 | 1 | 10 | 0 |
-| 1 | complete | True | 3593 | 3828 | 100.0% | 235 | 12 | 274 | 3758 | 294 | 35.37 | 1 | 4 | 0 |
-| 2 | not_started | False | None | None | None | None | 0 | 0 | 0 | 0 | None | None | 0 | 0 |
+| seed | status | protocol | budget | optimizer evals | overshoot | candidates | traces | train rows | val rows | test rows | score | metric sum | parse failures | provider rejects | score consistent |
+| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 0 | complete | true | 3593 | 3852 | 259 | 12 | 62 | 309 | 3572 | 294 | 35.88 | 105.5 | 1 | 10 | true |
+| 1 | complete | true | 3593 | 3828 | 235 | 12 | 52 | 274 | 3758 | 294 | 35.37 | 104.0 | 1 | 4 | true |
+| 2 | complete | true | 3593 | 3654 | 61 | 11 | 95 | 458 | 3272 | 294 | 36.22 | 106.5 | 0 | 4 | true |
 
-## Prompt Bias
+## Group Score
 
-- `repeat_request_first`：完成 seed 中全部命中=`True`
-- `long_or_structured_answer`：完成 seed 中全部命中=`False`
-- `hard_constraint_priority`：完成 seed 中全部命中=`False`
+| seed | count | custom | format | ratio | repeat | sentence | words |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 40.566038 | 0.0 | 69.230769 | 16.176471 | 0.0 | 20.454545 | 14.666667 |
+| 1 | 49.056604 | 10.0 | 59.89011 | 19.117647 | 0.0 | 25.0 | 14.0 |
+| 2 | 46.226415 | 20.0 | 60.989011 | 11.764706 | 0.0 | 36.363636 | 16.666667 |
+
+## Prompt Bias 命中
+
+| seed | repeat_request_first | long_or_structured_answer | hard_constraint_priority |
+| ---: | --- | --- | --- |
+| 0 | true | true | false |
+| 1 | true | false | false |
+| 2 | true | false | false |
 
 ## 判定门禁
 
-- 只有配置满足 Qwen3/DashScope/temperature=0.6/top_p=0.95/num_threads=1、`evaluation_result.txt` 存在、test 为 294/294、索引完整唯一、分数一致且 budget=3593，seed 才标记为 complete。
-- 未完成 seed 的 train/val 行数只用于进度观察，不用于计算最终均值或研究结论。
-- 本报告属于 DashScope/Qwen3 paper-adapted 路线，不是 strict Arbor 论文复现。
-- `optimizer evals` 来自 `gepa_state.bin` checkpoint；GEPA 在每轮开始前检查 budget，整批 full-val evaluation 可导致最终调用数超过 3593，超出量记为 overshoot。
+- seed 只有在配置满足 Qwen3/DashScope/temperature=0.6/top_p=0.95/num_threads=1、`evaluation_result.txt` 存在、test 为 294/294、索引完整唯一、分数一致且 budget=3593 时才标记为 complete。
+- `optimizer evals` 来自 `gepa_state.bin` checkpoint。GEPA 在每轮开始前检查 budget，整批 full-val evaluation 可能导致最终调用数超过 3593，因此记录 `overshoot` 而不是把它视作协议失败。
+- seed1/seed2 的 Baseline backfill 曾存在 cache caveat，不能作为完全独立 no-cache API replay 证据。本报告只汇总 full-budget GEPA，不把 cached baseline backfill 与 no-cache replay 混为一类。
+- 当前三 seed GEPA 均值低于后续 no-cache Baseline 三 seed均值，不能支持“DashScope/Qwen3 cloud-adapted 条件下 GEPA 稳定优于 Baseline”的结论。
