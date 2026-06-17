@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "current_step": "done",
+  "seeds": [
+    1,
+    2
+  ],
+  "updated_at": "2026-06-17 16:03:40 +0800",
+  "exit_code": 0,
+  "replay_tag_prefix": "nocache-missing-baseline",
+  "disable_dspy_cache": true
+}
