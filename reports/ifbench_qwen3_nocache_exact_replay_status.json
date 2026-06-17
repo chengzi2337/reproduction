@@ -1,0 +1,12 @@
+﻿{
+    "status":  "complete",
+    "current_step":  "done",
+    "replay_tag":  "nocache-exact-t06",
+    "temperature":  0.6,
+    "top_p":  0.95,
+    "disable_dspy_cache":  true,
+    "baseline_source_run":  "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_0\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted",
+    "gepa_source_run":  "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_0\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted",
+    "updated_at":  "2026-06-16 09:54:44 +08:00",
+    "exit_code":  0
+}

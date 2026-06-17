@@ -1,0 +1,15 @@
+{
+  "status": "complete_with_backfill_cached_caveat",
+  "current_step": "done",
+  "seeds": [
+    1,
+    2
+  ],
+  "updated_at": "2026-06-17 09:23:08 +08:00",
+  "exit_code": 0,
+  "notes": [
+    "seed1 Baseline 和 seed2 Baseline 均已补齐到 294/294。",
+    "seed1 与 seed2 各有 1 条 DSPy evaluate 缺失 metric 行，均按既有保守规则补 metric_output=0。",
+    "补跑脚本未启用 --disable-dspy-cache，seed2 日志显示明显缓存复用，因此这两条 Baseline 不能作为完全独立 API 随机重复证据。"
+  ]
+}

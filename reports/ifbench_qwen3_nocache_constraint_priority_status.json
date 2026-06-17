@@ -1,0 +1,11 @@
+﻿{
+    "status":  "complete",
+    "current_step":  "done",
+    "temperature":  0,
+    "top_p":  0.95,
+    "disable_dspy_cache":  true,
+    "p2_repetitions":  2,
+    "mhc_repetitions":  1,
+    "updated_at":  "2026-06-16 11:25:00 +08:00",
+    "exit_code":  0
+}

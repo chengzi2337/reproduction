@@ -1,0 +1,17 @@
+{
+  "gate_passed": true,
+  "verdict": "deterministic_reverses_stochastic_degradation",
+  "stochastic": {
+    "temperature": 0.6,
+    "baseline_score": 34.807256,
+    "gepa_score": 34.637188,
+    "delta_score": -0.170068
+  },
+  "deterministic": {
+    "temperature": 0.0,
+    "baseline_score": 36.111111,
+    "gepa_score": 36.337868,
+    "delta_score": 0.226757
+  },
+  "delta_shift": 0.396825
+}

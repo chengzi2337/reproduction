@@ -1,0 +1,17 @@
+{
+  "status": "target_complete",
+  "target": {
+    "seed": 2,
+    "status": "complete",
+    "budget": 3593,
+    "protocol_matches": true,
+    "train_metric_rows": 458,
+    "val_metric_rows": 3272,
+    "test_metric_rows": 294,
+    "score_consistent": true,
+    "has_evaluation_result": true
+  },
+  "returncode": 0,
+  "stdout": "C:\\Users\\lin\\Documents\\New project 2\\reports\\ifbench_qwen3_seed2_stdout.log",
+  "stderr": "C:\\Users\\lin\\Documents\\New project 2\\reports\\ifbench_qwen3_seed2_stderr.log"
+}

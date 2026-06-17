@@ -1,0 +1,8 @@
+﻿{
+    "status":  "all_requested_experiments_complete",
+    "current_step":  "done",
+    "decision":  "seed2_complete",
+    "seed2_auto_start":  true,
+    "updated_at":  "2026-06-17 00:01:35 +08:00",
+    "exit_code":  0
+}

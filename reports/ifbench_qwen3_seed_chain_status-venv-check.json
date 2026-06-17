@@ -1,0 +1,26 @@
+{
+  "status": "waiting_for_source",
+  "source": {
+    "seed": 1,
+    "status": "in_progress",
+    "budget": 3593,
+    "protocol_matches": true,
+    "train_metric_rows": 39,
+    "val_metric_rows": 890,
+    "test_metric_rows": 0,
+    "score_consistent": null,
+    "has_evaluation_result": false
+  },
+  "target": {
+    "seed": 2,
+    "status": "not_started",
+    "budget": null,
+    "protocol_matches": false,
+    "train_metric_rows": 0,
+    "val_metric_rows": 0,
+    "test_metric_rows": 0,
+    "score_consistent": null,
+    "has_evaluation_result": false
+  },
+  "updated_at_unix": 1781338309.6741812
+}

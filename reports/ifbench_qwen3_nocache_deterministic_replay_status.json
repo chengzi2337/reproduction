@@ -1,0 +1,11 @@
+﻿{
+    "status":  "complete",
+    "current_step":  "done",
+    "replay_tag":  "nocache-deterministic-t0",
+    "temperature":  0,
+    "top_p":  0.95,
+    "disable_dspy_cache":  true,
+    "repetitions_per_program":  3,
+    "updated_at":  "2026-06-16 09:54:54 +08:00",
+    "exit_code":  0
+}

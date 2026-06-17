@@ -1,0 +1,2710 @@
+{
+  "replay_tag": "nocache-exact-t06",
+  "baseline_aggregate_path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-baseline-aggregate.json",
+  "gepa_aggregate_path": "C:\\Users\\lin\\Documents\\New project 2\\reports\\replay_aggregates\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-optimized-aggregate.json",
+  "expected_repetitions": 3,
+  "expected_sample_count": 294,
+  "require_disable_cache": true,
+  "gate_passed": true,
+  "failures": [],
+  "verdict": "gepa_stably_below_baseline",
+  "sample_count": 294,
+  "baseline_score": 34.807256,
+  "gepa_score": 34.637188,
+  "delta_score": -0.170068,
+  "degraded_count": 40,
+  "improved_count": 43,
+  "tied_count": 211,
+  "group_score": {
+    "count": {
+      "count": 53,
+      "baseline_score": 45.91195,
+      "gepa_score": 41.823899,
+      "delta_score": -4.08805
+    },
+    "custom": {
+      "count": 10,
+      "baseline_score": 20.0,
+      "gepa_score": 3.333333,
+      "delta_score": -16.666667
+    },
+    "format": {
+      "count": 91,
+      "baseline_score": 58.791209,
+      "gepa_score": 65.750916,
+      "delta_score": 6.959707
+    },
+    "ratio": {
+      "count": 34,
+      "baseline_score": 24.019608,
+      "gepa_score": 19.117647,
+      "delta_score": -4.901961
+    },
+    "repeat": {
+      "count": 9,
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta_score": 0.0
+    },
+    "sentence": {
+      "count": 22,
+      "baseline_score": 21.212121,
+      "gepa_score": 18.181818,
+      "delta_score": -3.030303
+    },
+    "words": {
+      "count": 75,
+      "baseline_score": 12.888889,
+      "gepa_score": 12.0,
+      "delta_score": -0.888889
+    }
+  },
+  "sample_level_score_matrix": [
+    {
+      "idx_in_split": 0,
+      "example_key": "0",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 1,
+      "example_key": "1",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 2,
+      "example_key": "2",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 3,
+      "example_key": "3",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 4,
+      "example_key": "4",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 5,
+      "example_key": "5",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 6,
+      "example_key": "6",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 7,
+      "example_key": "7",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 8,
+      "example_key": "8",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 9,
+      "example_key": "9",
+      "instruction_group": "count",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 1.0,
+      "delta": 0.33333333333333337,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 10,
+      "example_key": "10",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 11,
+      "example_key": "11",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 12,
+      "example_key": "12",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 13,
+      "example_key": "13",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 14,
+      "example_key": "14",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 15,
+      "example_key": "15",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 16,
+      "example_key": "16",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 17,
+      "example_key": "17",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 18,
+      "example_key": "18",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 19,
+      "example_key": "19",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 20,
+      "example_key": "20",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 21,
+      "example_key": "21",
+      "instruction_group": "count",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 22,
+      "example_key": "22",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 0.5,
+      "delta": -0.5,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 23,
+      "example_key": "23",
+      "instruction_group": "count",
+      "baseline_score": 0.5,
+      "gepa_score": 0.0,
+      "delta": -0.5,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 24,
+      "example_key": "24",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 0.8333333333333334,
+      "delta": -0.16666666666666663,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 25,
+      "example_key": "25",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 26,
+      "example_key": "26",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 27,
+      "example_key": "27",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 28,
+      "example_key": "28",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 29,
+      "example_key": "29",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 30,
+      "example_key": "30",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 31,
+      "example_key": "31",
+      "instruction_group": "count",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 32,
+      "example_key": "32",
+      "instruction_group": "count",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 33,
+      "example_key": "33",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 34,
+      "example_key": "34",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": -0.33333333333333337,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 35,
+      "example_key": "35",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 36,
+      "example_key": "36",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 37,
+      "example_key": "37",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 38,
+      "example_key": "38",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 39,
+      "example_key": "39",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 40,
+      "example_key": "40",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 41,
+      "example_key": "41",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 42,
+      "example_key": "42",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 43,
+      "example_key": "43",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 44,
+      "example_key": "44",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 45,
+      "example_key": "45",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 46,
+      "example_key": "46",
+      "instruction_group": "count",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 47,
+      "example_key": "47",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 48,
+      "example_key": "48",
+      "instruction_group": "count",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.0,
+      "delta": -0.3333333333333333,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 49,
+      "example_key": "49",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 50,
+      "example_key": "50",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 51,
+      "example_key": "51",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 52,
+      "example_key": "52",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 53,
+      "example_key": "53",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 54,
+      "example_key": "54",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 55,
+      "example_key": "55",
+      "instruction_group": "count",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 56,
+      "example_key": "56",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 57,
+      "example_key": "57",
+      "instruction_group": "count",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 58,
+      "example_key": "58",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 59,
+      "example_key": "59",
+      "instruction_group": "count",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 60,
+      "example_key": "60",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 61,
+      "example_key": "61",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 62,
+      "example_key": "62",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 63,
+      "example_key": "63",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 64,
+      "example_key": "64",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 65,
+      "example_key": "65",
+      "instruction_group": "format",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 1.0,
+      "delta": 0.33333333333333337,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 66,
+      "example_key": "66",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 67,
+      "example_key": "67",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.6666666666666666,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 68,
+      "example_key": "68",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 69,
+      "example_key": "69",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 70,
+      "example_key": "70",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 71,
+      "example_key": "71",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.8333333333333334,
+      "delta": 0.33333333333333337,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 72,
+      "example_key": "72",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 73,
+      "example_key": "73",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.0,
+      "delta": -0.3333333333333333,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 74,
+      "example_key": "74",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 75,
+      "example_key": "75",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 76,
+      "example_key": "76",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 1.0,
+      "delta": 0.6666666666666667,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 77,
+      "example_key": "77",
+      "instruction_group": "format",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 78,
+      "example_key": "78",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 79,
+      "example_key": "79",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 80,
+      "example_key": "80",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.5,
+      "delta": 0.16666666666666669,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 81,
+      "example_key": "81",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.0,
+      "delta": -0.5,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 82,
+      "example_key": "82",
+      "instruction_group": "format",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.3333333333333333,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 83,
+      "example_key": "83",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 84,
+      "example_key": "84",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 85,
+      "example_key": "85",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 86,
+      "example_key": "86",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 87,
+      "example_key": "87",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 88,
+      "example_key": "88",
+      "instruction_group": "format",
+      "baseline_score": 0.16666666666666666,
+      "gepa_score": 0.5,
+      "delta": 0.33333333333333337,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 89,
+      "example_key": "89",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 90,
+      "example_key": "90",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 91,
+      "example_key": "91",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 92,
+      "example_key": "92",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 93,
+      "example_key": "93",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 94,
+      "example_key": "94",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 95,
+      "example_key": "95",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 96,
+      "example_key": "96",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 97,
+      "example_key": "97",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 98,
+      "example_key": "98",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 99,
+      "example_key": "99",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 100,
+      "example_key": "100",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 101,
+      "example_key": "101",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 102,
+      "example_key": "102",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 103,
+      "example_key": "103",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 104,
+      "example_key": "104",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 105,
+      "example_key": "105",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 106,
+      "example_key": "106",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 107,
+      "example_key": "107",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 108,
+      "example_key": "108",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 109,
+      "example_key": "109",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 1.0,
+      "delta": 0.6666666666666667,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 110,
+      "example_key": "110",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 111,
+      "example_key": "111",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 112,
+      "example_key": "112",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.6666666666666666,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 113,
+      "example_key": "113",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 114,
+      "example_key": "114",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": -0.33333333333333337,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 115,
+      "example_key": "115",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 116,
+      "example_key": "116",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 117,
+      "example_key": "117",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 118,
+      "example_key": "118",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 119,
+      "example_key": "119",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 120,
+      "example_key": "120",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 121,
+      "example_key": "121",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 122,
+      "example_key": "122",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 123,
+      "example_key": "123",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 124,
+      "example_key": "124",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 125,
+      "example_key": "125",
+      "instruction_group": "format",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.5,
+      "delta": 0.16666666666666669,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 126,
+      "example_key": "126",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 127,
+      "example_key": "127",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 128,
+      "example_key": "128",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 129,
+      "example_key": "129",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 130,
+      "example_key": "130",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 131,
+      "example_key": "131",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 132,
+      "example_key": "132",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 133,
+      "example_key": "133",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 134,
+      "example_key": "134",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 135,
+      "example_key": "135",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 136,
+      "example_key": "136",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 137,
+      "example_key": "137",
+      "instruction_group": "format",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 138,
+      "example_key": "138",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 139,
+      "example_key": "139",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.6666666666666666,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 140,
+      "example_key": "140",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 141,
+      "example_key": "141",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 142,
+      "example_key": "142",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 143,
+      "example_key": "143",
+      "instruction_group": "format",
+      "baseline_score": 0.0,
+      "gepa_score": 0.5,
+      "delta": 0.5,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 144,
+      "example_key": "144",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 145,
+      "example_key": "145",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 146,
+      "example_key": "146",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 147,
+      "example_key": "147",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 148,
+      "example_key": "148",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 149,
+      "example_key": "149",
+      "instruction_group": "ratio",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.5,
+      "delta": 0.16666666666666669,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 150,
+      "example_key": "150",
+      "instruction_group": "ratio",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 151,
+      "example_key": "151",
+      "instruction_group": "ratio",
+      "baseline_score": 0.16666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.16666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 152,
+      "example_key": "152",
+      "instruction_group": "ratio",
+      "baseline_score": 0.5,
+      "gepa_score": 0.16666666666666666,
+      "delta": -0.33333333333333337,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 153,
+      "example_key": "153",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 154,
+      "example_key": "154",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 155,
+      "example_key": "155",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 156,
+      "example_key": "156",
+      "instruction_group": "ratio",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 157,
+      "example_key": "157",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 158,
+      "example_key": "158",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.5,
+      "delta": 0.5,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 159,
+      "example_key": "159",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.16666666666666666,
+      "delta": 0.16666666666666666,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 160,
+      "example_key": "160",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 161,
+      "example_key": "161",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 162,
+      "example_key": "162",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 163,
+      "example_key": "163",
+      "instruction_group": "ratio",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 164,
+      "example_key": "164",
+      "instruction_group": "ratio",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.0,
+      "delta": -0.3333333333333333,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 165,
+      "example_key": "165",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 166,
+      "example_key": "166",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 167,
+      "example_key": "167",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 168,
+      "example_key": "168",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 169,
+      "example_key": "169",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 170,
+      "example_key": "170",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 171,
+      "example_key": "171",
+      "instruction_group": "ratio",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 172,
+      "example_key": "172",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 173,
+      "example_key": "173",
+      "instruction_group": "ratio",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 174,
+      "example_key": "174",
+      "instruction_group": "ratio",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 175,
+      "example_key": "175",
+      "instruction_group": "ratio",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 176,
+      "example_key": "176",
+      "instruction_group": "ratio",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 177,
+      "example_key": "177",
+      "instruction_group": "ratio",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 178,
+      "example_key": "178",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 179,
+      "example_key": "179",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 180,
+      "example_key": "180",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 181,
+      "example_key": "181",
+      "instruction_group": "sentence",
+      "baseline_score": 1.0,
+      "gepa_score": 0.6666666666666666,
+      "delta": -0.33333333333333337,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 182,
+      "example_key": "182",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 183,
+      "example_key": "183",
+      "instruction_group": "sentence",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 184,
+      "example_key": "184",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 185,
+      "example_key": "185",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 186,
+      "example_key": "186",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 187,
+      "example_key": "187",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 188,
+      "example_key": "188",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.5,
+      "delta": 0.5,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 189,
+      "example_key": "189",
+      "instruction_group": "sentence",
+      "baseline_score": 0.5,
+      "gepa_score": 0.5,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 190,
+      "example_key": "190",
+      "instruction_group": "sentence",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.5,
+      "delta": 0.16666666666666669,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 191,
+      "example_key": "191",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 192,
+      "example_key": "192",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 193,
+      "example_key": "193",
+      "instruction_group": "sentence",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 194,
+      "example_key": "194",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 195,
+      "example_key": "195",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 196,
+      "example_key": "196",
+      "instruction_group": "sentence",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.16666666666666666,
+      "delta": -0.16666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 197,
+      "example_key": "197",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 198,
+      "example_key": "198",
+      "instruction_group": "sentence",
+      "baseline_score": 0.5,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.16666666666666663,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 199,
+      "example_key": "199",
+      "instruction_group": "sentence",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 200,
+      "example_key": "200",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 201,
+      "example_key": "201",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 202,
+      "example_key": "202",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 203,
+      "example_key": "203",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 204,
+      "example_key": "204",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 205,
+      "example_key": "205",
+      "instruction_group": "words",
+      "baseline_score": 0.5,
+      "gepa_score": 0.0,
+      "delta": -0.5,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 206,
+      "example_key": "206",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 207,
+      "example_key": "207",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 208,
+      "example_key": "208",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 209,
+      "example_key": "209",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 210,
+      "example_key": "210",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 211,
+      "example_key": "211",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 212,
+      "example_key": "212",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 213,
+      "example_key": "213",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 214,
+      "example_key": "214",
+      "instruction_group": "words",
+      "baseline_score": 0.3333333333333333,
+      "gepa_score": 0.0,
+      "delta": -0.3333333333333333,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 215,
+      "example_key": "215",
+      "instruction_group": "words",
+      "baseline_score": 0.16666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.16666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 216,
+      "example_key": "216",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 217,
+      "example_key": "217",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 218,
+      "example_key": "218",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 219,
+      "example_key": "219",
+      "instruction_group": "words",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 220,
+      "example_key": "220",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 221,
+      "example_key": "221",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 222,
+      "example_key": "222",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 223,
+      "example_key": "223",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 224,
+      "example_key": "224",
+      "instruction_group": "words",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 225,
+      "example_key": "225",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 226,
+      "example_key": "226",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 227,
+      "example_key": "227",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 228,
+      "example_key": "228",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 229,
+      "example_key": "229",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 230,
+      "example_key": "230",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": 0.3333333333333333,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 231,
+      "example_key": "231",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 232,
+      "example_key": "232",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 233,
+      "example_key": "233",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 234,
+      "example_key": "234",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 235,
+      "example_key": "235",
+      "instruction_group": "words",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.0,
+      "delta": -0.6666666666666666,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 236,
+      "example_key": "236",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 237,
+      "example_key": "237",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 238,
+      "example_key": "238",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 239,
+      "example_key": "239",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 240,
+      "example_key": "240",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 241,
+      "example_key": "241",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 242,
+      "example_key": "242",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 243,
+      "example_key": "243",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 244,
+      "example_key": "244",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 245,
+      "example_key": "245",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 246,
+      "example_key": "246",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 247,
+      "example_key": "247",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 248,
+      "example_key": "248",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 249,
+      "example_key": "249",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 250,
+      "example_key": "250",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 251,
+      "example_key": "251",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 252,
+      "example_key": "252",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 253,
+      "example_key": "253",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 254,
+      "example_key": "254",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 255,
+      "example_key": "255",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 256,
+      "example_key": "256",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 257,
+      "example_key": "257",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 258,
+      "example_key": "258",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 259,
+      "example_key": "259",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 260,
+      "example_key": "260",
+      "instruction_group": "words",
+      "baseline_score": 0.6666666666666666,
+      "gepa_score": 0.6666666666666666,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 261,
+      "example_key": "261",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 1.0,
+      "delta": 1.0,
+      "status": "improved"
+    },
+    {
+      "idx_in_split": 262,
+      "example_key": "262",
+      "instruction_group": "words",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 263,
+      "example_key": "263",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 264,
+      "example_key": "264",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 265,
+      "example_key": "265",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 266,
+      "example_key": "266",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 267,
+      "example_key": "267",
+      "instruction_group": "words",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 268,
+      "example_key": "268",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 269,
+      "example_key": "275",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 270,
+      "example_key": "276",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 271,
+      "example_key": "277",
+      "instruction_group": "custom",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 272,
+      "example_key": "278",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 273,
+      "example_key": "279",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 274,
+      "example_key": "280",
+      "instruction_group": "custom",
+      "baseline_score": 1.0,
+      "gepa_score": 0.0,
+      "delta": -1.0,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 275,
+      "example_key": "281",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 276,
+      "example_key": "282",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 277,
+      "example_key": "283",
+      "instruction_group": "custom",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 278,
+      "example_key": "284",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 279,
+      "example_key": "285",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 280,
+      "example_key": "286",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 281,
+      "example_key": "287",
+      "instruction_group": "repeat",
+      "baseline_score": 0.0,
+      "gepa_score": 0.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 282,
+      "example_key": "288",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 283,
+      "example_key": "289",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 284,
+      "example_key": "290",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 285,
+      "example_key": "291",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 286,
+      "example_key": "292",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 287,
+      "example_key": "293",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 288,
+      "example_key": "294",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 289,
+      "example_key": "295",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 290,
+      "example_key": "296",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 291,
+      "example_key": "297",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 0.3333333333333333,
+      "delta": -0.6666666666666667,
+      "status": "degraded"
+    },
+    {
+      "idx_in_split": 292,
+      "example_key": "298",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    },
+    {
+      "idx_in_split": 293,
+      "example_key": "299",
+      "instruction_group": "format",
+      "baseline_score": 1.0,
+      "gepa_score": 1.0,
+      "delta": 0.0,
+      "status": "tied"
+    }
+  ]
+}

@@ -1,0 +1,4430 @@
+{
+  "requested_seeds": [
+    0,
+    1,
+    2
+  ],
+  "complete_seed_count": 2,
+  "all_requested_seeds_complete": false,
+  "scores": [
+    35.88,
+    35.37
+  ],
+  "score_mean": 35.625,
+  "score_population_std": 0.25500000000000256,
+  "score_min": 35.37,
+  "score_max": 35.88,
+  "common_prompt_bias_among_complete_seeds": {
+    "repeat_request_first": true,
+    "long_or_structured_answer": false,
+    "hard_constraint_priority": false
+  },
+  "seeds": [
+    {
+      "seed": 0,
+      "status": "complete",
+      "run_dir": "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_0\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted",
+      "config_exists": true,
+      "budget": 3593,
+      "budget_matches": true,
+      "protocol_checks": {
+        "model": true,
+        "api_base": true,
+        "temperature": true,
+        "top_p": true,
+        "num_threads": true,
+        "optimizer": true,
+        "benchmark": true,
+        "program": true
+      },
+      "protocol_matches": true,
+      "train_metric_rows": 309,
+      "val_metric_rows": 3572,
+      "test_metric_rows": 294,
+      "optimizer_progress": {
+        "checkpoint_exists": true,
+        "total_num_evals": 3852,
+        "budget_progress": 1.0,
+        "budget_consumption_ratio": 1.0720846089618703,
+        "budget_overshoot": 259,
+        "candidate_count": 12,
+        "trace_count": 62,
+        "iteration_index": 61,
+        "checkpoint_mtime": "2026-06-10 13:27:03"
+      },
+      "evaluation_result": {
+        "score": "35.88",
+        "cost": "0",
+        "input_tokens": "540487",
+        "output_tokens": "280884",
+        "optimizer": "GEPA",
+        "optimizer_cost": "0",
+        "optimizer_input_tokens": "3877941",
+        "optimizer_output_tokens": "2480458"
+      },
+      "test_summary": {
+        "metric_rows": 294,
+        "unique_indices": 294,
+        "missing_indices": [],
+        "duplicate_indices": [],
+        "metric_sum": 105.5,
+        "score": 35.8843537414966,
+        "parse_failure_count": 1,
+        "group_score": {
+          "count": {
+            "count": 53,
+            "metric_sum": 21.5,
+            "score": 40.56603773584906
+          },
+          "custom": {
+            "count": 10,
+            "metric_sum": 0.0,
+            "score": 0.0
+          },
+          "format": {
+            "count": 91,
+            "metric_sum": 63.0,
+            "score": 69.23076923076923
+          },
+          "ratio": {
+            "count": 34,
+            "metric_sum": 5.5,
+            "score": 16.176470588235293
+          },
+          "repeat": {
+            "count": 9,
+            "metric_sum": 0.0,
+            "score": 0.0
+          },
+          "sentence": {
+            "count": 22,
+            "metric_sum": 4.5,
+            "score": 20.454545454545457
+          },
+          "words": {
+            "count": 75,
+            "metric_sum": 11.0,
+            "score": 14.666666666666666
+          }
+        },
+        "sample_level_score_matrix": [
+          {
+            "idx_in_split": 0,
+            "key": "0",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 1,
+            "key": "1",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 2,
+            "key": "2",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 3,
+            "key": "3",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 4,
+            "key": "4",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 5,
+            "key": "5",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 6,
+            "key": "6",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 7,
+            "key": "7",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 8,
+            "key": "8",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 9,
+            "key": "9",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 10,
+            "key": "10",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 11,
+            "key": "11",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 12,
+            "key": "12",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 13,
+            "key": "13",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 14,
+            "key": "14",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 15,
+            "key": "15",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 16,
+            "key": "16",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 17,
+            "key": "17",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 18,
+            "key": "18",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 19,
+            "key": "19",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 20,
+            "key": "20",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 21,
+            "key": "21",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 22,
+            "key": "22",
+            "instruction_group": "count",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 23,
+            "key": "23",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 24,
+            "key": "24",
+            "instruction_group": "count",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 25,
+            "key": "25",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 26,
+            "key": "26",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 27,
+            "key": "27",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 28,
+            "key": "28",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 29,
+            "key": "29",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 30,
+            "key": "30",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 31,
+            "key": "31",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 32,
+            "key": "32",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 33,
+            "key": "33",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 34,
+            "key": "34",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 35,
+            "key": "35",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 36,
+            "key": "36",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 37,
+            "key": "37",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 38,
+            "key": "38",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 39,
+            "key": "39",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 40,
+            "key": "40",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 41,
+            "key": "41",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 42,
+            "key": "42",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 43,
+            "key": "43",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 44,
+            "key": "44",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 45,
+            "key": "45",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 46,
+            "key": "46",
+            "instruction_group": "count",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 47,
+            "key": "47",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 48,
+            "key": "48",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 49,
+            "key": "49",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 50,
+            "key": "50",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 51,
+            "key": "51",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 52,
+            "key": "52",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 53,
+            "key": "53",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 54,
+            "key": "54",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 55,
+            "key": "55",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 56,
+            "key": "56",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 57,
+            "key": "57",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 58,
+            "key": "58",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 59,
+            "key": "59",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 60,
+            "key": "60",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 61,
+            "key": "61",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 62,
+            "key": "62",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 63,
+            "key": "63",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 64,
+            "key": "64",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 65,
+            "key": "65",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 66,
+            "key": "66",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 67,
+            "key": "67",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 68,
+            "key": "68",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 69,
+            "key": "69",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 70,
+            "key": "70",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 71,
+            "key": "71",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 72,
+            "key": "72",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 73,
+            "key": "73",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 74,
+            "key": "74",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 75,
+            "key": "75",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 76,
+            "key": "76",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 77,
+            "key": "77",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 78,
+            "key": "78",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 79,
+            "key": "79",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 80,
+            "key": "80",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 81,
+            "key": "81",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 82,
+            "key": "82",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 83,
+            "key": "83",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 84,
+            "key": "84",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 85,
+            "key": "85",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 86,
+            "key": "86",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 87,
+            "key": "87",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 88,
+            "key": "88",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 89,
+            "key": "89",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 90,
+            "key": "90",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 91,
+            "key": "91",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 92,
+            "key": "92",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 93,
+            "key": "93",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 94,
+            "key": "94",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 95,
+            "key": "95",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 96,
+            "key": "96",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 97,
+            "key": "97",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 98,
+            "key": "98",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 99,
+            "key": "99",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 100,
+            "key": "100",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 101,
+            "key": "101",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 102,
+            "key": "102",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 103,
+            "key": "103",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 104,
+            "key": "104",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 105,
+            "key": "105",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 106,
+            "key": "106",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 107,
+            "key": "107",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 108,
+            "key": "108",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 109,
+            "key": "109",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 110,
+            "key": "110",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 111,
+            "key": "111",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 112,
+            "key": "112",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 113,
+            "key": "113",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 114,
+            "key": "114",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 115,
+            "key": "115",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 116,
+            "key": "116",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 117,
+            "key": "117",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 118,
+            "key": "118",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 119,
+            "key": "119",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 120,
+            "key": "120",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 121,
+            "key": "121",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 122,
+            "key": "122",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 123,
+            "key": "123",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 124,
+            "key": "124",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 125,
+            "key": "125",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 126,
+            "key": "126",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 127,
+            "key": "127",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 128,
+            "key": "128",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 129,
+            "key": "129",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 130,
+            "key": "130",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 131,
+            "key": "131",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 132,
+            "key": "132",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 133,
+            "key": "133",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 134,
+            "key": "134",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 135,
+            "key": "135",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 136,
+            "key": "136",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 137,
+            "key": "137",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 138,
+            "key": "138",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 139,
+            "key": "139",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 140,
+            "key": "140",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 141,
+            "key": "141",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 142,
+            "key": "142",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 143,
+            "key": "143",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 144,
+            "key": "144",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 145,
+            "key": "145",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 146,
+            "key": "146",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 147,
+            "key": "147",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 148,
+            "key": "148",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 149,
+            "key": "149",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 150,
+            "key": "150",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 151,
+            "key": "151",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 152,
+            "key": "152",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 153,
+            "key": "153",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 154,
+            "key": "154",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 155,
+            "key": "155",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 156,
+            "key": "156",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 157,
+            "key": "157",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 158,
+            "key": "158",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 159,
+            "key": "159",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 160,
+            "key": "160",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 161,
+            "key": "161",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 162,
+            "key": "162",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 163,
+            "key": "163",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 164,
+            "key": "164",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 165,
+            "key": "165",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 166,
+            "key": "166",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 167,
+            "key": "167",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 168,
+            "key": "168",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 169,
+            "key": "169",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 170,
+            "key": "170",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 171,
+            "key": "171",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 172,
+            "key": "172",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 173,
+            "key": "173",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 174,
+            "key": "174",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 175,
+            "key": "175",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 176,
+            "key": "176",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 177,
+            "key": "177",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 178,
+            "key": "178",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 179,
+            "key": "179",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 180,
+            "key": "180",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 181,
+            "key": "181",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 182,
+            "key": "182",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 183,
+            "key": "183",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 184,
+            "key": "184",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 185,
+            "key": "185",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 186,
+            "key": "186",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 187,
+            "key": "187",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 188,
+            "key": "188",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 189,
+            "key": "189",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 190,
+            "key": "190",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 191,
+            "key": "191",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 192,
+            "key": "192",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 193,
+            "key": "193",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 194,
+            "key": "194",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 195,
+            "key": "195",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 196,
+            "key": "196",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 197,
+            "key": "197",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 198,
+            "key": "198",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 199,
+            "key": "199",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 200,
+            "key": "200",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 201,
+            "key": "201",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 202,
+            "key": "202",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 203,
+            "key": "203",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 204,
+            "key": "204",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 205,
+            "key": "205",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 206,
+            "key": "206",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 207,
+            "key": "207",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 208,
+            "key": "208",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 209,
+            "key": "209",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 210,
+            "key": "210",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 211,
+            "key": "211",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 212,
+            "key": "212",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 213,
+            "key": "213",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 214,
+            "key": "214",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 215,
+            "key": "215",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 216,
+            "key": "216",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 217,
+            "key": "217",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 218,
+            "key": "218",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 219,
+            "key": "219",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 220,
+            "key": "220",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 221,
+            "key": "221",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 222,
+            "key": "222",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 223,
+            "key": "223",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 224,
+            "key": "224",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 225,
+            "key": "225",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 226,
+            "key": "226",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 227,
+            "key": "227",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 228,
+            "key": "228",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 229,
+            "key": "229",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 230,
+            "key": "230",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 231,
+            "key": "231",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 232,
+            "key": "232",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 233,
+            "key": "233",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 234,
+            "key": "234",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 235,
+            "key": "235",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 236,
+            "key": "236",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 237,
+            "key": "237",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 238,
+            "key": "238",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 239,
+            "key": "239",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 240,
+            "key": "240",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 241,
+            "key": "241",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": true
+          },
+          {
+            "idx_in_split": 242,
+            "key": "242",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 243,
+            "key": "243",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 244,
+            "key": "244",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 245,
+            "key": "245",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 246,
+            "key": "246",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 247,
+            "key": "247",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 248,
+            "key": "248",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 249,
+            "key": "249",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 250,
+            "key": "250",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 251,
+            "key": "251",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 252,
+            "key": "252",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 253,
+            "key": "253",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 254,
+            "key": "254",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 255,
+            "key": "255",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 256,
+            "key": "256",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 257,
+            "key": "257",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 258,
+            "key": "258",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 259,
+            "key": "259",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 260,
+            "key": "260",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 261,
+            "key": "261",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 262,
+            "key": "262",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 263,
+            "key": "263",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 264,
+            "key": "264",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 265,
+            "key": "265",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 266,
+            "key": "266",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 267,
+            "key": "267",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 268,
+            "key": "268",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 269,
+            "key": "275",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 270,
+            "key": "276",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 271,
+            "key": "277",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 272,
+            "key": "278",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 273,
+            "key": "279",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 274,
+            "key": "280",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 275,
+            "key": "281",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 276,
+            "key": "282",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 277,
+            "key": "283",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 278,
+            "key": "284",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 279,
+            "key": "285",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 280,
+            "key": "286",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 281,
+            "key": "287",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 282,
+            "key": "288",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 283,
+            "key": "289",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 284,
+            "key": "290",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 285,
+            "key": "291",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 286,
+            "key": "292",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 287,
+            "key": "293",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 288,
+            "key": "294",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 289,
+            "key": "295",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 290,
+            "key": "296",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 291,
+            "key": "297",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 292,
+            "key": "298",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 293,
+            "key": "299",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          }
+        ]
+      },
+      "score_consistent": true,
+      "provider_rejections": {
+        "total_events": 10,
+        "counts_by_scope": {
+          "program_prediction": 9,
+          "instruction_proposal": 1
+        }
+      },
+      "stderr_events": {
+        "parse_events": 31,
+        "timeout_events": 0,
+        "rate_limit_events": 0,
+        "bad_request_events": 0,
+        "authentication_events": 0
+      },
+      "prompt_bias": {
+        "program_exists": true,
+        "program_bytes": 15635,
+        "hits": {
+          "repeat_request_first": [
+            "repeat the (?:query|request).{0,80}(?:word for word|without any modification|verbatim)"
+          ],
+          "long_or_structured_answer": [
+            "at least\\s+3\\s+sentences",
+            "step-by-step",
+            "well-structured",
+            "clear and concise explanation"
+          ],
+          "hard_constraint_priority": []
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "status": "complete",
+      "run_dir": "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_1\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted",
+      "config_exists": true,
+      "budget": 3593,
+      "budget_matches": true,
+      "protocol_checks": {
+        "model": true,
+        "api_base": true,
+        "temperature": true,
+        "top_p": true,
+        "num_threads": true,
+        "optimizer": true,
+        "benchmark": true,
+        "program": true
+      },
+      "protocol_matches": true,
+      "train_metric_rows": 274,
+      "val_metric_rows": 3758,
+      "test_metric_rows": 294,
+      "optimizer_progress": {
+        "checkpoint_exists": true,
+        "total_num_evals": 3828,
+        "budget_progress": 1.0,
+        "budget_consumption_ratio": 1.0654049540773727,
+        "budget_overshoot": 235,
+        "candidate_count": 12,
+        "trace_count": 52,
+        "iteration_index": 51,
+        "checkpoint_mtime": "2026-06-14 21:42:20"
+      },
+      "evaluation_result": {
+        "score": "35.37",
+        "cost": "0",
+        "input_tokens": "498388",
+        "output_tokens": "361972",
+        "optimizer": "GEPA",
+        "optimizer_cost": "0",
+        "optimizer_input_tokens": "3069085",
+        "optimizer_output_tokens": "1596827"
+      },
+      "test_summary": {
+        "metric_rows": 294,
+        "unique_indices": 294,
+        "missing_indices": [],
+        "duplicate_indices": [],
+        "metric_sum": 104.0,
+        "score": 35.374149659863946,
+        "parse_failure_count": 1,
+        "group_score": {
+          "count": {
+            "count": 53,
+            "metric_sum": 26.0,
+            "score": 49.056603773584904
+          },
+          "custom": {
+            "count": 10,
+            "metric_sum": 1.0,
+            "score": 10.0
+          },
+          "format": {
+            "count": 91,
+            "metric_sum": 54.5,
+            "score": 59.89010989010989
+          },
+          "ratio": {
+            "count": 34,
+            "metric_sum": 6.5,
+            "score": 19.11764705882353
+          },
+          "repeat": {
+            "count": 9,
+            "metric_sum": 0.0,
+            "score": 0.0
+          },
+          "sentence": {
+            "count": 22,
+            "metric_sum": 5.5,
+            "score": 25.0
+          },
+          "words": {
+            "count": 75,
+            "metric_sum": 10.5,
+            "score": 14.000000000000002
+          }
+        },
+        "sample_level_score_matrix": [
+          {
+            "idx_in_split": 0,
+            "key": "0",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 1,
+            "key": "1",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 2,
+            "key": "2",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 3,
+            "key": "3",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 4,
+            "key": "4",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 5,
+            "key": "5",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 6,
+            "key": "6",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 7,
+            "key": "7",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 8,
+            "key": "8",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 9,
+            "key": "9",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 10,
+            "key": "10",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 11,
+            "key": "11",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 12,
+            "key": "12",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 13,
+            "key": "13",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 14,
+            "key": "14",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 15,
+            "key": "15",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 16,
+            "key": "16",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 17,
+            "key": "17",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 18,
+            "key": "18",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 19,
+            "key": "19",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 20,
+            "key": "20",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 21,
+            "key": "21",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 22,
+            "key": "22",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 23,
+            "key": "23",
+            "instruction_group": "count",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 24,
+            "key": "24",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 25,
+            "key": "25",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 26,
+            "key": "26",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 27,
+            "key": "27",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 28,
+            "key": "28",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 29,
+            "key": "29",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 30,
+            "key": "30",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 31,
+            "key": "31",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 32,
+            "key": "32",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 33,
+            "key": "33",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 34,
+            "key": "34",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 35,
+            "key": "35",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 36,
+            "key": "36",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 37,
+            "key": "37",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 38,
+            "key": "38",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 39,
+            "key": "39",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 40,
+            "key": "40",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 41,
+            "key": "41",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 42,
+            "key": "42",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 43,
+            "key": "43",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 44,
+            "key": "44",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 45,
+            "key": "45",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 46,
+            "key": "46",
+            "instruction_group": "count",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 47,
+            "key": "47",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 48,
+            "key": "48",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 49,
+            "key": "49",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 50,
+            "key": "50",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 51,
+            "key": "51",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 52,
+            "key": "52",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 53,
+            "key": "53",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 54,
+            "key": "54",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 55,
+            "key": "55",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 56,
+            "key": "56",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 57,
+            "key": "57",
+            "instruction_group": "count",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 58,
+            "key": "58",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 59,
+            "key": "59",
+            "instruction_group": "count",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 60,
+            "key": "60",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 61,
+            "key": "61",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 62,
+            "key": "62",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 63,
+            "key": "63",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 64,
+            "key": "64",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 65,
+            "key": "65",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 66,
+            "key": "66",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 67,
+            "key": "67",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 68,
+            "key": "68",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 69,
+            "key": "69",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 70,
+            "key": "70",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 71,
+            "key": "71",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 72,
+            "key": "72",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 73,
+            "key": "73",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 74,
+            "key": "74",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 75,
+            "key": "75",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 76,
+            "key": "76",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 77,
+            "key": "77",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 78,
+            "key": "78",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 79,
+            "key": "79",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 80,
+            "key": "80",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 81,
+            "key": "81",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 82,
+            "key": "82",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 83,
+            "key": "83",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 84,
+            "key": "84",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 85,
+            "key": "85",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 86,
+            "key": "86",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 87,
+            "key": "87",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 88,
+            "key": "88",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 89,
+            "key": "89",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 90,
+            "key": "90",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 91,
+            "key": "91",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 92,
+            "key": "92",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 93,
+            "key": "93",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 94,
+            "key": "94",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 95,
+            "key": "95",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 96,
+            "key": "96",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 97,
+            "key": "97",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 98,
+            "key": "98",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 99,
+            "key": "99",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 100,
+            "key": "100",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 101,
+            "key": "101",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 102,
+            "key": "102",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 103,
+            "key": "103",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 104,
+            "key": "104",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 105,
+            "key": "105",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 106,
+            "key": "106",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 107,
+            "key": "107",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 108,
+            "key": "108",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 109,
+            "key": "109",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 110,
+            "key": "110",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 111,
+            "key": "111",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 112,
+            "key": "112",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 113,
+            "key": "113",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 114,
+            "key": "114",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 115,
+            "key": "115",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 116,
+            "key": "116",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 117,
+            "key": "117",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 118,
+            "key": "118",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 119,
+            "key": "119",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 120,
+            "key": "120",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 121,
+            "key": "121",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 122,
+            "key": "122",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 123,
+            "key": "123",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 124,
+            "key": "124",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 125,
+            "key": "125",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 126,
+            "key": "126",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 127,
+            "key": "127",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 128,
+            "key": "128",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 129,
+            "key": "129",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 130,
+            "key": "130",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 131,
+            "key": "131",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 132,
+            "key": "132",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 133,
+            "key": "133",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 134,
+            "key": "134",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 135,
+            "key": "135",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 136,
+            "key": "136",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 137,
+            "key": "137",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 138,
+            "key": "138",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 139,
+            "key": "139",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 140,
+            "key": "140",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 141,
+            "key": "141",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 142,
+            "key": "142",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 143,
+            "key": "143",
+            "instruction_group": "format",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 144,
+            "key": "144",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 145,
+            "key": "145",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 146,
+            "key": "146",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 147,
+            "key": "147",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 148,
+            "key": "148",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 149,
+            "key": "149",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 150,
+            "key": "150",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 151,
+            "key": "151",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 152,
+            "key": "152",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 153,
+            "key": "153",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 154,
+            "key": "154",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 155,
+            "key": "155",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 156,
+            "key": "156",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 157,
+            "key": "157",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 158,
+            "key": "158",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 159,
+            "key": "159",
+            "instruction_group": "ratio",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 160,
+            "key": "160",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 161,
+            "key": "161",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 162,
+            "key": "162",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 163,
+            "key": "163",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 164,
+            "key": "164",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 165,
+            "key": "165",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 166,
+            "key": "166",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 167,
+            "key": "167",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 168,
+            "key": "168",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 169,
+            "key": "169",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 170,
+            "key": "170",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 171,
+            "key": "171",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": true
+          },
+          {
+            "idx_in_split": 172,
+            "key": "172",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 173,
+            "key": "173",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 174,
+            "key": "174",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 175,
+            "key": "175",
+            "instruction_group": "ratio",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 176,
+            "key": "176",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 177,
+            "key": "177",
+            "instruction_group": "ratio",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 178,
+            "key": "178",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 179,
+            "key": "179",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 180,
+            "key": "180",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 181,
+            "key": "181",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 182,
+            "key": "182",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 183,
+            "key": "183",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 184,
+            "key": "184",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 185,
+            "key": "185",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 186,
+            "key": "186",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 187,
+            "key": "187",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 188,
+            "key": "188",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 189,
+            "key": "189",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 190,
+            "key": "190",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 191,
+            "key": "191",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 192,
+            "key": "192",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 193,
+            "key": "193",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 194,
+            "key": "194",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 195,
+            "key": "195",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 196,
+            "key": "196",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 197,
+            "key": "197",
+            "instruction_group": "sentence",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 198,
+            "key": "198",
+            "instruction_group": "sentence",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 199,
+            "key": "199",
+            "instruction_group": "sentence",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 200,
+            "key": "200",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 201,
+            "key": "201",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 202,
+            "key": "202",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 203,
+            "key": "203",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 204,
+            "key": "204",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 205,
+            "key": "205",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 206,
+            "key": "206",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 207,
+            "key": "207",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 208,
+            "key": "208",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 209,
+            "key": "209",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 210,
+            "key": "210",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 211,
+            "key": "211",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 212,
+            "key": "212",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 213,
+            "key": "213",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 214,
+            "key": "214",
+            "instruction_group": "words",
+            "metric_output": 0.5,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 215,
+            "key": "215",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 216,
+            "key": "216",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 217,
+            "key": "217",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 218,
+            "key": "218",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 219,
+            "key": "219",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 220,
+            "key": "220",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 221,
+            "key": "221",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 222,
+            "key": "222",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 223,
+            "key": "223",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 224,
+            "key": "224",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 225,
+            "key": "225",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 226,
+            "key": "226",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 227,
+            "key": "227",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 228,
+            "key": "228",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 229,
+            "key": "229",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 230,
+            "key": "230",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 231,
+            "key": "231",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 232,
+            "key": "232",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 233,
+            "key": "233",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 234,
+            "key": "234",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 235,
+            "key": "235",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 236,
+            "key": "236",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 237,
+            "key": "237",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 238,
+            "key": "238",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 239,
+            "key": "239",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 240,
+            "key": "240",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 241,
+            "key": "241",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 242,
+            "key": "242",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 243,
+            "key": "243",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 244,
+            "key": "244",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 245,
+            "key": "245",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 246,
+            "key": "246",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 247,
+            "key": "247",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 248,
+            "key": "248",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 249,
+            "key": "249",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 250,
+            "key": "250",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 251,
+            "key": "251",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 252,
+            "key": "252",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 253,
+            "key": "253",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 254,
+            "key": "254",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 255,
+            "key": "255",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 256,
+            "key": "256",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 257,
+            "key": "257",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 258,
+            "key": "258",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 259,
+            "key": "259",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 260,
+            "key": "260",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 261,
+            "key": "261",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 262,
+            "key": "262",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 263,
+            "key": "263",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 264,
+            "key": "264",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 265,
+            "key": "265",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 266,
+            "key": "266",
+            "instruction_group": "words",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 267,
+            "key": "267",
+            "instruction_group": "words",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 268,
+            "key": "268",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 269,
+            "key": "275",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 270,
+            "key": "276",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 271,
+            "key": "277",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 272,
+            "key": "278",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 273,
+            "key": "279",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 274,
+            "key": "280",
+            "instruction_group": "custom",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 275,
+            "key": "281",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 276,
+            "key": "282",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 277,
+            "key": "283",
+            "instruction_group": "custom",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 278,
+            "key": "284",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 279,
+            "key": "285",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 280,
+            "key": "286",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 281,
+            "key": "287",
+            "instruction_group": "repeat",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 282,
+            "key": "288",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 283,
+            "key": "289",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 284,
+            "key": "290",
+            "instruction_group": "format",
+            "metric_output": 0.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 285,
+            "key": "291",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 286,
+            "key": "292",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 287,
+            "key": "293",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 288,
+            "key": "294",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 289,
+            "key": "295",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 290,
+            "key": "296",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 291,
+            "key": "297",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 292,
+            "key": "298",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          },
+          {
+            "idx_in_split": 293,
+            "key": "299",
+            "instruction_group": "format",
+            "metric_output": 1.0,
+            "parse_failure": false
+          }
+        ]
+      },
+      "score_consistent": true,
+      "provider_rejections": {
+        "total_events": 4,
+        "counts_by_scope": {
+          "program_prediction": 4
+        }
+      },
+      "stderr_events": {
+        "parse_events": 46,
+        "timeout_events": 0,
+        "rate_limit_events": 0,
+        "bad_request_events": 0,
+        "authentication_events": 0
+      },
+      "prompt_bias": {
+        "program_exists": true,
+        "program_bytes": 15344,
+        "hits": {
+          "repeat_request_first": [
+            "repeat the (?:query|request).{0,80}(?:word for word|without any modification|verbatim)",
+            "first.{0,80}repeat the (?:query|request)"
+          ],
+          "long_or_structured_answer": [],
+          "hard_constraint_priority": []
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "status": "not_started",
+      "run_dir": "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_2\\IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted",
+      "config_exists": false,
+      "budget": null,
+      "budget_matches": false,
+      "protocol_checks": {
+        "model": false,
+        "api_base": false,
+        "temperature": false,
+        "top_p": false,
+        "num_threads": false,
+        "optimizer": false,
+        "benchmark": false,
+        "program": false
+      },
+      "protocol_matches": false,
+      "train_metric_rows": 0,
+      "val_metric_rows": 0,
+      "test_metric_rows": 0,
+      "optimizer_progress": {
+        "checkpoint_exists": false,
+        "total_num_evals": null,
+        "budget_progress": null,
+        "budget_consumption_ratio": null,
+        "budget_overshoot": null,
+        "candidate_count": 0,
+        "trace_count": 0,
+        "iteration_index": null,
+        "checkpoint_mtime": null
+      },
+      "evaluation_result": null,
+      "test_summary": null,
+      "score_consistent": null,
+      "provider_rejections": {
+        "total_events": 0,
+        "counts_by_scope": {}
+      },
+      "stderr_events": {
+        "parse_events": 0,
+        "timeout_events": 0,
+        "rate_limit_events": 0,
+        "bad_request_events": 0,
+        "authentication_events": 0
+      },
+      "prompt_bias": {
+        "program_exists": false,
+        "hits": {}
+      }
+    }
+  ]
+}
