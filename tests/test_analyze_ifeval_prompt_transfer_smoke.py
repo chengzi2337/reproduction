@@ -177,13 +177,19 @@ def test_analyzer_reads_minimal_fake_smoke_and_writes_outputs() -> None:
 
     audit = module.analyze_smoke(smoke_dir)
     matrix_payload = json.loads((smoke_dir / "pairwise_sample_matrix.json").read_text(encoding="utf-8"))
+    canonical = json.loads((smoke_dir / "canonical_summary.json").read_text(encoding="utf-8"))
     markdown = (smoke_dir / "audit.md").read_text(encoding="utf-8")
+    canonical_markdown = (smoke_dir / "canonical_summary.md").read_text(encoding="utf-8")
     csv_text = (smoke_dir / "pairwise_sample_matrix.csv").read_text(encoding="utf-8")
 
     assert audit["status"] == "completed"
     assert audit["actual_raw_output_rows"] == 12
+    assert audit["checker_metadata"]["aggregation_source"] == "deterministic_offline_checker"
+    assert canonical["canonical_summary_source"] == "deterministic_offline_recheck"
+    assert canonical["checker_metadata"]["llm_judge_enabled"] is False
     assert matrix_payload["sample_count"] == 2
     assert markdown.strip()
+    assert canonical_markdown.strip()
     assert csv_text.startswith("sample_index,")
 
 
@@ -243,7 +249,32 @@ def test_missing_input_writes_structured_blocked_outputs() -> None:
     assert audit["status"] == "blocked"
     assert audit_json["status"] == "blocked"
     assert (smoke_dir / "audit.md").read_text(encoding="utf-8").strip()
+    assert json.loads((smoke_dir / "canonical_summary.json").read_text(encoding="utf-8"))["status"] == "blocked"
     assert json.loads((smoke_dir / "pairwise_sample_matrix.json").read_text(encoding="utf-8"))["status"] == "blocked"
+
+
+def test_historical_runner_mismatch_is_marked_without_crash() -> None:
+    module = load_module()
+    tmp_path = workspace("historical_mismatch")
+    smoke_dir = write_fake_smoke_dir(tmp_path)
+    write_json(
+        smoke_dir / "eval_results.json",
+        {
+            "per_variant": {
+                variant_id: {
+                    "prompt_level_accuracy": 0.0,
+                    "instruction_level_accuracy": 0.0,
+                }
+                for variant_id in VARIANTS
+            }
+        },
+    )
+
+    audit = module.analyze_smoke(smoke_dir)
+
+    assert audit["status"] == "completed"
+    assert audit["runner_aggregate_comparison"]["status"] == "mismatch"
+    assert audit["canonical_summary_source"] == "deterministic_offline_recheck"
 
 
 def test_analyzer_module_does_not_import_provider_client() -> None:

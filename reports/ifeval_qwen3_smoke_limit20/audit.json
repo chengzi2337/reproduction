@@ -91,9 +91,37 @@
   },
   "checker_status": "ok",
   "checker_error": null,
-  "checker_determinism": {
+  "checker_metadata": {
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
     "langdetect_seed": 0,
-    "status": "set"
+    "aggregation_source": "deterministic_offline_checker",
+    "canonical_summary_source": "deterministic_offline_recheck",
+    "checker_determinism_status": "set",
+    "checker_determinism_detail": {
+      "checker_determinism_status": "set",
+      "langdetect_seed": 0,
+      "pythonhashseed": "0",
+      "langdetect_wrapper": {
+        "langdetect_wrapper_status": "installed"
+      }
+    }
+  },
+  "checker_determinism": {
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
+    "langdetect_seed": 0,
+    "aggregation_source": "deterministic_offline_checker",
+    "canonical_summary_source": "deterministic_offline_recheck",
+    "checker_determinism_status": "set",
+    "checker_determinism_detail": {
+      "checker_determinism_status": "set",
+      "langdetect_seed": 0,
+      "pythonhashseed": "0",
+      "langdetect_wrapper": {
+        "langdetect_wrapper_status": "installed"
+      }
+    }
   },
   "provider_events": {
     "provider_error_count": 0,
@@ -118,22 +146,22 @@
     },
     "baseline_mhc": {
       "sample_count": 20,
-      "prompt_level_accuracy": 0.8,
-      "prompt_correct": 16,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
       "prompt_total": 20,
-      "instruction_level_accuracy": 0.8666666666666667,
-      "instruction_correct": 26,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
       "instruction_total": 30,
       "checker_error_count": 0,
       "average_response_character_length": 934.4
     },
     "verbose_helpfulness": {
       "sample_count": 20,
-      "prompt_level_accuracy": 0.8,
-      "prompt_correct": 16,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
       "prompt_total": 20,
-      "instruction_level_accuracy": 0.8666666666666667,
-      "instruction_correct": 26,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
       "instruction_total": 30,
       "checker_error_count": 0,
       "average_response_character_length": 1168.1
@@ -151,11 +179,11 @@
     },
     "ifbench_gepa_prompt_transfer": {
       "sample_count": 20,
-      "prompt_level_accuracy": 0.8,
-      "prompt_correct": 16,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
       "prompt_total": 20,
-      "instruction_level_accuracy": 0.8666666666666667,
-      "instruction_correct": 26,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
       "instruction_total": 30,
       "checker_error_count": 0,
       "average_response_character_length": 974.6
@@ -175,24 +203,43 @@
   "runner_aggregate_comparison": {
     "status": "mismatch",
     "mismatched_variants": {
-      "baseline_mhc": {
-        "audit_prompt_level_accuracy": 0.8,
-        "runner_prompt_level_accuracy": 0.85,
-        "prompt_level_delta": -0.04999999999999993,
-        "audit_instruction_level_accuracy": 0.8666666666666667,
-        "runner_instruction_level_accuracy": 0.9,
-        "instruction_level_delta": -0.033333333333333326
+      "verbose_helpfulness": {
+        "canonical_prompt_level_accuracy": 0.85,
+        "historical_prompt_level_accuracy": 0.8,
+        "prompt_level_delta": 0.04999999999999993,
+        "canonical_instruction_level_accuracy": 0.9,
+        "historical_instruction_level_accuracy": 0.8666666666666667,
+        "instruction_level_delta": 0.033333333333333326
       },
       "mhc_concise": {
-        "audit_prompt_level_accuracy": 0.85,
-        "runner_prompt_level_accuracy": 0.8,
+        "canonical_prompt_level_accuracy": 0.85,
+        "historical_prompt_level_accuracy": 0.8,
         "prompt_level_delta": 0.04999999999999993,
-        "audit_instruction_level_accuracy": 0.9,
-        "runner_instruction_level_accuracy": 0.8666666666666667,
+        "canonical_instruction_level_accuracy": 0.9,
+        "historical_instruction_level_accuracy": 0.8666666666666667,
+        "instruction_level_delta": 0.033333333333333326
+      },
+      "ifbench_gepa_prompt_transfer": {
+        "canonical_prompt_level_accuracy": 0.85,
+        "historical_prompt_level_accuracy": 0.8,
+        "prompt_level_delta": 0.04999999999999993,
+        "canonical_instruction_level_accuracy": 0.9,
+        "historical_instruction_level_accuracy": 0.8666666666666667,
         "instruction_level_delta": 0.033333333333333326
       }
     },
-    "note": "审计重算固定 langdetect seed；runner 原始汇总保留在 aggregate_eval_results_from_runner。"
+    "historical_aggregate_source": "raw_historical_runner_aggregate",
+    "canonical_summary_source": "deterministic_offline_recheck",
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
+    "langdetect_seed": 0,
+    "aggregation_source": "deterministic_offline_checker",
+    "checker_determinism_status": "set",
+    "checker_determinism_detail": {
+      "checker_determinism_status": "set",
+      "langdetect_seed": 0,
+      "pythonhashseed": "0"
+    }
   },
   "aggregate_eval_results_from_runner": {
     "prompt_level_accuracy": 0.825,
@@ -313,6 +360,8 @@
       }
     }
   },
+  "historical_runner_aggregate_source": "raw_historical_runner_aggregate",
+  "canonical_summary_source": "deterministic_offline_recheck",
   "interpretation_boundary": {
     "is_full_ifeval_conclusion": false,
     "statement": "limit=20 smoke 只用于工程闭环和初步信号，不能作为 full IFEval 结论。"

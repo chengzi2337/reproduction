@@ -107,6 +107,9 @@ def test_dry_run_does_not_call_api(monkeypatch) -> None:
     assert exit_code == 0
     assert summary["status"] == "dry_run"
     assert summary["api_call_enabled"] is False
+    assert summary["canonical_aggregation_source"] == "deterministic_offline_checker"
+    assert summary["langdetect_seed"] == 0
+    assert summary["llm_judge_enabled"] is False
 
 
 def test_api_run_requires_explicit_limit(monkeypatch) -> None:
@@ -163,6 +166,10 @@ def test_mock_provider_generates_outputs_and_summary(monkeypatch) -> None:
     assert exit_code == 0
     assert len(raw_lines) == 12
     assert summary["status"] == "completed"
+    assert summary["canonical_aggregation_source"] == "deterministic_offline_checker"
+    assert summary["checker_determinism_status"] in {"set", "langdetect_unavailable"}
+    assert eval_results["aggregation_source"] == "deterministic_offline_checker"
+    assert eval_results["llm_judge_enabled"] is False
     assert eval_results["prompt_level_accuracy"] is not None
     assert markdown.strip()
 

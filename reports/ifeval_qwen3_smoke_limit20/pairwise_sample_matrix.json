@@ -2513,17 +2513,17 @@
         "baseline_mhc": {
           "raw_response": "hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. don't miss out on the fun. #playboy #latestissue #stunningphotos #exclusivecontent",
           "response_character_length": 176,
-          "strict_prompt_passed": false,
-          "strict_instruction_score": 0.5,
+          "strict_prompt_passed": true,
+          "strict_instruction_score": 1.0,
           "strict_follow_instruction_list": [
             true,
-            false
+            true
           ],
-          "loose_prompt_passed": false,
-          "loose_instruction_score": 0.5,
+          "loose_prompt_passed": true,
+          "loose_instruction_score": 1.0,
           "loose_follow_instruction_list": [
             true,
-            false
+            true
           ],
           "checker_error": null,
           "provider_status": "ok",
@@ -2533,17 +2533,17 @@
         "verbose_helpfulness": {
           "raw_response": "here's a playful and engaging tweet for playboy's twitter account, formatted as requested:\n\nthis week's cover is pure magic ✨ model, artist, and icon — she’s redefining beauty one frame at a time 🖼️ #playboy #covergirl #style #culture\n\nnote: the hashtags are all lowercase as per the request, and the entire tweet avoids capital letters except for the hashtag symbols.",
           "response_character_length": 368,
-          "strict_prompt_passed": false,
-          "strict_instruction_score": 0.5,
+          "strict_prompt_passed": true,
+          "strict_instruction_score": 1.0,
           "strict_follow_instruction_list": [
             true,
-            false
+            true
           ],
-          "loose_prompt_passed": false,
-          "loose_instruction_score": 0.5,
+          "loose_prompt_passed": true,
+          "loose_instruction_score": 1.0,
           "loose_follow_instruction_list": [
             true,
-            false
+            true
           ],
           "checker_error": null,
           "provider_status": "ok",
@@ -2559,11 +2559,11 @@
             true,
             true
           ],
-          "loose_prompt_passed": false,
-          "loose_instruction_score": 0.5,
+          "loose_prompt_passed": true,
+          "loose_instruction_score": 1.0,
           "loose_follow_instruction_list": [
             true,
-            false
+            true
           ],
           "checker_error": null,
           "provider_status": "ok",
@@ -2573,11 +2573,11 @@
         "ifbench_gepa_prompt_transfer": {
           "raw_response": "sure thing. here goes:  \n\nanother great day at the office, folks! keep it wild, keep it loose, and never stop exploring. 🌟 #playboyculture #lifestylevibes #chillandflow #thegoodlife",
           "response_character_length": 181,
-          "strict_prompt_passed": false,
-          "strict_instruction_score": 0.5,
+          "strict_prompt_passed": true,
+          "strict_instruction_score": 1.0,
           "strict_follow_instruction_list": [
             true,
-            false
+            true
           ],
           "loose_prompt_passed": true,
           "loose_instruction_score": 1.0,
@@ -2619,17 +2619,16 @@
       "treatment_variant": "baseline_mhc",
       "control_variant": "baseline",
       "improved_sample_count": 2,
-      "degraded_sample_count": 2,
-      "tied_sample_count": 16,
-      "prompt_level_delta": 0.0,
-      "instruction_level_delta": 0.0,
+      "degraded_sample_count": 1,
+      "tied_sample_count": 17,
+      "prompt_level_delta": 0.04999999999999993,
+      "instruction_level_delta": 0.033333333333333326,
       "improved_sample_ids": [
         11,
         14
       ],
       "degraded_sample_ids": [
-        10,
-        19
+        10
       ],
       "changed_sample_audit": [
         {
@@ -2709,33 +2708,6 @@
             "loose_instruction_score": 1.0,
             "checker_error": null
           }
-        },
-        {
-          "sample_index": 19,
-          "sample_id": 1122,
-          "prompt": "make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'",
-          "instruction_id_list": [
-            "change_case:english_lowercase",
-            "keywords:letter_frequency"
-          ],
-          "control_variant": "baseline",
-          "treatment_variant": "baseline_mhc",
-          "control_response": "unleash your inner vibe with the ultimate guide to living life on your terms. stay curious, stay bold, and always keep it real. #playboy #lifestyle #culture #style",
-          "treatment_response": "hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. don't miss out on the fun. #playboy #latestissue #stunningphotos #exclusivecontent",
-          "control_checker_result": {
-            "strict_prompt_passed": true,
-            "strict_instruction_score": 1.0,
-            "loose_prompt_passed": true,
-            "loose_instruction_score": 1.0,
-            "checker_error": null
-          },
-          "treatment_checker_result": {
-            "strict_prompt_passed": false,
-            "strict_instruction_score": 0.5,
-            "loose_prompt_passed": false,
-            "loose_instruction_score": 0.5,
-            "checker_error": null
-          }
         }
       ]
     },
@@ -2744,17 +2716,16 @@
       "treatment_variant": "verbose_helpfulness",
       "control_variant": "baseline",
       "improved_sample_count": 2,
-      "degraded_sample_count": 2,
-      "tied_sample_count": 16,
-      "prompt_level_delta": 0.0,
-      "instruction_level_delta": 0.0,
+      "degraded_sample_count": 1,
+      "tied_sample_count": 17,
+      "prompt_level_delta": 0.04999999999999993,
+      "instruction_level_delta": 0.033333333333333326,
       "improved_sample_ids": [
         11,
         14
       ],
       "degraded_sample_ids": [
-        10,
-        19
+        10
       ],
       "changed_sample_audit": [
         {
@@ -2834,33 +2805,6 @@
             "loose_instruction_score": 1.0,
             "checker_error": null
           }
-        },
-        {
-          "sample_index": 19,
-          "sample_id": 1122,
-          "prompt": "make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'",
-          "instruction_id_list": [
-            "change_case:english_lowercase",
-            "keywords:letter_frequency"
-          ],
-          "control_variant": "baseline",
-          "treatment_variant": "verbose_helpfulness",
-          "control_response": "unleash your inner vibe with the ultimate guide to living life on your terms. stay curious, stay bold, and always keep it real. #playboy #lifestyle #culture #style",
-          "treatment_response": "here's a playful and engaging tweet for playboy's twitter account, formatted as requested:\n\nthis week's cover is pure magic ✨ model, artist, and icon — she’s redefining beauty one frame at a time 🖼️ #playboy #covergirl #style #culture\n\nnote: the hashtags are all lowercase as per the request, and the entire tweet avoids capital letters except for the hashtag symbols.",
-          "control_checker_result": {
-            "strict_prompt_passed": true,
-            "strict_instruction_score": 1.0,
-            "loose_prompt_passed": true,
-            "loose_instruction_score": 1.0,
-            "checker_error": null
-          },
-          "treatment_checker_result": {
-            "strict_prompt_passed": false,
-            "strict_instruction_score": 0.5,
-            "loose_prompt_passed": false,
-            "loose_instruction_score": 0.5,
-            "checker_error": null
-          }
         }
       ]
     },
@@ -2868,57 +2812,26 @@
       "pair": "mhc_concise - baseline_mhc",
       "treatment_variant": "mhc_concise",
       "control_variant": "baseline_mhc",
-      "improved_sample_count": 1,
+      "improved_sample_count": 0,
       "degraded_sample_count": 0,
-      "tied_sample_count": 19,
-      "prompt_level_delta": 0.04999999999999993,
-      "instruction_level_delta": 0.033333333333333326,
-      "improved_sample_ids": [
-        19
-      ],
+      "tied_sample_count": 20,
+      "prompt_level_delta": 0.0,
+      "instruction_level_delta": 0.0,
+      "improved_sample_ids": [],
       "degraded_sample_ids": [],
-      "changed_sample_audit": [
-        {
-          "sample_index": 19,
-          "sample_id": 1122,
-          "prompt": "make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'",
-          "instruction_id_list": [
-            "change_case:english_lowercase",
-            "keywords:letter_frequency"
-          ],
-          "control_variant": "baseline_mhc",
-          "treatment_variant": "mhc_concise",
-          "control_response": "hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. don't miss out on the fun. #playboy #latestissue #stunningphotos #exclusivecontent",
-          "treatment_response": "hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. stay tuned for more surprises. #playboy #fashion #entertainment #culture",
-          "control_checker_result": {
-            "strict_prompt_passed": false,
-            "strict_instruction_score": 0.5,
-            "loose_prompt_passed": false,
-            "loose_instruction_score": 0.5,
-            "checker_error": null
-          },
-          "treatment_checker_result": {
-            "strict_prompt_passed": true,
-            "strict_instruction_score": 1.0,
-            "loose_prompt_passed": false,
-            "loose_instruction_score": 0.5,
-            "checker_error": null
-          }
-        }
-      ]
+      "changed_sample_audit": []
     },
     "gepa_p2_transfer - ifbench_gepa_prompt_transfer": {
       "pair": "gepa_p2_transfer - ifbench_gepa_prompt_transfer",
       "treatment_variant": "gepa_p2_transfer",
       "control_variant": "ifbench_gepa_prompt_transfer",
-      "improved_sample_count": 2,
+      "improved_sample_count": 1,
       "degraded_sample_count": 0,
-      "tied_sample_count": 18,
-      "prompt_level_delta": 0.09999999999999998,
-      "instruction_level_delta": 0.06666666666666665,
+      "tied_sample_count": 19,
+      "prompt_level_delta": 0.050000000000000044,
+      "instruction_level_delta": 0.033333333333333326,
       "improved_sample_ids": [
-        10,
-        19
+        10
       ],
       "degraded_sample_ids": [],
       "changed_sample_audit": [
@@ -2947,35 +2860,25 @@
             "loose_instruction_score": 1.0,
             "checker_error": null
           }
-        },
-        {
-          "sample_index": 19,
-          "sample_id": 1122,
-          "prompt": "make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'",
-          "instruction_id_list": [
-            "change_case:english_lowercase",
-            "keywords:letter_frequency"
-          ],
-          "control_variant": "ifbench_gepa_prompt_transfer",
-          "treatment_variant": "gepa_p2_transfer",
-          "control_response": "sure thing. here goes:  \n\nanother great day at the office, folks! keep it wild, keep it loose, and never stop exploring. 🌟 #playboyculture #lifestylevibes #chillandflow #thegoodlife",
-          "treatment_response": "playboy is back with more style, swagger, and smooth vibes. keep it real, stay hot, and never stop shining. #playboy #stylevibes #smoothmoves #glamourlife",
-          "control_checker_result": {
-            "strict_prompt_passed": false,
-            "strict_instruction_score": 0.5,
-            "loose_prompt_passed": true,
-            "loose_instruction_score": 1.0,
-            "checker_error": null
-          },
-          "treatment_checker_result": {
-            "strict_prompt_passed": true,
-            "strict_instruction_score": 1.0,
-            "loose_prompt_passed": true,
-            "loose_instruction_score": 1.0,
-            "checker_error": null
-          }
         }
       ]
     }
-  }
+  },
+  "checker_metadata": {
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
+    "langdetect_seed": 0,
+    "aggregation_source": "deterministic_offline_checker",
+    "canonical_summary_source": "deterministic_offline_recheck",
+    "checker_determinism_status": "set",
+    "checker_determinism_detail": {
+      "checker_determinism_status": "set",
+      "langdetect_seed": 0,
+      "pythonhashseed": "0",
+      "langdetect_wrapper": {
+        "langdetect_wrapper_status": "installed"
+      }
+    }
+  },
+  "canonical_summary_source": "deterministic_offline_recheck"
 }

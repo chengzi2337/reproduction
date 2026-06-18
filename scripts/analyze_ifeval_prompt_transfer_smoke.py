@@ -15,6 +15,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.ifeval_official_adapter import official_import_path
+from src.ifeval_evaluation_utils import (
+    CANONICAL_SUMMARY_SOURCE,
+    compare_aggregates,
+    evaluate_raw_outputs as evaluate_raw_outputs_common,
+)
 from src.logging_utils import write_json, write_text
 
 
@@ -585,10 +590,10 @@ def render_markdown(audit: dict[str, Any], pairwise: dict[str, Any]) -> str:
             lines.append(
                 "| `{}` | `{}` | `{}` | `{}` | `{}` |".format(
                     variant_id,
-                    payload["audit_prompt_level_accuracy"],
-                    payload["runner_prompt_level_accuracy"],
-                    payload["audit_instruction_level_accuracy"],
-                    payload["runner_instruction_level_accuracy"],
+                    payload.get("canonical_prompt_level_accuracy", payload.get("audit_prompt_level_accuracy")),
+                    payload.get("historical_prompt_level_accuracy", payload.get("runner_prompt_level_accuracy")),
+                    payload.get("canonical_instruction_level_accuracy", payload.get("audit_instruction_level_accuracy")),
+                    payload.get("historical_instruction_level_accuracy", payload.get("runner_instruction_level_accuracy")),
                 )
             )
 
@@ -645,6 +650,272 @@ def render_blocked_markdown(audit: dict[str, Any]) -> str:
     )
 
 
+def build_canonical_summary(
+    *,
+    audit: dict[str, Any],
+    pairwise: dict[str, Any],
+    evaluation: dict[str, Any],
+) -> dict[str, Any]:
+    interpretations = {
+        "gepa_p2_transfer": describe_pairwise_signal(
+            pairwise,
+            "gepa_p2_transfer - ifbench_gepa_prompt_transfer",
+            "gepa_p2_transfer",
+            "ifbench_gepa_prompt_transfer",
+        ),
+        "mhc_concise": describe_pairwise_signal(
+            pairwise,
+            "mhc_concise - baseline_mhc",
+            "mhc_concise",
+            "baseline_mhc",
+        ),
+        "baseline_mhc": describe_pairwise_signal(
+            pairwise,
+            "baseline_mhc - baseline",
+            "baseline_mhc",
+            "baseline",
+        ),
+        "verbose_helpfulness": describe_pairwise_signal(
+            pairwise,
+            "verbose_helpfulness - baseline",
+            "verbose_helpfulness",
+            "baseline",
+        ),
+    }
+    return {
+        "status": audit["status"],
+        "canonical_summary_source": CANONICAL_SUMMARY_SOURCE,
+        "scope": {
+            "benchmark": "IFEval",
+            "limit": audit.get("total_samples"),
+            "variant_count": audit.get("total_variants"),
+            "new_api_call_enabled": False,
+            "full_ifeval_conclusion": False,
+        },
+        "checker_metadata": {
+            "checker_source": evaluation.get("checker_source"),
+            "llm_judge_enabled": evaluation.get("llm_judge_enabled"),
+            "langdetect_seed": evaluation.get("langdetect_seed"),
+            "aggregation_source": evaluation.get("aggregation_source"),
+            "checker_determinism_status": evaluation.get("checker_determinism_status"),
+        },
+        "variant_scores": evaluation.get("per_variant", {}),
+        "pairwise_comparisons": pairwise,
+        "main_interpretation": interpretations,
+        "boundary": [
+            "limit=20 smoke 不是 full IFEval 结论。",
+            "full IFEval run 仍然是必要下一步。",
+            "本 summary 只来自已有 raw_outputs.jsonl 的 deterministic offline official IFEval checker 重算。",
+        ],
+    }
+
+
+def describe_pairwise_signal(pairwise: dict[str, Any], pair_key: str, treatment: str, control: str) -> str:
+    payload = pairwise.get(pair_key) or {}
+    prompt_delta = payload.get("prompt_level_delta")
+    instruction_delta = payload.get("instruction_level_delta")
+    if prompt_delta is None or instruction_delta is None:
+        return f"{treatment} 相对 {control} 没有可用的 canonical pairwise delta。"
+    if prompt_delta > 0 or instruction_delta > 0:
+        return f"{treatment} 相对 {control} 显示正向 smoke 信号。"
+    if prompt_delta < 0 or instruction_delta < 0:
+        return f"{treatment} 相对 {control} 显示负向 smoke 信号。"
+    return f"{treatment} 相对 {control} 在 canonical deterministic recheck 下没有改善。"
+
+
+def render_canonical_summary_md(summary: dict[str, Any]) -> str:
+    lines = [
+        "# IFEval prompt-transfer canonical smoke summary",
+        "",
+        "## Scope",
+        "",
+        f"- limit=20 smoke: `{summary['scope']['limit']}` samples",
+        "- no new API call",
+        "- deterministic offline official IFEval checker",
+        f"- canonical_summary_source: `{summary['canonical_summary_source']}`",
+        f"- langdetect_seed: `{summary['checker_metadata']['langdetect_seed']}`",
+        f"- llm_judge_enabled: `{summary['checker_metadata']['llm_judge_enabled']}`",
+        "",
+        "## Variant table",
+        "",
+        "| variant | prompt-level accuracy | instruction-level accuracy | sample count | checker errors |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    for variant_id, payload in summary["variant_scores"].items():
+        lines.append(
+            "| `{}` | `{}` | `{}` | `{}` | `{}` |".format(
+                variant_id,
+                payload.get("prompt_level_accuracy"),
+                payload.get("instruction_level_accuracy"),
+                payload.get("sample_count"),
+                payload.get("checker_error_count"),
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Pairwise delta table",
+            "",
+            "| pair | improved | degraded | tied | prompt delta | instruction delta |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for payload in summary["pairwise_comparisons"].values():
+        lines.append(
+            "| `{}` | `{}` | `{}` | `{}` | `{}` | `{}` |".format(
+                payload["pair"],
+                payload["improved_sample_count"],
+                payload["degraded_sample_count"],
+                payload["tied_sample_count"],
+                payload["prompt_level_delta"],
+                payload["instruction_level_delta"],
+            )
+        )
+    lines.extend(["", "## Main interpretation", ""])
+    for text in summary["main_interpretation"].values():
+        lines.append(f"- {text}")
+    lines.extend(["", "## Boundary", ""])
+    for text in summary["boundary"]:
+        lines.append(f"- {text}")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_markdown(audit: dict[str, Any], pairwise: dict[str, Any]) -> str:
+    lines = [
+        "# IFEval prompt-transfer limit=20 smoke 离线审计",
+        "",
+        "## Overview",
+        "",
+        f"- status: `{audit['status']}`",
+        f"- total variants: `{audit.get('total_variants')}`",
+        f"- total samples: `{audit.get('total_samples')}`",
+        f"- expected calls: `{audit.get('expected_calls')}`",
+        f"- actual raw output rows: `{audit.get('actual_raw_output_rows')}`",
+        f"- provider errors/rejections/timeouts: `{audit['provider_events']['provider_error_count']}` / `{audit['provider_events']['provider_rejection_count']}` / `{audit['provider_events']['timeout_count']}`",
+        f"- sample set consistency: `{audit['sample_consistency']['status']}`",
+        f"- checker status: `{audit.get('checker_status')}`",
+        f"- checker metadata: `{audit.get('checker_metadata')}`",
+        f"- runner aggregate comparison: `{audit.get('runner_aggregate_comparison', {}).get('status')}`",
+        "",
+        "本报告只读取已有 raw outputs，并用 deterministic official IFEval rule checker 离线重算；没有新增模型调用，没有启动 full IFEval，也没有启动 GEPA optimization。",
+        "原始 runner aggregate 标记为 historical/raw-runner aggregate；canonical smoke scores 以后以 deterministic audit-compatible re-evaluation 为准。",
+        "",
+        "## Variant score table",
+        "",
+        "| variant | prompt-level accuracy | instruction-level accuracy | sample count | avg response chars | checker errors |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for variant_id, payload in audit["variant_scores"].items():
+        lines.append(
+            "| `{}` | `{}` | `{}` | `{}` | `{}` | `{}` |".format(
+                variant_id,
+                payload.get("prompt_level_accuracy"),
+                payload.get("instruction_level_accuracy"),
+                payload.get("sample_count"),
+                payload.get("average_response_character_length"),
+                payload.get("checker_error_count"),
+            )
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Pairwise delta table",
+            "",
+            "| pair | improved | degraded | tied | prompt delta | instruction delta |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for payload in pairwise.values():
+        lines.append(
+            "| `{}` | `{}` | `{}` | `{}` | `{}` | `{}` |".format(
+                payload["pair"],
+                payload["improved_sample_count"],
+                payload["degraded_sample_count"],
+                payload["tied_sample_count"],
+                payload["prompt_level_delta"],
+                payload["instruction_level_delta"],
+            )
+        )
+
+    comparison = audit.get("runner_aggregate_comparison", {})
+    if comparison.get("status") == "mismatch":
+        lines.extend(
+            [
+                "",
+                "## Runner aggregate comparison",
+                "",
+                "以下差异来自已有 historical/raw-runner aggregate 与本次 canonical deterministic offline recheck 的对照；这不是新增模型调用。",
+                "",
+                "| variant | canonical prompt | historical prompt | canonical instruction | historical instruction |",
+                "|---|---:|---:|---:|---:|",
+            ]
+        )
+        for variant_id, payload in comparison.get("mismatched_variants", {}).items():
+            lines.append(
+                "| `{}` | `{}` | `{}` | `{}` | `{}` |".format(
+                    variant_id,
+                    payload.get("canonical_prompt_level_accuracy"),
+                    payload.get("historical_prompt_level_accuracy"),
+                    payload.get("canonical_instruction_level_accuracy"),
+                    payload.get("historical_instruction_level_accuracy"),
+                )
+            )
+
+    lines.extend(["", "## Changed sample audit", ""])
+    for payload in pairwise.values():
+        lines.append(f"### {payload['pair']}")
+        lines.append("")
+        lines.append(f"- improved sample ids: `{payload['improved_sample_ids']}`")
+        lines.append(f"- degraded sample ids: `{payload['degraded_sample_ids']}`")
+        if not payload["changed_sample_audit"]:
+            lines.append("- changed samples: 无")
+            lines.append("")
+            continue
+        for item in payload["changed_sample_audit"]:
+            lines.extend(
+                [
+                    "",
+                    f"- sample `{item['sample_index']}` / `{item['sample_id']}`",
+                    f"  - instructions: `{item['instruction_id_list']}`",
+                    f"  - prompt: {short_text(str(item['prompt']))}",
+                    f"  - control checker: `{item['control_checker_result']}`",
+                    f"  - treatment checker: `{item['treatment_checker_result']}`",
+                    f"  - control response excerpt: {short_text(str(item['control_response']))}",
+                    f"  - treatment response excerpt: {short_text(str(item['treatment_response']))}",
+                ]
+            )
+        lines.append("")
+
+    lines.extend(
+        [
+            "## Interpretation boundary",
+            "",
+            "- `limit=20 smoke` 不是 full IFEval 结论。",
+            "- 这轮只能说明 runner/API/checker 闭环可用，并给出初步迁移信号。",
+            "- full IFEval run 仍然是必要下一步。",
+            "- 本审计不使用 LLM judge，不新增 DashScope/Qwen 调用，不删除或改写 raw outputs。",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def render_blocked_markdown(audit: dict[str, Any]) -> str:
+    return "\n".join(
+        [
+            "# IFEval prompt-transfer smoke 离线审计",
+            "",
+            f"- status: `{audit['status']}`",
+            f"- blocked reasons: `{audit.get('blocked_reasons', [])}`",
+            "",
+            "本报告未发起任何模型调用。请补齐缺失的已有 smoke 输出后重新运行。",
+            "",
+        ]
+    )
+
+
 def write_blocked_outputs(smoke_dir: Path, reasons: list[str], input_status: dict[str, Any]) -> dict[str, Any]:
     smoke_dir.mkdir(parents=True, exist_ok=True)
     audit = {
@@ -665,6 +936,15 @@ def write_blocked_outputs(smoke_dir: Path, reasons: list[str], input_status: dic
     write_text(smoke_dir / "audit.md", render_blocked_markdown(audit))
     write_json(smoke_dir / "pairwise_sample_matrix.json", {"status": "blocked", "samples": [], "pairwise_comparisons": {}})
     write_matrix_csv(smoke_dir / "pairwise_sample_matrix.csv", [], [])
+    canonical_summary = {
+        "status": "blocked",
+        "canonical_summary_source": CANONICAL_SUMMARY_SOURCE,
+        "blocked_reasons": reasons,
+        "variant_scores": {},
+        "pairwise_comparisons": {},
+    }
+    write_json(smoke_dir / "canonical_summary.json", canonical_summary)
+    write_text(smoke_dir / "canonical_summary.md", render_blocked_markdown(audit))
     return audit
 
 
@@ -707,7 +987,7 @@ def analyze_smoke(smoke_dir: Path) -> dict[str, Any]:
     checker_status = "ok"
     checker_error = None
     try:
-        checker_payloads = run_official_checker(
+        evaluation_payload = evaluate_raw_outputs_common(
             ifeval_root=ifeval_root,
             dataset_path=dataset_path,
             raw_rows=raw_rows,
@@ -717,20 +997,33 @@ def analyze_smoke(smoke_dir: Path) -> dict[str, Any]:
     except Exception as exc:
         checker_status = "checker_error"
         checker_error = f"{type(exc).__name__}: {exc}"
-        checker_payloads = {
-            (int(row.get("sample_index", -1)), normalize_variant(row)): {"checker_error": checker_error}
-            for row in raw_rows
+        fallback_matrix = build_matrix(
+            samples=samples,
+            raw_rows=raw_rows,
+            variants=variants,
+            checker_payloads={
+                (int(row.get("sample_index", -1)), normalize_variant(row)): {"checker_error": checker_error}
+                for row in raw_rows
+            },
+        )
+        evaluation_payload = {
+            "metadata": {
+                "checker_source": "official_ifeval",
+                "llm_judge_enabled": False,
+                "langdetect_seed": 0,
+                "aggregation_source": "deterministic_offline_checker",
+                "checker_determinism_status": "checker_error",
+            },
+            "matrix": fallback_matrix,
+            "evaluation": {"per_variant": aggregate_variant_scores(fallback_matrix, variants)},
+            "pairwise": {},
         }
 
-    matrix = build_matrix(
-        samples=samples,
-        raw_rows=raw_rows,
-        variants=variants,
-        checker_payloads=checker_payloads,
-    )
-    variant_scores = aggregate_variant_scores(matrix, variants)
-    pairwise = build_pairwise(matrix, variant_scores)
-    runner_aggregate_comparison = compare_runner_aggregate(eval_results, variant_scores)
+    matrix = evaluation_payload["matrix"]
+    evaluation = evaluation_payload["evaluation"]
+    variant_scores = evaluation.get("per_variant", {})
+    pairwise = evaluation_payload["pairwise"]
+    runner_aggregate_comparison = compare_aggregates(eval_results, evaluation)
     provider_events = summarize_provider_rows(raw_rows, provider_events_input)
     expected_calls = len(variants) * len(samples)
     status = "completed" if sample_consistency["status"] == "ok" and checker_status == "ok" else "blocked"
@@ -752,15 +1045,39 @@ def analyze_smoke(smoke_dir: Path) -> dict[str, Any]:
         "sample_consistency": sample_consistency,
         "checker_status": checker_status,
         "checker_error": checker_error,
-        "checker_determinism": seed_language_detector(),
+        "checker_metadata": evaluation_payload["metadata"],
+        "checker_determinism": evaluation_payload["metadata"],
         "provider_events": provider_events,
         "variant_scores": variant_scores,
         "runner_aggregate_comparison": runner_aggregate_comparison,
         "aggregate_eval_results_from_runner": eval_results,
+        "historical_runner_aggregate_source": "raw_historical_runner_aggregate",
+        "canonical_summary_source": CANONICAL_SUMMARY_SOURCE,
         "interpretation_boundary": {
             "is_full_ifeval_conclusion": False,
             "statement": "limit=20 smoke 只用于工程闭环和初步信号，不能作为 full IFEval 结论。",
         },
+    }
+    canonical_summary = build_canonical_summary(
+        audit=audit,
+        pairwise=pairwise,
+        evaluation=evaluation,
+    )
+    metadata_update = {
+        "checker_metadata": evaluation_payload["metadata"],
+        "canonical_aggregation_source": evaluation_payload["metadata"]["aggregation_source"],
+        "canonical_summary_source": CANONICAL_SUMMARY_SOURCE,
+        "langdetect_seed": evaluation_payload["metadata"]["langdetect_seed"],
+        "checker_determinism_status": evaluation_payload["metadata"]["checker_determinism_status"],
+        "llm_judge_enabled": False,
+        "historical_runner_aggregate_source": "raw_historical_runner_aggregate",
+        "canonical_summary_path": (smoke_dir / "canonical_summary.json").as_posix(),
+    }
+    updated_summary = {**summary, **metadata_update}
+    updated_run_config = {
+        **run_config,
+        **metadata_update,
+        "output_dir": smoke_dir.as_posix(),
     }
     matrix_payload = {
         "status": status,
@@ -768,10 +1085,16 @@ def analyze_smoke(smoke_dir: Path) -> dict[str, Any]:
         "sample_count": len(matrix),
         "samples": matrix,
         "pairwise_comparisons": pairwise,
+        "checker_metadata": evaluation_payload["metadata"],
+        "canonical_summary_source": CANONICAL_SUMMARY_SOURCE,
     }
 
+    write_json(smoke_dir / "summary.json", updated_summary)
+    write_json(smoke_dir / "run_config.json", updated_run_config)
     write_json(smoke_dir / "audit.json", audit)
     write_text(smoke_dir / "audit.md", render_markdown(audit, pairwise))
+    write_json(smoke_dir / "canonical_summary.json", canonical_summary)
+    write_text(smoke_dir / "canonical_summary.md", render_canonical_summary_md(canonical_summary))
     write_json(smoke_dir / "pairwise_sample_matrix.json", matrix_payload)
     write_matrix_csv(smoke_dir / "pairwise_sample_matrix.csv", matrix, variants)
     return audit

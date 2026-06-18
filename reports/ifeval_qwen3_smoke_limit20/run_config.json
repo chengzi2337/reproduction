@@ -23,5 +23,29 @@
   "end_time": "20260617T213310+0800",
   "api_run_enabled": true,
   "gepa_optimization_enabled": false,
-  "mock_provider": false
+  "mock_provider": false,
+  "checker_metadata": {
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
+    "langdetect_seed": 0,
+    "aggregation_source": "deterministic_offline_checker",
+    "canonical_summary_source": "deterministic_offline_recheck",
+    "checker_determinism_status": "set",
+    "checker_determinism_detail": {
+      "checker_determinism_status": "set",
+      "langdetect_seed": 0,
+      "pythonhashseed": "0",
+      "langdetect_wrapper": {
+        "langdetect_wrapper_status": "installed"
+      }
+    }
+  },
+  "canonical_aggregation_source": "deterministic_offline_checker",
+  "canonical_summary_source": "deterministic_offline_recheck",
+  "langdetect_seed": 0,
+  "checker_determinism_status": "set",
+  "llm_judge_enabled": false,
+  "historical_runner_aggregate_source": "raw_historical_runner_aggregate",
+  "canonical_summary_path": "C:/Users/lin/Documents/New project 2/reports/ifeval_qwen3_smoke_limit20/canonical_summary.json",
+  "output_dir": "C:/Users/lin/Documents/New project 2/reports/ifeval_qwen3_smoke_limit20"
 }

@@ -10,48 +10,48 @@
 - provider errors/rejections/timeouts: `0` / `0` / `0`
 - sample set consistency: `ok`
 - checker status: `ok`
-- checker determinism: `{'langdetect_seed': 0, 'status': 'set'}`
+- checker metadata: `{'checker_source': 'official_ifeval', 'llm_judge_enabled': False, 'langdetect_seed': 0, 'aggregation_source': 'deterministic_offline_checker', 'canonical_summary_source': 'deterministic_offline_recheck', 'checker_determinism_status': 'set', 'checker_determinism_detail': {'checker_determinism_status': 'set', 'langdetect_seed': 0, 'pythonhashseed': '0', 'langdetect_wrapper': {'langdetect_wrapper_status': 'installed'}}}`
 - runner aggregate comparison: `mismatch`
 
-本报告只读取已有输出并重新运行本地 official IFEval rule checker；没有发起新的模型调用，没有启动 full IFEval，也没有启动 GEPA optimization。
-
-审计重算显式固定语言检测种子；原始 runner 汇总没有被改写，保留在 `audit.json` 的 `aggregate_eval_results_from_runner`。
+本报告只读取已有 raw outputs，并用 deterministic official IFEval rule checker 离线重算；没有新增模型调用，没有启动 full IFEval，也没有启动 GEPA optimization。
+原始 runner aggregate 标记为 historical/raw-runner aggregate；canonical smoke scores 以后以 deterministic audit-compatible re-evaluation 为准。
 
 ## Variant score table
 
 | variant | prompt-level accuracy | instruction-level accuracy | sample count | avg response chars | checker errors |
 |---|---:|---:|---:|---:|---:|
 | `baseline` | `0.8` | `0.8666666666666667` | `20` | `1260.05` | `0` |
-| `baseline_mhc` | `0.8` | `0.8666666666666667` | `20` | `934.4` | `0` |
-| `verbose_helpfulness` | `0.8` | `0.8666666666666667` | `20` | `1168.1` | `0` |
+| `baseline_mhc` | `0.85` | `0.9` | `20` | `934.4` | `0` |
+| `verbose_helpfulness` | `0.85` | `0.9` | `20` | `1168.1` | `0` |
 | `mhc_concise` | `0.85` | `0.9` | `20` | `835.0` | `0` |
-| `ifbench_gepa_prompt_transfer` | `0.8` | `0.8666666666666667` | `20` | `974.6` | `0` |
+| `ifbench_gepa_prompt_transfer` | `0.85` | `0.9` | `20` | `974.6` | `0` |
 | `gepa_p2_transfer` | `0.9` | `0.9333333333333333` | `20` | `1073.45` | `0` |
 
 ## Pairwise delta table
 
 | pair | improved | degraded | tied | prompt delta | instruction delta |
 |---|---:|---:|---:|---:|---:|
-| `baseline_mhc - baseline` | `2` | `2` | `16` | `0.0` | `0.0` |
-| `verbose_helpfulness - baseline` | `2` | `2` | `16` | `0.0` | `0.0` |
-| `mhc_concise - baseline_mhc` | `1` | `0` | `19` | `0.04999999999999993` | `0.033333333333333326` |
-| `gepa_p2_transfer - ifbench_gepa_prompt_transfer` | `2` | `0` | `18` | `0.09999999999999998` | `0.06666666666666665` |
+| `baseline_mhc - baseline` | `2` | `1` | `17` | `0.04999999999999993` | `0.033333333333333326` |
+| `verbose_helpfulness - baseline` | `2` | `1` | `17` | `0.04999999999999993` | `0.033333333333333326` |
+| `mhc_concise - baseline_mhc` | `0` | `0` | `20` | `0.0` | `0.0` |
+| `gepa_p2_transfer - ifbench_gepa_prompt_transfer` | `1` | `0` | `19` | `0.050000000000000044` | `0.033333333333333326` |
 
 ## Runner aggregate comparison
 
-以下差异来自本次固定语言检测种子的逐样本重算与已有 runner 汇总之间的对照，不代表新增模型调用。
+以下差异来自已有 historical/raw-runner aggregate 与本次 canonical deterministic offline recheck 的对照；这不是新增模型调用。
 
-| variant | audit prompt | runner prompt | audit instruction | runner instruction |
+| variant | canonical prompt | historical prompt | canonical instruction | historical instruction |
 |---|---:|---:|---:|---:|
-| `baseline_mhc` | `0.8` | `0.85` | `0.8666666666666667` | `0.9` |
+| `verbose_helpfulness` | `0.85` | `0.8` | `0.9` | `0.8666666666666667` |
 | `mhc_concise` | `0.85` | `0.8` | `0.9` | `0.8666666666666667` |
+| `ifbench_gepa_prompt_transfer` | `0.85` | `0.8` | `0.9` | `0.8666666666666667` |
 
 ## Changed sample audit
 
 ### baseline_mhc - baseline
 
 - improved sample ids: `[11, 14]`
-- degraded sample ids: `[10, 19]`
+- degraded sample ids: `[10]`
 
 - sample `10` / `1072`
   - instructions: `['length_constraints:number_words']`
@@ -77,18 +77,10 @@
   - control response excerpt: **A Quick Escape to Japan** Last month, I embarked on a short but unforgettable trip to Japan. From the moment I stepped off the plane in Tokyo, I was captivated by the blend of tradition and modernity that defines this incredible country. I started my journey in Tokyo, exploring the bustling streets of Shibuya and the serene beauty of Senso-ji Temple. Th...
   - treatment response excerpt: Japan is a land of contrasts, where ancient traditions meet cutting-edge technology. My recent trip to Tokyo was an unforgettable blend of culture and innovation. I started with a visit to the serene Meiji Shrine, where the quiet beauty of nature contrasted sharply with the bustling city around it. Next, I explored the vibrant streets of Shibuya, where th...
 
-- sample `19` / `1122`
-  - instructions: `['change_case:english_lowercase', 'keywords:letter_frequency']`
-  - prompt: make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'
-  - control checker: `{'strict_prompt_passed': True, 'strict_instruction_score': 1.0, 'loose_prompt_passed': True, 'loose_instruction_score': 1.0, 'checker_error': None}`
-  - treatment checker: `{'strict_prompt_passed': False, 'strict_instruction_score': 0.5, 'loose_prompt_passed': False, 'loose_instruction_score': 0.5, 'checker_error': None}`
-  - control response excerpt: unleash your inner vibe with the ultimate guide to living life on your terms. stay curious, stay bold, and always keep it real. #playboy #lifestyle #culture #style
-  - treatment response excerpt: hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. don't miss out on the fun. #playboy #latestissue #stunningphotos #exclusivecontent
-
 ### verbose_helpfulness - baseline
 
 - improved sample ids: `[11, 14]`
-- degraded sample ids: `[10, 19]`
+- degraded sample ids: `[10]`
 
 - sample `10` / `1072`
   - instructions: `['length_constraints:number_words']`
@@ -114,30 +106,15 @@
   - control response excerpt: **A Quick Escape to Japan** Last month, I embarked on a short but unforgettable trip to Japan. From the moment I stepped off the plane in Tokyo, I was captivated by the blend of tradition and modernity that defines this incredible country. I started my journey in Tokyo, exploring the bustling streets of Shibuya and the serene beauty of Senso-ji Temple. Th...
   - treatment response excerpt: Japan is a country where ancient traditions meet modern innovation, and a trip there feels like stepping into a living storybook. My recent journey to Tokyo, Kyoto, and Osaka was nothing short of magical. In Tokyo, I marveled at the seamless blend of technology and culture. The neon-lit streets of Shibuya contrasted beautifully with the serene beauty of M...
 
-- sample `19` / `1122`
-  - instructions: `['change_case:english_lowercase', 'keywords:letter_frequency']`
-  - prompt: make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'
-  - control checker: `{'strict_prompt_passed': True, 'strict_instruction_score': 1.0, 'loose_prompt_passed': True, 'loose_instruction_score': 1.0, 'checker_error': None}`
-  - treatment checker: `{'strict_prompt_passed': False, 'strict_instruction_score': 0.5, 'loose_prompt_passed': False, 'loose_instruction_score': 0.5, 'checker_error': None}`
-  - control response excerpt: unleash your inner vibe with the ultimate guide to living life on your terms. stay curious, stay bold, and always keep it real. #playboy #lifestyle #culture #style
-  - treatment response excerpt: here's a playful and engaging tweet for playboy's twitter account, formatted as requested: this week's cover is pure magic ✨ model, artist, and icon — she’s redefining beauty one frame at a time 🖼️ #playboy #covergirl #style #culture note: the hashtags are all lowercase as per the request, and the entire tweet avoids capital letters except for the hashtag...
-
 ### mhc_concise - baseline_mhc
 
-- improved sample ids: `[19]`
+- improved sample ids: `[]`
 - degraded sample ids: `[]`
-
-- sample `19` / `1122`
-  - instructions: `['change_case:english_lowercase', 'keywords:letter_frequency']`
-  - prompt: make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'
-  - control checker: `{'strict_prompt_passed': False, 'strict_instruction_score': 0.5, 'loose_prompt_passed': False, 'loose_instruction_score': 0.5, 'checker_error': None}`
-  - treatment checker: `{'strict_prompt_passed': True, 'strict_instruction_score': 1.0, 'loose_prompt_passed': False, 'loose_instruction_score': 0.5, 'checker_error': None}`
-  - control response excerpt: hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. don't miss out on the fun. #playboy #latestissue #stunningphotos #exclusivecontent
-  - treatment response excerpt: hello everyone! enjoy the latest issue of playboy with stunning photos and exclusive content. stay tuned for more surprises. #playboy #fashion #entertainment #culture
+- changed samples: 无
 
 ### gepa_p2_transfer - ifbench_gepa_prompt_transfer
 
-- improved sample ids: `[10, 19]`
+- improved sample ids: `[10]`
 - degraded sample ids: `[]`
 
 - sample `10` / `1072`
@@ -148,17 +125,9 @@
   - control response excerpt: **The Benefits of Sleeping in a Hammock** Sleeping in a hammock is more than just a unique way to rest—it's a lifestyle choice that offers a range of physical, mental, and emotional benefits. Whether you're camping in the woods, relaxing in your backyard, or simply looking for a new way to unwind, sleeping in a hammock can provide a refreshing and rejuven...
   - treatment response excerpt: **The Benefits of Sleeping in a Hammock** Sleeping in a hammock is more than just a unique way to rest—it's a lifestyle choice that offers a range of physical, mental, and emotional benefits. Whether you're camping in the woods, relaxing in your backyard, or simply looking for a new way to unwind, sleeping in a hammock can provide a refreshing and rejuven...
 
-- sample `19` / `1122`
-  - instructions: `['change_case:english_lowercase', 'keywords:letter_frequency']`
-  - prompt: make a tweet for playboy's twitter account without using capital letters. Include at least 4 hashtags, starting with '#'
-  - control checker: `{'strict_prompt_passed': False, 'strict_instruction_score': 0.5, 'loose_prompt_passed': True, 'loose_instruction_score': 1.0, 'checker_error': None}`
-  - treatment checker: `{'strict_prompt_passed': True, 'strict_instruction_score': 1.0, 'loose_prompt_passed': True, 'loose_instruction_score': 1.0, 'checker_error': None}`
-  - control response excerpt: sure thing. here goes: another great day at the office, folks! keep it wild, keep it loose, and never stop exploring. 🌟 #playboyculture #lifestylevibes #chillandflow #thegoodlife
-  - treatment response excerpt: playboy is back with more style, swagger, and smooth vibes. keep it real, stay hot, and never stop shining. #playboy #stylevibes #smoothmoves #glamourlife
-
 ## Interpretation boundary
 
 - `limit=20 smoke` 不是 full IFEval 结论。
-- 这轮只能说明 runner/API/checker 闭环可用，并出现与 IFBench 一致的初步迁移信号。
+- 这轮只能说明 runner/API/checker 闭环可用，并给出初步迁移信号。
 - full IFEval run 仍然是必要下一步。
 - 本审计不使用 LLM judge，不新增 DashScope/Qwen 调用，不删除或改写 raw outputs。

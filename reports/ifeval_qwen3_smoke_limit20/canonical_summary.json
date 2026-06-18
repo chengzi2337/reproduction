@@ -1,0 +1,348 @@
+{
+  "status": "completed",
+  "canonical_summary_source": "deterministic_offline_recheck",
+  "scope": {
+    "benchmark": "IFEval",
+    "limit": 20,
+    "variant_count": 6,
+    "new_api_call_enabled": false,
+    "full_ifeval_conclusion": false
+  },
+  "checker_metadata": {
+    "checker_source": "official_ifeval",
+    "llm_judge_enabled": false,
+    "langdetect_seed": 0,
+    "aggregation_source": "deterministic_offline_checker",
+    "checker_determinism_status": "set"
+  },
+  "variant_scores": {
+    "baseline": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.8,
+      "prompt_correct": 16,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.8666666666666667,
+      "instruction_correct": 26,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 1260.05
+    },
+    "baseline_mhc": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 934.4
+    },
+    "verbose_helpfulness": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 1168.1
+    },
+    "mhc_concise": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 835.0
+    },
+    "ifbench_gepa_prompt_transfer": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.85,
+      "prompt_correct": 17,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.9,
+      "instruction_correct": 27,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 974.6
+    },
+    "gepa_p2_transfer": {
+      "sample_count": 20,
+      "prompt_level_accuracy": 0.9,
+      "prompt_correct": 18,
+      "prompt_total": 20,
+      "instruction_level_accuracy": 0.9333333333333333,
+      "instruction_correct": 28,
+      "instruction_total": 30,
+      "checker_error_count": 0,
+      "average_response_character_length": 1073.45
+    }
+  },
+  "pairwise_comparisons": {
+    "baseline_mhc - baseline": {
+      "pair": "baseline_mhc - baseline",
+      "treatment_variant": "baseline_mhc",
+      "control_variant": "baseline",
+      "improved_sample_count": 2,
+      "degraded_sample_count": 1,
+      "tied_sample_count": 17,
+      "prompt_level_delta": 0.04999999999999993,
+      "instruction_level_delta": 0.033333333333333326,
+      "improved_sample_ids": [
+        11,
+        14
+      ],
+      "degraded_sample_ids": [
+        10
+      ],
+      "changed_sample_audit": [
+        {
+          "sample_index": 10,
+          "sample_id": 1072,
+          "prompt": "Write a blog post with 400 or more words about the benefits of sleeping in a hammock.",
+          "instruction_id_list": [
+            "length_constraints:number_words"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "baseline_mhc",
+          "control_response": "**The Benefits of Sleeping in a Hammock: Why You Should Try It**\n\nIn today's fast-paced world, finding moments of peace and relaxation is more important than ever. One of the simplest yet most effective ways to unwind is by sleeping in a hammock. While it may seem like a novelty or a summer camp staple, sleeping in a hammock offers a range of benefits that can enhance your sleep quality, comfort, and overall well-being.\n\nFirst and foremost, a hammock provides a unique kind of support that can be gentler on the body than traditional beds. Unlike a mattress, which can create pressure points on the back and shoulders, a hammock cradles your body in a suspended position. This natural suspension allows for even weight distribution and promotes proper spinal alignment, reducing the risk of discomfort or pain during the night.\n\nAnother major advantage of sleeping in a hammock is the ability to customize your setup. Whether you're hanging it between two trees, a porch swing, or a garden post, you can choose the perfect spot that offers the best view, breeze, or sound of nature. This flexibility not only enhances the ambiance of your sleep environment but also encourages a deeper connection with the surroundings, which can have a calming effect on the mind.\n\nHammocks are also incredibly portable and easy to set up, making them ideal for camping trips, outdoor adventures, or even as a temporary solution when space is limited at home. Their lightweight design and minimal setup requirements make them a practical choice for anyone looking to escape the rigidity of a standard bed.\n\nPerhaps one of the most overlooked benefits of hammock sleeping is its impact on mental health. The open-air setting and the gentle swaying motion can help reduce stress and anxiety, promoting a more restful and rejuvenating sleep. Studies have shown that being in nature and experiencing natural light can improve mood and cognitive function, further supporting the idea that sleeping in a hammock can contribute to better mental health.\n\nAdditionally, hammocks are an excellent option for people with chronic pain or mobility issues. The soft, supportive fabric and the way it contours to the body can provide relief from conditions such as back pain or arthritis. For those who struggle with traditional bedding, a hammock can offer a comfortable alternative that still ensures a good night’s sleep.\n\nIn conclusion, sleeping in a hammock is more than just a fun outdoor activity—it’s a lifestyle choice that can lead to improved sleep, reduced stress, and a greater sense of well-being. Whether you're seeking a better night’s rest or simply looking to connect with nature, a hammock might just be the perfect addition to your sleep routine. So why not try it out? You might just find that the sky is the limit when it comes to rest and relaxation.",
+          "treatment_response": "**The Benefits of Sleeping in a Hammock**\n\nSleeping in a hammock is more than just a unique way to rest—it's a lifestyle choice that offers a range of physical, mental, and emotional benefits. Whether you're camping in the woods or relaxing in your backyard, a hammock provides a comfortable and versatile alternative to traditional sleeping arrangements.\n\nOne of the most obvious benefits of sleeping in a hammock is the support it offers for the body. Unlike a rigid bed, a hammock cradles the body in a natural position, reducing pressure on the spine and joints. This can lead to better posture and less back pain, especially for those who suffer from chronic discomfort. The gentle suspension also helps align the spine, promoting deeper and more restorative sleep.\n\nAnother advantage of hammocks is their portability. They are lightweight and easy to set up, making them ideal for outdoor adventures. Whether you're hiking, camping, or simply enjoying a weekend getaway, a hammock allows you to sleep comfortably without the need for a tent or mattress. This makes it an excellent option for travelers and adventurers who want to stay light on their feet.\n\nHammocks also offer a unique sense of relaxation. The swaying motion can be calming, helping to reduce stress and anxiety. Many people find that sleeping in a hammock promotes a more peaceful state of mind, allowing for better mental clarity and emotional balance. This can be especially beneficial for individuals dealing with insomnia or sleep disorders.\n\nAdditionally, hammocks are environmentally friendly. They require minimal materials and have a smaller carbon footprint compared to traditional bedding. By choosing a hammock, you’re making a sustainable choice that benefits both your health and the planet.\n\nIn conclusion, sleeping in a hammock is a simple yet effective way to improve your sleep quality, reduce physical strain, and enhance your overall well-being. Whether you're looking for a new way to rest or seeking a more sustainable lifestyle, a hammock is worth considering.",
+          "control_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": false,
+            "loose_instruction_score": 0.0,
+            "checker_error": null
+          }
+        },
+        {
+          "sample_index": 11,
+          "sample_id": 1075,
+          "prompt": "Can you help me make an advertisement for a new product? It's a diaper that's designed to be more comfortable for babies and I want the entire output in JSON format.",
+          "instruction_id_list": [
+            "detectable_format:json_format"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "baseline_mhc",
+          "control_response": "Sure! Here's an advertisement for your new comfortable baby diaper, formatted in JSON:\n\n```json\n{\n  \"advertisement\": {\n    \"title\": \"SoftGlow Diapers: Where Comfort Meets Care\",\n    \"headline\": \"New Baby Diapers Designed for Maximum Comfort and Gentle Protection\",\n    \"description\": \"Introducing SoftGlow Diapers – the revolutionary diaper that redefines comfort for your little one. Made with ultra-soft, breathable materials and a unique ergonomic design, SoftGlow ensures all-day comfort, reducing redness and irritation. Perfect for sensitive skin and all-day wear.\",\n    \"features\": [\n      \"Ultra-soft, hypoallergenic material\",\n      \"Ergonomic fit for optimal leg movement\",\n      \"Breathable lining to prevent moisture buildup\",\n      \"Absorbent core for all-day protection\",\n      \"Easy-to-remove front closure for quick changes\"\n    ],\n    \"benefits\": [\n      \"Reduces skin irritation and rashes\",\n      \"Provides all-day dryness and comfort\",\n      \"Supports healthy skin development\",\n      \"Easy to use and dispose of\"\n    ],\n    \"call_to_action\": \"Join thousands of parents who trust SoftGlow Diapers for their baby’s comfort. Order now and experience the difference!\",\n    \"tags\": [\"baby care\", \"diapers\", \"comfort\", \"skin-friendly\", \"new product\"],\n    \"brand\": \"SoftGlow\",\n    \"product_type\": \"Diapers\",\n    \"target_audience\": \"Parents of newborns and toddlers\",\n    \"additional_info\": \"Available in sizes NB to 6XL. Safe for sensitive skin. Non-toxic and eco-friendly materials.\"\n  }\n}\n```\n\nLet me know if you'd like to customize it further or add more details!",
+          "treatment_response": "{\n  \"advertisement\": {\n    \"product\": \"SoftGlide Diapers\",\n    \"tagline\": \"Soft. Safe. Smiles.\",\n    \"description\": \"Introducing SoftGlide Diapers, the ultimate comfort solution for your little one. Designed with advanced breathable material and a flexible fit, these diapers keep your baby dry, comfortable, and happy all day long. Say goodbye to redness and irritation with our hypoallergenic formula that's gentle on sensitive skin. Perfect for every stage of your baby's growth.\",\n    \"features\": [\n      \"Ultra-soft, breathable fabric\",\n      \"Flexible waistband for all-day comfort\",\n      \"Hypoallergenic and dermatologist-tested\",\n      \"Absorbent core for all-night protection\",\n      \"Eco-friendly materials for a healthier planet\"\n    ],\n    \"call_to_action\": \"Join thousands of parents who trust SoftGlide Diapers. Order now and experience the difference in comfort!\"\n  }\n}",
+          "control_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          }
+        },
+        {
+          "sample_index": 14,
+          "sample_id": 1092,
+          "prompt": "Write a short blog post about a trip to Japan using less than 300 words.",
+          "instruction_id_list": [
+            "length_constraints:number_words"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "baseline_mhc",
+          "control_response": "**A Quick Escape to Japan**\n\nLast month, I embarked on a short but unforgettable trip to Japan. From the moment I stepped off the plane in Tokyo, I was captivated by the blend of tradition and modernity that defines this incredible country.\n\nI started my journey in Tokyo, exploring the bustling streets of Shibuya and the serene beauty of Senso-ji Temple. The city never sleeps, and I found myself wandering through neon-lit districts, savoring street food like sushi and takoyaki. The efficiency of the public transport system made getting around a breeze, and I marveled at the seamless integration of technology in everyday life.\n\nFrom Tokyo, I traveled to Kyoto, where time seemed to slow down. Walking through the peaceful gardens of Ryoan-ji and visiting ancient temples like Kinkaku-ji offered a glimpse into Japan’s rich cultural heritage. The cherry blossoms were in full bloom, adding a magical touch to every corner of the city.\n\nI also had the chance to experience traditional tea ceremonies and try on kimonos, which added a unique and personal dimension to my trip. The warmth and hospitality of the locals left a lasting impression, making me feel welcomed in every town I visited.\n\nOne of the highlights was staying in a ryokan, a traditional Japanese inn, where I enjoyed sumptuous meals and views of the surrounding mountains. It was a peaceful contrast to the fast-paced cities and a perfect way to unwind.\n\nMy trip was brief, but it packed in so much more than I expected. Japan is a land of contrasts—modern and traditional, busy and tranquil. It’s a place that invites you to slow down, observe, and appreciate the beauty in every detail.\n\nIf you ever have the chance to visit, Japan will undoubtedly leave you with memories that last a lifetime.",
+          "treatment_response": "Japan is a land of contrasts, where ancient traditions meet cutting-edge technology. My recent trip to Tokyo was an unforgettable blend of culture and innovation. I started with a visit to the serene Meiji Shrine, where the quiet beauty of nature contrasted sharply with the bustling city around it.\n\nNext, I explored the vibrant streets of Shibuya, where the famous scramble crossing showcased the energy of modern Japan. The neon lights and crowds were both thrilling and overwhelming. I then made my way to Asakusa, a historic district with traditional temples and local shops selling handmade crafts.\n\nIn Kyoto, I immersed myself in centuries-old culture. Visiting Fushimi Inari Taisha, with its thousands of red torii gates, was a highlight. The peaceful gardens of Ryoan-ji offered a moment of calm amid the historical surroundings.\n\nI also enjoyed the culinary scene, from sushi at a tiny Tokyo market to kaiseki meals in Kyoto. Each meal was a celebration of flavor and presentation.\n\nThe trip was filled with unforgettable experiences, from the efficiency of the bullet trains to the warmth of the people. Japan left me with a deep appreciation for its rich heritage and forward-thinking spirit. It’s a destination that offers something for everyone, whether you’re seeking adventure, history, or simply a change of scenery.",
+          "control_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          }
+        }
+      ]
+    },
+    "verbose_helpfulness - baseline": {
+      "pair": "verbose_helpfulness - baseline",
+      "treatment_variant": "verbose_helpfulness",
+      "control_variant": "baseline",
+      "improved_sample_count": 2,
+      "degraded_sample_count": 1,
+      "tied_sample_count": 17,
+      "prompt_level_delta": 0.04999999999999993,
+      "instruction_level_delta": 0.033333333333333326,
+      "improved_sample_ids": [
+        11,
+        14
+      ],
+      "degraded_sample_ids": [
+        10
+      ],
+      "changed_sample_audit": [
+        {
+          "sample_index": 10,
+          "sample_id": 1072,
+          "prompt": "Write a blog post with 400 or more words about the benefits of sleeping in a hammock.",
+          "instruction_id_list": [
+            "length_constraints:number_words"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "verbose_helpfulness",
+          "control_response": "**The Benefits of Sleeping in a Hammock: Why You Should Try It**\n\nIn today's fast-paced world, finding moments of peace and relaxation is more important than ever. One of the simplest yet most effective ways to unwind is by sleeping in a hammock. While it may seem like a novelty or a summer camp staple, sleeping in a hammock offers a range of benefits that can enhance your sleep quality, comfort, and overall well-being.\n\nFirst and foremost, a hammock provides a unique kind of support that can be gentler on the body than traditional beds. Unlike a mattress, which can create pressure points on the back and shoulders, a hammock cradles your body in a suspended position. This natural suspension allows for even weight distribution and promotes proper spinal alignment, reducing the risk of discomfort or pain during the night.\n\nAnother major advantage of sleeping in a hammock is the ability to customize your setup. Whether you're hanging it between two trees, a porch swing, or a garden post, you can choose the perfect spot that offers the best view, breeze, or sound of nature. This flexibility not only enhances the ambiance of your sleep environment but also encourages a deeper connection with the surroundings, which can have a calming effect on the mind.\n\nHammocks are also incredibly portable and easy to set up, making them ideal for camping trips, outdoor adventures, or even as a temporary solution when space is limited at home. Their lightweight design and minimal setup requirements make them a practical choice for anyone looking to escape the rigidity of a standard bed.\n\nPerhaps one of the most overlooked benefits of hammock sleeping is its impact on mental health. The open-air setting and the gentle swaying motion can help reduce stress and anxiety, promoting a more restful and rejuvenating sleep. Studies have shown that being in nature and experiencing natural light can improve mood and cognitive function, further supporting the idea that sleeping in a hammock can contribute to better mental health.\n\nAdditionally, hammocks are an excellent option for people with chronic pain or mobility issues. The soft, supportive fabric and the way it contours to the body can provide relief from conditions such as back pain or arthritis. For those who struggle with traditional bedding, a hammock can offer a comfortable alternative that still ensures a good night’s sleep.\n\nIn conclusion, sleeping in a hammock is more than just a fun outdoor activity—it’s a lifestyle choice that can lead to improved sleep, reduced stress, and a greater sense of well-being. Whether you're seeking a better night’s rest or simply looking to connect with nature, a hammock might just be the perfect addition to your sleep routine. So why not try it out? You might just find that the sky is the limit when it comes to rest and relaxation.",
+          "treatment_response": "**The Benefits of Sleeping in a Hammock: A Soothing Alternative to Traditional Beds**\n\nIn an era where sleep is often undervalued and disrupted by the demands of daily life, finding a way to rest more effectively can make a world of difference. One increasingly popular alternative to traditional beds is the hammock. While it may seem like a simple piece of fabric suspended between two trees, sleeping in a hammock offers a range of benefits that extend far beyond just a comfortable nap. Let's explore why more people are choosing to sleep in hammocks.\n\nFirst and foremost, hammocks provide unparalleled comfort. The gentle swaying motion mimics the natural rhythm of being in a state of relaxation, which can help ease tension and promote a deeper sense of calm. This movement can be particularly beneficial for individuals suffering from insomnia or those who struggle with falling asleep due to stress or anxiety.\n\nAnother major advantage of hammocking is its portability. Unlike a bed, which requires a fixed space and setup, a hammock can be easily transported and set up in various locations—whether it’s in your backyard, a beach, or even on a camping trip. This flexibility makes it an ideal choice for outdoor enthusiasts and anyone looking to enjoy a peaceful night’s sleep in nature.\n\nHammocks also offer excellent support for the spine. When properly suspended, they allow the body to lie in a slightly reclined position, which can reduce pressure on the back and neck. This posture can be especially beneficial for people with chronic back pain or those recovering from injuries.\n\nAdditionally, sleeping in a hammock can improve your overall sleep quality. The natural airflow around you helps regulate body temperature, preventing overheating and ensuring a more consistent sleep environment. This can lead to better sleep cycles and increased feelings of rejuvenation upon waking.\n\nIn summary, sleeping in a hammock is more than just a trendy activity—it's a practical and effective way to enhance your rest and well-being. Whether you're seeking a more comfortable sleep experience, a portable solution for outdoor adventures, or a method to relieve back pain, a hammock can be a valuable addition to your lifestyle. So why not give it a try? Your body—and your mind—will thank you.",
+          "control_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": false,
+            "loose_instruction_score": 0.0,
+            "checker_error": null
+          }
+        },
+        {
+          "sample_index": 11,
+          "sample_id": 1075,
+          "prompt": "Can you help me make an advertisement for a new product? It's a diaper that's designed to be more comfortable for babies and I want the entire output in JSON format.",
+          "instruction_id_list": [
+            "detectable_format:json_format"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "verbose_helpfulness",
+          "control_response": "Sure! Here's an advertisement for your new comfortable baby diaper, formatted in JSON:\n\n```json\n{\n  \"advertisement\": {\n    \"title\": \"SoftGlow Diapers: Where Comfort Meets Care\",\n    \"headline\": \"New Baby Diapers Designed for Maximum Comfort and Gentle Protection\",\n    \"description\": \"Introducing SoftGlow Diapers – the revolutionary diaper that redefines comfort for your little one. Made with ultra-soft, breathable materials and a unique ergonomic design, SoftGlow ensures all-day comfort, reducing redness and irritation. Perfect for sensitive skin and all-day wear.\",\n    \"features\": [\n      \"Ultra-soft, hypoallergenic material\",\n      \"Ergonomic fit for optimal leg movement\",\n      \"Breathable lining to prevent moisture buildup\",\n      \"Absorbent core for all-day protection\",\n      \"Easy-to-remove front closure for quick changes\"\n    ],\n    \"benefits\": [\n      \"Reduces skin irritation and rashes\",\n      \"Provides all-day dryness and comfort\",\n      \"Supports healthy skin development\",\n      \"Easy to use and dispose of\"\n    ],\n    \"call_to_action\": \"Join thousands of parents who trust SoftGlow Diapers for their baby’s comfort. Order now and experience the difference!\",\n    \"tags\": [\"baby care\", \"diapers\", \"comfort\", \"skin-friendly\", \"new product\"],\n    \"brand\": \"SoftGlow\",\n    \"product_type\": \"Diapers\",\n    \"target_audience\": \"Parents of newborns and toddlers\",\n    \"additional_info\": \"Available in sizes NB to 6XL. Safe for sensitive skin. Non-toxic and eco-friendly materials.\"\n  }\n}\n```\n\nLet me know if you'd like to customize it further or add more details!",
+          "treatment_response": "```json\n{\n  \"advertisement\": {\n    \"product_name\": \"SoftGlow Diapers\",\n    \"tagline\": \"Soft. Safe. Smiles.\",\n    \"description\": \"Introducing SoftGlow Diapers – the ultimate comfort solution for your little one. Designed with advanced breathable material and a flexible fit, these diapers provide all-day comfort and reduce redness and irritation. Made with hypoallergenic ingredients, SoftGlow Diapers are gentle on sensitive skin and perfect for babies who are always on the move.\",\n    \"features\": [\n      \"Ultra-soft, breathable fabric\",\n      \"Flexible waistband for a custom fit\",\n      \"Hypoallergenic and dermatologist-tested\",\n      \"Absorbent core for all-night comfort\",\n      \"Eco-friendly materials for a sustainable future\"\n    ],\n    \"benefits\": [\n      \"Reduces skin irritation and rashes\",\n      \"Provides all-day dryness and comfort\",\n      \"Adapts to your baby's movements\",\n      \"Safe for sensitive skin\",\n      \"Helps promote healthy sleep patterns\"\n    ],\n    \"call_to_action\": \"Switch to SoftGlow Diapers today and give your baby the comfort they deserve. Available at major retailers and online now!\",\n    \"brand\": \"SoftGlow\",\n    \"target_audience\": \"Parents of newborns and young infants\",\n    \"tone\": \"Friendly, reassuring, and trustworthy\"\n  }\n}\n```",
+          "control_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          }
+        },
+        {
+          "sample_index": 14,
+          "sample_id": 1092,
+          "prompt": "Write a short blog post about a trip to Japan using less than 300 words.",
+          "instruction_id_list": [
+            "length_constraints:number_words"
+          ],
+          "control_variant": "baseline",
+          "treatment_variant": "verbose_helpfulness",
+          "control_response": "**A Quick Escape to Japan**\n\nLast month, I embarked on a short but unforgettable trip to Japan. From the moment I stepped off the plane in Tokyo, I was captivated by the blend of tradition and modernity that defines this incredible country.\n\nI started my journey in Tokyo, exploring the bustling streets of Shibuya and the serene beauty of Senso-ji Temple. The city never sleeps, and I found myself wandering through neon-lit districts, savoring street food like sushi and takoyaki. The efficiency of the public transport system made getting around a breeze, and I marveled at the seamless integration of technology in everyday life.\n\nFrom Tokyo, I traveled to Kyoto, where time seemed to slow down. Walking through the peaceful gardens of Ryoan-ji and visiting ancient temples like Kinkaku-ji offered a glimpse into Japan’s rich cultural heritage. The cherry blossoms were in full bloom, adding a magical touch to every corner of the city.\n\nI also had the chance to experience traditional tea ceremonies and try on kimonos, which added a unique and personal dimension to my trip. The warmth and hospitality of the locals left a lasting impression, making me feel welcomed in every town I visited.\n\nOne of the highlights was staying in a ryokan, a traditional Japanese inn, where I enjoyed sumptuous meals and views of the surrounding mountains. It was a peaceful contrast to the fast-paced cities and a perfect way to unwind.\n\nMy trip was brief, but it packed in so much more than I expected. Japan is a land of contrasts—modern and traditional, busy and tranquil. It’s a place that invites you to slow down, observe, and appreciate the beauty in every detail.\n\nIf you ever have the chance to visit, Japan will undoubtedly leave you with memories that last a lifetime.",
+          "treatment_response": "Japan is a country where ancient traditions meet modern innovation, and a trip there feels like stepping into a living storybook. My recent journey to Tokyo, Kyoto, and Osaka was nothing short of magical.\n\nIn Tokyo, I marveled at the seamless blend of technology and culture. The neon-lit streets of Shibuya contrasted beautifully with the serene beauty of Meiji Shrine. A walk through Asakusa’s historic district brought me back in time, surrounded by traditional wooden buildings and the distant sound of temple bells.\n\nKyoto, on the other hand, felt like a peaceful escape. I wandered through lush bamboo forests, visited centuries-old temples like Kinkaku-ji (the Golden Pavilion), and soaked in the tranquility of Arashiyama. The local tea ceremonies and kaiseki meals offered a taste of Japan’s refined culinary artistry.\n\nOsaka was the perfect mix of fun and flavor. The city’s vibrant nightlife and bustling street food scene made it a highlight. I couldn’t resist trying takoyaki and okonomiyaki, both of which were bursting with flavor. The locals were friendly and welcoming, making the experience even more memorable.\n\nWhat struck me most about Japan was its respect for nature and tradition. From the meticulous care in every garden to the quiet reverence in temples, there’s a deep cultural harmony that permeates daily life.\n\nWhether you’re a foodie, a history lover, or simply seeking a unique travel experience, Japan offers something for everyone. It’s a place where every moment feels special, and every corner holds a new discovery.",
+          "control_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          }
+        }
+      ]
+    },
+    "mhc_concise - baseline_mhc": {
+      "pair": "mhc_concise - baseline_mhc",
+      "treatment_variant": "mhc_concise",
+      "control_variant": "baseline_mhc",
+      "improved_sample_count": 0,
+      "degraded_sample_count": 0,
+      "tied_sample_count": 20,
+      "prompt_level_delta": 0.0,
+      "instruction_level_delta": 0.0,
+      "improved_sample_ids": [],
+      "degraded_sample_ids": [],
+      "changed_sample_audit": []
+    },
+    "gepa_p2_transfer - ifbench_gepa_prompt_transfer": {
+      "pair": "gepa_p2_transfer - ifbench_gepa_prompt_transfer",
+      "treatment_variant": "gepa_p2_transfer",
+      "control_variant": "ifbench_gepa_prompt_transfer",
+      "improved_sample_count": 1,
+      "degraded_sample_count": 0,
+      "tied_sample_count": 19,
+      "prompt_level_delta": 0.050000000000000044,
+      "instruction_level_delta": 0.033333333333333326,
+      "improved_sample_ids": [
+        10
+      ],
+      "degraded_sample_ids": [],
+      "changed_sample_audit": [
+        {
+          "sample_index": 10,
+          "sample_id": 1072,
+          "prompt": "Write a blog post with 400 or more words about the benefits of sleeping in a hammock.",
+          "instruction_id_list": [
+            "length_constraints:number_words"
+          ],
+          "control_variant": "ifbench_gepa_prompt_transfer",
+          "treatment_variant": "gepa_p2_transfer",
+          "control_response": "**The Benefits of Sleeping in a Hammock**\n\nSleeping in a hammock is more than just a unique way to rest—it's a lifestyle choice that offers a range of physical, mental, and emotional benefits. Whether you're camping in the woods, relaxing in your backyard, or simply looking for a new way to unwind, sleeping in a hammock can provide a refreshing and rejuvenating experience.\n\nOne of the most significant advantages of hammock sleeping is the natural support it provides. Unlike traditional beds, which can sometimes lead to poor posture or pressure points, a properly set up hammock cradles your body in a suspended position that aligns your spine naturally. This can reduce strain on your back, neck, and shoulders, making it an excellent option for people with chronic pain or those seeking better sleep posture.\n\nAnother benefit is the calming effect of being outdoors. Sleeping in a hammock often means being surrounded by nature—whether it's the sound of birds, the rustle of leaves, or the gentle breeze. This connection to the environment can significantly reduce stress and promote relaxation, helping you fall asleep faster and enjoy deeper, more restorative sleep.\n\nHammocks are also incredibly versatile and portable. They’re lightweight, easy to set up, and can be used in a variety of settings, from backyard patios to mountain trails. This makes them a great option for campers, outdoor enthusiasts, and even those who want to add a touch of adventure to their home life.\n\nAdditionally, sleeping in a hammock can improve your overall sleep quality. The gentle swaying motion mimics the feeling of being rocked to sleep, which can help calm the mind and ease into a peaceful slumber. Many people report feeling more refreshed and energized after a night spent in a hammock compared to a standard bed.\n\nFinally, using a hammock can be a fun and creative way to spend time with family or friends. It encourages social interaction and can create lasting memories, whether you're lounging together under the stars or sharing stories around a campfire.\n\nIn conclusion, sleeping in a hammock offers a unique blend of comfort, relaxation, and adventure. It’s not just about where you sleep—it’s about how you rest and recharge. So why not try it out? You might just discover a new favorite way to get your much-needed shut-eye.",
+          "treatment_response": "**The Benefits of Sleeping in a Hammock**\n\nSleeping in a hammock is more than just a unique way to rest—it's a lifestyle choice that offers a range of physical, mental, and emotional benefits. Whether you're camping in the woods, relaxing in your backyard, or simply looking for a new way to unwind, sleeping in a hammock can provide a refreshing and rejuvenating experience.\n\nOne of the most significant advantages of sleeping in a hammock is its ability to promote better sleep quality. Unlike traditional beds, hammocks offer a gentle suspension that allows your body to rest in a natural, gravity-defying position. This reduces pressure on your spine and joints, which can help alleviate back pain and improve posture. The slight swaying motion also has a calming effect, mimicking the rhythm of being rocked as a child, which can induce relaxation and ease the transition into sleep.\n\nAnother benefit of hammock sleeping is its versatility. Hammocks are lightweight, easy to set up, and can be used almost anywhere—whether in a park, on a porch, or even in a tent. Their portability makes them ideal for outdoor enthusiasts, campers, and travelers who want to enjoy the outdoors without sacrificing comfort. Additionally, hammocks take up less space than a traditional bed, making them a great option for small living areas or those who prefer minimalist living.\n\nHammocks also provide an excellent opportunity to connect with nature. Sleeping outdoors in a hammock allows you to wake up to the sounds of birds, the rustling of trees, and the gentle breeze. This immersive experience can reduce stress, boost mood, and enhance overall well-being. Studies have shown that spending time in nature can lower cortisol levels and improve mental clarity, making hammock sleeping a powerful tool for relaxation and mindfulness.\n\nIn addition to these benefits, hammocks are eco-friendly. They require minimal materials, can be reused multiple times, and have a low environmental impact compared to traditional bedding. Choosing a hammock made from sustainable materials further supports environmentally conscious living.\n\nWhile sleeping in a hammock may not be for everyone, it’s worth considering as a unique and beneficial alternative to conventional sleeping arrangements. Whether you’re seeking better sleep, a deeper connection with nature, or a more comfortable outdoor experience, a hammock can offer a simple yet effective solution. So, why not give it a try? You might just find that sleeping in a hammock is the best decision you've made all year.",
+          "control_checker_result": {
+            "strict_prompt_passed": false,
+            "strict_instruction_score": 0.0,
+            "loose_prompt_passed": false,
+            "loose_instruction_score": 0.0,
+            "checker_error": null
+          },
+          "treatment_checker_result": {
+            "strict_prompt_passed": true,
+            "strict_instruction_score": 1.0,
+            "loose_prompt_passed": true,
+            "loose_instruction_score": 1.0,
+            "checker_error": null
+          }
+        }
+      ]
+    }
+  },
+  "main_interpretation": {
+    "gepa_p2_transfer": "gepa_p2_transfer 相对 ifbench_gepa_prompt_transfer 显示正向 smoke 信号。",
+    "mhc_concise": "mhc_concise 相对 baseline_mhc 在 canonical deterministic recheck 下没有改善。",
+    "baseline_mhc": "baseline_mhc 相对 baseline 显示正向 smoke 信号。",
+    "verbose_helpfulness": "verbose_helpfulness 相对 baseline 显示正向 smoke 信号。"
+  },
+  "boundary": [
+    "limit=20 smoke 不是 full IFEval 结论。",
+    "full IFEval run 仍然是必要下一步。",
+    "本 summary 只来自已有 raw_outputs.jsonl 的 deterministic offline official IFEval checker 重算。"
+  ]
+}

@@ -16,7 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.ifeval_prompt_transfer_preflight import DEFAULT_VARIANT_CONFIG_PATH, build_preflight_result
-from src.ifeval_official_adapter import official_import_path
+from src.ifeval_evaluation_utils import checker_metadata, evaluate_raw_outputs
 from src.logging_utils import create_timestamp, get_git_commit, write_json, write_text
 
 
@@ -172,10 +172,12 @@ def mock_response(prompt: str, variant_id: str) -> dict[str, Any]:
 
 def build_run_config(args: argparse.Namespace, preflight: dict[str, Any], variants: list[dict[str, Any]]) -> dict[str, Any]:
     now = create_timestamp()
+    metadata = checker_metadata()
     return {
         "commit_sha": get_git_commit(PROJECT_ROOT),
         "dataset_path": preflight["dataset"].get("dataset_path"),
         "ifeval_root": preflight["ifeval_root"].get("ifeval_root"),
+        "output_dir": str(Path(args.output_dir)),
         "model_name": args.model,
         "provider_type": "dashscope_openai_compatible",
         "provider_base": args.provider_base,
@@ -191,6 +193,15 @@ def build_run_config(args: argparse.Namespace, preflight: dict[str, Any], varian
         "api_run_enabled": bool(args.enable_api_run),
         "gepa_optimization_enabled": False,
         "mock_provider": bool(args.mock_provider),
+        "resume_config": {
+            "enabled": False,
+            "limit": args.limit,
+        },
+        "checker_metadata": metadata,
+        "canonical_aggregation_source": metadata["aggregation_source"],
+        "langdetect_seed": metadata["langdetect_seed"],
+        "checker_determinism_status": metadata["checker_determinism_status"],
+        "llm_judge_enabled": False,
     }
 
 
@@ -230,21 +241,14 @@ def evaluate_outputs(
     variants: list[dict[str, Any]],
     limit: int,
 ) -> dict[str, Any]:
-    with official_import_path(ifeval_root):
-        evaluation_lib = importlib.import_module("instruction_following_eval.evaluation_lib")
-        inputs = evaluation_lib.read_prompt_list(str(dataset_path))[:limit]
-        input_by_prompt = {item.prompt: item for item in inputs}
-        result_by_variant: dict[str, Any] = {}
-        for variant in variants:
-            variant_id = str(variant["variant_id"])
-            rows = [row for row in raw_rows if row["variant"] == variant_id]
-            prompt_to_response = {row["prompt"]: row["response"] for row in rows}
-            outputs = [
-                evaluation_lib.test_instruction_following_strict(input_by_prompt[row["prompt"]], prompt_to_response)
-                for row in rows
-            ]
-            result_by_variant[variant_id] = outputs
-    return summarize_eval_outputs(result_by_variant)
+    variant_ids = [str(variant["variant_id"]) for variant in variants]
+    return evaluate_raw_outputs(
+        ifeval_root=ifeval_root,
+        dataset_path=dataset_path,
+        raw_rows=raw_rows,
+        variants=variant_ids,
+        limit=limit,
+    )["evaluation"]
 
 
 def summarize_eval_outputs(result_by_variant: dict[str, list[Any]]) -> dict[str, Any]:
@@ -391,6 +395,7 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     variants = load_variants(Path(args.variant_config))
+    metadata = checker_metadata()
     preflight = build_preflight_result(
         variant_config_path=Path(args.variant_config),
         dataset_path=Path(args.dataset_path) if args.dataset_path else None,
@@ -406,6 +411,11 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
             "preflight_status": preflight["status"],
             "blocked_reasons": gate_reasons,
             "model_calls_planned": (args.limit or 0) * len(variants),
+            "checker_metadata": metadata,
+            "canonical_aggregation_source": metadata["aggregation_source"],
+            "langdetect_seed": metadata["langdetect_seed"],
+            "checker_determinism_status": metadata["checker_determinism_status"],
+            "llm_judge_enabled": False,
         }
         write_json(output_dir / "summary.json", status)
         write_text(output_dir / "summary.md", render_dry_run_md(status))
@@ -417,6 +427,11 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
             "api_call_enabled": False,
             "preflight_status": preflight["status"],
             "blocked_reasons": gate_reasons,
+            "checker_metadata": metadata,
+            "canonical_aggregation_source": metadata["aggregation_source"],
+            "langdetect_seed": metadata["langdetect_seed"],
+            "checker_determinism_status": metadata["checker_determinism_status"],
+            "llm_judge_enabled": False,
         }
         write_json(output_dir / "summary.json", status)
         write_text(output_dir / "summary.md", render_dry_run_md(status))
@@ -466,6 +481,11 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         "evaluation": evaluation,
         "provider_events": provider_events,
         "parse_checker_error_count": 0,
+        "checker_metadata": metadata,
+        "canonical_aggregation_source": metadata["aggregation_source"],
+        "langdetect_seed": metadata["langdetect_seed"],
+        "checker_determinism_status": metadata["checker_determinism_status"],
+        "llm_judge_enabled": False,
     }
     config["end_time"] = create_timestamp()
     write_json(output_dir / "run_config.json", config)
