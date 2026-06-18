@@ -173,7 +173,7 @@ def test_runner_stub_defaults_to_dry_run_without_real_api(monkeypatch) -> None:
     monkeypatch.delenv("IFEVAL_ROOT", raising=False)
     runner = load_module(RUNNER_PATH, "ifeval_prompt_transfer_runner_dry")
     workspace = _workspace("runner_dry")
-    output_json = workspace / "runner.json"
+    output_dir = workspace / "out"
 
     exit_code = runner.main(
         [
@@ -181,12 +181,12 @@ def test_runner_stub_defaults_to_dry_run_without_real_api(monkeypatch) -> None:
             str(VARIANT_CONFIG_PATH),
             "--dataset-path",
             str(workspace / "missing.jsonl"),
-            "--output-json",
-            str(output_json),
+            "--output-dir",
+            str(output_dir),
         ]
     )
 
-    payload = json.loads(output_json.read_text(encoding="utf-8"))
+    payload = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     assert exit_code == 0
     assert payload["status"] == "dry_run"
     assert payload["api_call_enabled"] is False
@@ -197,7 +197,7 @@ def test_enable_api_run_is_blocked_when_unimplemented(monkeypatch) -> None:
     monkeypatch.delenv("IFEVAL_ROOT", raising=False)
     runner = load_module(RUNNER_PATH, "ifeval_prompt_transfer_runner_blocked")
     workspace = _workspace("runner_blocked")
-    output_json = workspace / "runner_blocked.json"
+    output_dir = workspace / "out"
 
     exit_code = runner.main(
         [
@@ -205,17 +205,18 @@ def test_enable_api_run_is_blocked_when_unimplemented(monkeypatch) -> None:
             str(VARIANT_CONFIG_PATH),
             "--dataset-path",
             str(workspace / "missing.jsonl"),
-            "--output-json",
-            str(output_json),
+            "--output-dir",
+            str(output_dir),
             "--enable-api-run",
         ]
     )
 
-    payload = json.loads(output_json.read_text(encoding="utf-8"))
+    payload = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
     assert exit_code == 2
     assert payload["status"] == "blocked"
     assert payload["api_call_enabled"] is False
-    assert payload["real_run_implemented"] is False
+    assert "preflight_not_ready" in payload["blocked_reasons"]
+    assert "missing_provider_credential" in payload["blocked_reasons"]
 
 
 def test_fake_ifeval_root_makes_preflight_ready(monkeypatch) -> None:

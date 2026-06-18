@@ -82,6 +82,14 @@ def _write_fake_ifeval_root(root: Path, sample_count: int = 2) -> Path:
     return package
 
 
+def _read_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
 def test_dry_run_does_not_call_api(monkeypatch) -> None:
     runner = _load_runner()
     workspace = _workspace("dry_run")
@@ -103,23 +111,134 @@ def test_dry_run_does_not_call_api(monkeypatch) -> None:
         ]
     )
 
-    summary = json.loads((workspace / "out" / "summary.json").read_text(encoding="utf-8"))
+    summary = _read_json(workspace / "out" / "summary.json")
     assert exit_code == 0
     assert summary["status"] == "dry_run"
     assert summary["api_call_enabled"] is False
+    assert summary["mode"] == "smoke"
+    assert summary["expected_total_calls"] == 12
     assert summary["canonical_aggregation_source"] == "deterministic_offline_checker"
     assert summary["langdetect_seed"] == 0
     assert summary["llm_judge_enabled"] is False
 
 
-def test_api_run_requires_explicit_limit(monkeypatch) -> None:
+def test_full_plan_only_allows_no_limit_without_api(monkeypatch) -> None:
     runner = _load_runner()
-    workspace = _workspace("missing_limit")
+    workspace = _workspace("full_plan_only")
+    ifeval_root = _write_fake_ifeval_root(workspace, sample_count=3)
+
+    def fail_call_provider(**_kwargs):
+        raise AssertionError("plan-only 不应调用 provider")
+
+    monkeypatch.setattr(runner, "call_provider", fail_call_provider)
+    exit_code = runner.main(
+        [
+            "--mode",
+            "full",
+            "--ifeval-root",
+            str(ifeval_root),
+            "--plan-only",
+            "--output-dir",
+            str(workspace / "out"),
+        ]
+    )
+
+    summary = _read_json(workspace / "out" / "summary.json")
+    run_config = _read_json(workspace / "out" / "run_config.json")
+    assert exit_code == 0
+    assert summary["status"] == "plan_only"
+    assert summary["limit"] is None
+    assert summary["sample_count"] == 3
+    assert summary["expected_total_calls"] == 18
+    assert run_config["resume_config"]["enabled"] is False
+
+
+def test_variant_subset_and_max_calls_plan(monkeypatch) -> None:
+    runner = _load_runner()
+    workspace = _workspace("subset_max_calls")
+    ifeval_root = _write_fake_ifeval_root(workspace, sample_count=4)
+    monkeypatch.setattr(runner, "call_provider", lambda **_kwargs: (_ for _ in ()).throw(AssertionError("不应调用")))
+
+    exit_code = runner.main(
+        [
+            "--mode",
+            "full",
+            "--ifeval-root",
+            str(ifeval_root),
+            "--variants",
+            "baseline,baseline_mhc",
+            "--max-calls",
+            "3",
+            "--plan-only",
+            "--output-dir",
+            str(workspace / "out"),
+        ]
+    )
+
+    summary = _read_json(workspace / "out" / "summary.json")
+    run_config = _read_json(workspace / "out" / "run_config.json")
+    assert exit_code == 0
+    assert summary["variants"] == ["baseline", "baseline_mhc"]
+    assert summary["expected_total_calls"] == 8
+    assert summary["remaining_calls_before_cap"] == 8
+    assert summary["selected_call_count"] == 3
+    assert summary["max_calls_applied"] is True
+    assert run_config["call_plan"]["selected_call_count"] == 3
+
+
+def test_resume_skip_existing_skips_completed_rows(monkeypatch) -> None:
+    runner = _load_runner()
+    workspace = _workspace("resume_skip")
+    ifeval_root = _write_fake_ifeval_root(workspace, sample_count=2)
+    out_dir = workspace / "out"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    existing = {
+        "sample_index": 0,
+        "prompt": "Say test 0.",
+        "variant": "baseline",
+        "response": "existing",
+        "provider_status": "ok",
+        "provider_error": None,
+        "finish_reason": "stop",
+        "usage": {"prompt_tokens": None, "completion_tokens": None, "total_tokens": None},
+    }
+    (out_dir / "raw_outputs.jsonl").write_text(json.dumps(existing) + "\n", encoding="utf-8")
+    monkeypatch.setattr(runner, "call_provider", lambda **_kwargs: (_ for _ in ()).throw(AssertionError("不应调用")))
+
+    exit_code = runner.main(
+        [
+            "--mode",
+            "full",
+            "--ifeval-root",
+            str(ifeval_root),
+            "--variants",
+            "baseline,baseline_mhc",
+            "--resume",
+            "--plan-only",
+            "--output-dir",
+            str(out_dir),
+        ]
+    )
+
+    summary = _read_json(out_dir / "summary.json")
+    assert exit_code == 0
+    assert summary["existing_raw_output_rows"] == 1
+    assert summary["existing_unique_calls"] == 1
+    assert summary["skipped_existing_calls"] == 1
+    assert summary["remaining_calls_before_cap"] == 3
+    assert summary["resume_config"]["enabled"] is True
+
+
+def test_enable_api_run_full_mode_does_not_require_limit(monkeypatch) -> None:
+    runner = _load_runner()
+    workspace = _workspace("full_api_gate")
     ifeval_root = _write_fake_ifeval_root(workspace)
     monkeypatch.setenv("IFEVAL_TEST_CREDENTIAL", "dummy")
 
     exit_code = runner.main(
         [
+            "--mode",
+            "full",
             "--ifeval-root",
             str(ifeval_root),
             "--credential-env",
@@ -127,14 +246,20 @@ def test_api_run_requires_explicit_limit(monkeypatch) -> None:
             "--disable-dspy-cache",
             "--enable-api-run",
             "--mock-provider",
+            "--max-calls",
+            "0",
             "--output-dir",
             str(workspace / "out"),
         ]
     )
 
-    summary = json.loads((workspace / "out" / "summary.json").read_text(encoding="utf-8"))
-    assert exit_code == 2
-    assert "missing_explicit_limit" in summary["blocked_reasons"]
+    summary = _read_json(workspace / "out" / "summary.json")
+    assert exit_code == 0
+    assert summary["status"] == "partial_completed"
+    assert summary["limit"] is None
+    assert summary["selected_call_count"] == 0
+    assert "missing_explicit_limit" not in summary["blocked_reasons"]
+    assert not (workspace / "out" / "eval_results.json").exists()
 
 
 def test_mock_provider_generates_outputs_and_summary(monkeypatch) -> None:
@@ -159,13 +284,14 @@ def test_mock_provider_generates_outputs_and_summary(monkeypatch) -> None:
         ]
     )
 
-    raw_lines = (workspace / "out" / "raw_outputs.jsonl").read_text(encoding="utf-8").splitlines()
-    summary = json.loads((workspace / "out" / "summary.json").read_text(encoding="utf-8"))
-    eval_results = json.loads((workspace / "out" / "eval_results.json").read_text(encoding="utf-8"))
+    raw_rows = _read_jsonl(workspace / "out" / "raw_outputs.jsonl")
+    summary = _read_json(workspace / "out" / "summary.json")
+    eval_results = _read_json(workspace / "out" / "eval_results.json")
     markdown = (workspace / "out" / "summary.md").read_text(encoding="utf-8")
     assert exit_code == 0
-    assert len(raw_lines) == 12
+    assert len(raw_rows) == 12
     assert summary["status"] == "completed"
+    assert summary["coverage_status"] == "complete"
     assert summary["canonical_aggregation_source"] == "deterministic_offline_checker"
     assert summary["checker_determinism_status"] in {"set", "langdetect_unavailable"}
     assert eval_results["aggregation_source"] == "deterministic_offline_checker"
@@ -199,10 +325,7 @@ def test_provider_error_sample_is_not_deleted(monkeypatch) -> None:
         ]
     )
 
-    raw_rows = [
-        json.loads(line)
-        for line in (workspace / "out" / "raw_outputs.jsonl").read_text(encoding="utf-8").splitlines()
-    ]
+    raw_rows = _read_jsonl(workspace / "out" / "raw_outputs.jsonl")
     assert exit_code == 0
     assert len(raw_rows) == 6
     assert all(row["provider_status"] == "timeout" for row in raw_rows)
