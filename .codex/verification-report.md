@@ -2481,3 +2481,71 @@ score: 91
 ```
 
 summary: 'IFBench DashScope adapted 完整 GEPA 结果已完成本地审查。Baseline 与 GEPA 均达到 294/294 逐样本完整性，缺失 metric 行均按同一审计规则补为 0 分且不改变最终分数。当前单 seed 结果显示 GEPA 为 35.88，低于 Baseline 36.56，未复现论文 IFBench/Qwen3 约 +1.7 的提升。'
+## IFBench evidence replay 导出验证 - 2026-06-29
+
+### 需求符合性
+
+- 已新增 IFBench 样本级 evidence 导出能力，字段覆盖 `idx_in_split`、`example_key`、`prompt`、`instruction_id_list`、`instruction_group`、`metric_output`、`raw_response`、`prediction_payload`、`finish_reasons`、`parse_failure`、`provider_rejection_count`。
+- 已保证该能力是运行结束后的后处理导出，不改变 IFBench program、metric、optimizer 或评分逻辑。
+- 已保留后续真实 replay 的单独启动入口：`--export-ifbench-evidence`。
+- 未启动真实 DashScope/Qwen API，因为当前进程环境未设置真实 API key。
+
+### 本地验证
+
+- `python -m py_compile scripts/run_ifbench_qwen3_smoke.py`：通过。
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py -q -p no:cacheprovider --basetemp .codex/tmp/pytest-ifbench-evidence`：通过，`46 passed`。
+- `git diff --check`：通过，仅有 CRLF 工作区提示。
+- 密钥模式扫描：排除 `.codex/attachments`、`.codex/tmp`、`.codex/gepa-artifact` 后扫描 `scripts`、`tests`、`reports`、`.codex` 文本文件，`sk-[A-Za-z0-9]{20,}` 命中 0。
+- artifact preflight：使用非真实 dummy key 执行 `python scripts/run_ifbench_qwen3_smoke.py --skip-probe --preflight-only --export-ifbench-evidence` 通过，未启动 benchmark。
+
+### 环境状态
+
+- `.codex/gepa-artifact` 已恢复代码文件，但官方 `experiment_runs_data.tar.gz` 因 Git LFS budget 超限无法下载。
+- 已补齐 artifact 本地依赖 fork：`gepa_artifact/utils/dspy` 与 `gepa_artifact/utils/arbor`。
+- 已完成 artifact `.venv` 构建；Windows 下 `uvloop` 通过本地平台 marker 跳过。
+- 当前真实 API key 环境变量未设置：`QWEN_API_KEY=false`、`DASHSCOPE_API_KEY=false`、`OPENAI_API_KEY=false`。
+
+### 评分
+
+- 代码质量：92/100。新增逻辑局限于后处理导出，复用既有 runner 和测试模式。
+- 测试覆盖：90/100。本地单元测试覆盖 response 提取、evidence 导出、worker 命令透传；真实 API replay 尚未执行。
+- 规范遵循：91/100。未写入密钥，文档和日志为简体中文；`shrimp-task-manager` 的 `split_tasks` 未暴露，已记录工具缺口。
+- 战略匹配：93/100。该改动直接解决 IFBench 缺少具体样本细节的问题，为后续分析 GEPA 改进/退化样本提供证据路径。
+
+综合评分：92/100。
+
+建议：通过代码与本地验证；真实 replay 在注入 API key 后启动。
+
+## IFBench evidence replay 真实小样本验证 - 2026-06-29
+
+### 执行范围
+
+- Baseline 默认 replay：`train=2`、`val=2`、`test=6`。
+- GEPA-Tiny 默认 replay：`train=2`、`val=2`、`test=6`、`max_metric_calls=8`。
+- Baseline no-cache replay：独立 `DSPY_CACHEDIR`，`train=2`、`val=2`、`test=6`。
+- GEPA-Tiny no-cache replay：独立 `DSPY_CACHEDIR`，`train=2`、`val=2`、`test=6`、`max_metric_calls=8`。
+
+### 结果完整性
+
+- 四条 replay 均生成 `metric_logs/test.jsonl`，行数均为 `6/6`。
+- 四条 replay 均生成 `evidence/ifbench_evidence.jsonl`，raw response 均为 `6/6`。
+- provider rejection 均为 `0`。
+- parse failure 均为 `0`。
+- no-cache Baseline token 计数正常：`input_tokens=6052`、`output_tokens=7034`。
+- no-cache GEPA-Tiny token 计数正常：`input_tokens=5886`、`output_tokens=6501`、`optimizer_input_tokens=11086`、`optimizer_output_tokens=8515`。
+
+### 结果解释
+
+- no-cache Baseline：`0.0/6`。
+- no-cache GEPA-Tiny：`0.0/6`。
+- GEPA-Tiny 的小预算优化在 val 上出现过 `75.0`，但 test 前 6 条没有获得任何得分，说明该小样本 replay 没有观察到 GEPA 的 test 迁移收益。
+- 该结果不能替代完整 benchmark；它的价值是提供可审计样本级证据，用于分析具体失败题目与 prompt 行为。
+
+### 产物
+
+- `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6.json`
+- `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6.md`
+- `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.json`
+- `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.md`
+
+建议：这批 replay 可作为“具体样本失败分析”的证据，但不应单独作为 GEPA 整体有效性结论。

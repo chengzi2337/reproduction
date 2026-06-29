@@ -44,6 +44,10 @@ RUN_ERROR_MARKERS = (
 )
 PROVIDER_REJECTION_AUDIT_FILENAME = "provider_rejections.json"
 PROVIDER_REJECTION_MESSAGE_MAX_CHARS = 500
+IFBENCH_EVIDENCE_DIR_NAME = "evidence"
+IFBENCH_EVIDENCE_JSONL_FILENAME = "ifbench_evidence.jsonl"
+IFBENCH_EVIDENCE_SUMMARY_FILENAME = "ifbench_evidence_summary.json"
+DEFAULT_IFBENCH_EVIDENCE_REPORT_DIR = PROJECT_ROOT / "reports" / "ifbench_qwen3_evidence_replay"
 PROVIDER_CONTENT_REJECTION_MARKERS = (
     "data_inspection_failed",
     "inappropriate content",
@@ -167,6 +171,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--recover-run-dir",
         default=None,
         help="对已完成优化但最终 test eval 不完整的 run，基于已保存 optimized_program 单独恢复最终评测。",
+    )
+    parser.add_argument(
+        "--export-ifbench-evidence",
+        action="store_true",
+        help="运行结束后导出 IFBench 样本级 prompt、原始回答、metric 与异常状态证据。",
+    )
+    parser.add_argument(
+        "--evidence-report-dir",
+        default=str(DEFAULT_IFBENCH_EVIDENCE_REPORT_DIR),
+        help="额外保存 IFBench evidence 汇总的项目报告目录。",
     )
     parser.add_argument(
         "--recovery-tag",
@@ -342,6 +356,30 @@ def read_example_field(example: Any, field_name: str) -> Any | None:
 def read_example_prompt(example: Any) -> str | None:
     value = read_example_field(example, "prompt")
     return None if value is None else str(value)
+
+
+def read_example_instruction_ids(example: Any) -> list[str]:
+    value = read_example_field(example, "instruction_id_list")
+    if value is None:
+        value = read_example_field(example, "instruction_ids")
+    if value is None:
+        value = read_example_field(example, "instruction_id")
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value]
+    return [str(value)]
+
+
+def build_instruction_group(instruction_ids: list[str]) -> str:
+    if not instruction_ids:
+        return "unknown"
+    first = instruction_ids[0]
+    for delimiter in (":", "/", "."):
+        if delimiter in first:
+            group = first.split(delimiter, 1)[0].strip()
+            return group or "unknown"
+    return first.strip() or "unknown"
 
 
 def summarize_provider_rejection(exc: BaseException) -> str:
@@ -712,6 +750,256 @@ def backfill_missing_test_metric_rows(run_dir: Path, expected_items: list[Any]) 
     return len(missing_indices)
 
 
+def load_metric_log_records(run_dir: Path) -> list[dict[str, Any]]:
+    path = run_dir / "metric_logs" / "test.jsonl"
+    if not path.exists():
+        raise SmokeError(f"未找到 metric log：{path}")
+    records: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8", errors="ignore") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                payload = json.loads(stripped)
+            except json.JSONDecodeError as exc:
+                raise SmokeError(f"metric log 第 {line_number} 行 JSON 解析失败：{path}") from exc
+            if isinstance(payload, dict):
+                records.append(payload)
+    return records
+
+
+def to_json_safe(value: Any) -> Any:
+    try:
+        return json.loads(json.dumps(value, ensure_ascii=False, default=str))
+    except TypeError:
+        return str(value)
+
+
+def read_prediction_field(prediction: Any, field_name: str) -> Any | None:
+    if prediction is None:
+        return None
+    if isinstance(prediction, dict):
+        return prediction.get(field_name)
+    try:
+        return prediction[field_name]
+    except (KeyError, TypeError):
+        return getattr(prediction, field_name, None)
+
+
+def extract_prediction_response(prediction: Any) -> str | None:
+    if prediction is None:
+        return None
+    if isinstance(prediction, str):
+        return prediction
+    if isinstance(prediction, (int, float, bool)):
+        return str(prediction)
+    for field_name in (
+        "response",
+        "answer",
+        "output",
+        "completion",
+        "text",
+        "raw_response",
+        "full_assistant_response",
+    ):
+        value = read_prediction_field(prediction, field_name)
+        if value is None:
+            continue
+        if isinstance(value, str):
+            return value
+        return str(value)
+    nested = read_prediction_field(prediction, "prediction")
+    if nested is not None and nested is not prediction:
+        return extract_prediction_response(nested)
+    return None
+
+
+def collect_values_by_key(value: Any, target_keys: set[str], max_items: int = 20) -> list[Any]:
+    results: list[Any] = []
+
+    def visit(node: Any) -> None:
+        if len(results) >= max_items:
+            return
+        if isinstance(node, dict):
+            for key, child in node.items():
+                if key in target_keys:
+                    if isinstance(child, list):
+                        results.extend(child[: max_items - len(results)])
+                    else:
+                        results.append(child)
+                    if len(results) >= max_items:
+                        return
+                visit(child)
+                if len(results) >= max_items:
+                    return
+        elif isinstance(node, list):
+            for child in node:
+                visit(child)
+                if len(results) >= max_items:
+                    return
+
+    visit(value)
+    return to_json_safe(results)
+
+
+def metric_record_parse_failed(record: dict[str, Any] | None) -> bool:
+    if record is None:
+        return True
+    if record.get("recovery_status") == "filled_missing_metric_row":
+        return True
+    prediction = record.get("prediction")
+    if prediction is None and record.get("metric_output") == 0:
+        return True
+    status = str(record.get("status") or record.get("error") or "").lower()
+    return "parse" in status or "failed" in status
+
+
+def safe_report_stem(run_dir: Path) -> str:
+    stem = run_dir.name.strip() or "ifbench-run"
+    safe_chars = []
+    for char in stem:
+        if char.isalnum() or char in ("-", "_", "."):
+            safe_chars.append(char)
+        else:
+            safe_chars.append("_")
+    return "".join(safe_chars)
+
+
+def export_ifbench_evidence(
+    run_dir: Path,
+    test_items: list[Any],
+    provider_rejections: dict[str, Any] | None = None,
+    report_dir: Path | None = None,
+) -> dict[str, Any]:
+    metric_records = load_metric_log_records(run_dir)
+    records_by_index: dict[int, dict[str, Any]] = {}
+    for record in metric_records:
+        idx = record.get("idx_in_split")
+        if isinstance(idx, int) and idx not in records_by_index:
+            records_by_index[idx] = record
+
+    provider_counts_by_key = {}
+    if isinstance(provider_rejections, dict):
+        raw_counts = provider_rejections.get("counts_by_key")
+        if isinstance(raw_counts, dict):
+            provider_counts_by_key = {str(key): int(value) for key, value in raw_counts.items()}
+
+    evidence_rows: list[dict[str, Any]] = []
+    for idx, example in enumerate(test_items):
+        record = records_by_index.get(idx)
+        example_key = read_example_key(example)
+        instruction_ids = read_example_instruction_ids(example)
+        prediction_payload = None if record is None else to_json_safe(record.get("prediction"))
+        raw_response = extract_prediction_response(prediction_payload)
+        finish_reasons = collect_values_by_key(
+            record or {},
+            {"finish_reason", "finish_reasons"},
+        )
+        provider_rejection_count = provider_counts_by_key.get(str(example_key), 0)
+        evidence_rows.append(
+            {
+                "idx_in_split": idx,
+                "example_key": example_key,
+                "prompt": read_example_prompt(example),
+                "instruction_id_list": instruction_ids,
+                "instruction_group": build_instruction_group(instruction_ids),
+                "metric_record_available": record is not None,
+                "metric_output": None if record is None else record.get("metric_output"),
+                "raw_response": raw_response,
+                "prediction_payload": prediction_payload,
+                "finish_reasons": finish_reasons,
+                "parse_failure": metric_record_parse_failed(record),
+                "provider_rejection": provider_rejection_count > 0,
+                "provider_rejection_count": provider_rejection_count,
+                "recovery_status": None if record is None else record.get("recovery_status"),
+                "recovery_reason": None if record is None else record.get("recovery_reason"),
+            }
+        )
+
+    evidence_dir = run_dir / IFBENCH_EVIDENCE_DIR_NAME
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    jsonl_path = evidence_dir / IFBENCH_EVIDENCE_JSONL_FILENAME
+    with jsonl_path.open("w", encoding="utf-8", newline="") as handle:
+        for row in evidence_rows:
+            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+    metric_sum = sum(
+        float(row["metric_output"])
+        for row in evidence_rows
+        if isinstance(row.get("metric_output"), (int, float))
+    )
+    summary = {
+        "run_dir": str(run_dir),
+        "evidence_jsonl": str(jsonl_path),
+        "expected_test_items": len(test_items),
+        "metric_records": len(metric_records),
+        "evidence_rows": len(evidence_rows),
+        "missing_metric_records": sum(
+            1 for row in evidence_rows if not row["metric_record_available"]
+        ),
+        "parse_failure_count": sum(1 for row in evidence_rows if row["parse_failure"]),
+        "provider_rejection_count": sum(
+            int(row["provider_rejection_count"]) for row in evidence_rows
+        ),
+        "raw_response_available_count": sum(
+            1 for row in evidence_rows if row.get("raw_response") is not None
+        ),
+        "metric_sum": metric_sum,
+        "score_percent": round(metric_sum / len(test_items) * 100, 6)
+        if test_items
+        else None,
+        "schema": [
+            "idx_in_split",
+            "example_key",
+            "prompt",
+            "instruction_id_list",
+            "instruction_group",
+            "metric_record_available",
+            "metric_output",
+            "raw_response",
+            "prediction_payload",
+            "finish_reasons",
+            "parse_failure",
+            "provider_rejection",
+            "provider_rejection_count",
+            "recovery_status",
+            "recovery_reason",
+        ],
+    }
+    summary_path = evidence_dir / IFBENCH_EVIDENCE_SUMMARY_FILENAME
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if report_dir is not None:
+        report_dir.mkdir(parents=True, exist_ok=True)
+        report_stem = safe_report_stem(run_dir)
+        report_jsonl_path = report_dir / f"{report_stem}_{IFBENCH_EVIDENCE_JSONL_FILENAME}"
+        report_summary_path = report_dir / f"{report_stem}_{IFBENCH_EVIDENCE_SUMMARY_FILENAME}"
+        shutil.copy2(jsonl_path, report_jsonl_path)
+        report_summary = dict(summary)
+        report_summary["report_evidence_jsonl"] = str(report_jsonl_path)
+        report_summary["report_summary"] = str(report_summary_path)
+        report_summary_path.write_text(
+            json.dumps(report_summary, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        summary_path.write_text(
+            json.dumps(report_summary, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        summary = report_summary
+
+    return summary
+
+
+def load_ifbench_evidence_summary(run_dir: Path) -> dict[str, Any] | None:
+    path = run_dir / IFBENCH_EVIDENCE_DIR_NAME / IFBENCH_EVIDENCE_SUMMARY_FILENAME
+    if not path.exists():
+        return None
+    payload = load_json_file(path)
+    return payload
+
+
 def find_run_error_markers(run_dir: Path) -> tuple[str, ...]:
     stderr_path = run_dir / "run_log_stderr.txt"
     if not stderr_path.exists():
@@ -789,6 +1077,9 @@ def build_worker_command(args: argparse.Namespace) -> list[str]:
         command.append("--enable-thinking")
     if args.skip_probe:
         command.append("--skip-probe")
+    if args.export_ifbench_evidence:
+        command.append("--export-ifbench-evidence")
+        command.extend(["--evidence-report-dir", args.evidence_report_dir])
     return command
 
 
@@ -1019,6 +1310,7 @@ def run_parent(args: argparse.Namespace) -> int:
     metric_rows = assert_run_integrity(run_dir, args.test_size)
     evaluation_result = parse_evaluation_result(run_dir)
     provider_rejections = load_provider_rejection_audit(run_dir)
+    evidence_summary = load_ifbench_evidence_summary(run_dir)
     leaked_files = find_secret_leaks(api_key, default_secret_scan_roots(run_dir))
     if leaked_files:
         joined = "\n".join(str(path) for path in leaked_files)
@@ -1052,6 +1344,7 @@ def run_parent(args: argparse.Namespace) -> int:
         "cloud_low_concurrency": args.cloud_low_concurrency,
         "evaluation_result": evaluation_result,
         "provider_rejections": provider_rejections,
+        "ifbench_evidence": evidence_summary,
         "secret_scan_matches": 0,
         "probe": probe_payload,
         "reproduction_type": build_reproduction_type(args),
@@ -1080,6 +1373,7 @@ def run_worker(args: argparse.Namespace) -> int:
     effective_lm_name = resolve_lm_name(args)
     run_dir = build_run_dir(effective_lm_name, args.seed, optimizer_name)
     split_manifest_payload: dict[str, Any] | None = None
+    selected_test_items: list[Any] | None = None
     prompt_to_key: dict[str, str | None] = {}
     provider_rejection_audit = ProviderContentRejectionAudit()
 
@@ -1088,7 +1382,7 @@ def run_worker(args: argparse.Namespace) -> int:
         return original_parallel_executor_init(self, *init_args, **init_kwargs)
 
     def patched_init_dataset(self: Any) -> None:
-        nonlocal split_manifest_payload
+        nonlocal selected_test_items, split_manifest_payload
         original_init_dataset(self)
         train_pool = list(self.train_set)
         val_pool = list(self.val_set)
@@ -1112,6 +1406,7 @@ def run_worker(args: argparse.Namespace) -> int:
             args.split_seed,
             "test",
         )
+        selected_test_items = list(self.test_set)
         self.dataset = self.train_set + self.val_set + self.test_set
         prompt_to_key.clear()
         for item in self.dataset:
@@ -1269,6 +1564,15 @@ def run_worker(args: argparse.Namespace) -> int:
     if split_manifest_payload is None:
         raise SmokeError("IFBench 数据集未初始化，无法写入 split manifest。")
     write_split_manifest(run_dir, split_manifest_payload)
+    if args.export_ifbench_evidence:
+        if selected_test_items is None:
+            raise SmokeError("IFBench test set 未初始化，无法导出 evidence。")
+        export_ifbench_evidence(
+            run_dir=run_dir,
+            test_items=selected_test_items,
+            provider_rejections=provider_rejection_audit.snapshot(),
+            report_dir=Path(args.evidence_report_dir),
+        )
     return 0
 
 

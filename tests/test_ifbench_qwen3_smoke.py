@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import io
+import json
 from pathlib import Path
 
 
@@ -47,6 +48,8 @@ def make_args(**overrides):
         "lm_call_sleep_seconds": 0.0,
         "parallel_straggler_timeout_seconds": 0,
         "recover_run_dir": None,
+        "export_ifbench_evidence": False,
+        "evidence_report_dir": str(PROJECT_ROOT / "reports" / "ifbench_qwen3_evidence_replay"),
         "recovery_tag": "recovered-final-eval",
     }
     values.update(overrides)
@@ -594,9 +597,99 @@ def test_backfill_missing_test_metric_rows_inserts_zero_failure_record(tmp_path:
     assert '"example_key": "b"' in lines[1]
 
 
+def test_extract_prediction_response_handles_common_payload_shapes() -> None:
+    module = load_smoke_module()
+    assert module.extract_prediction_response("直接回答") == "直接回答"
+    assert module.extract_prediction_response({"response": "两阶段回答"}) == "两阶段回答"
+    assert module.extract_prediction_response({"prediction": {"answer": "嵌套回答"}}) == "嵌套回答"
+    assert module.extract_prediction_response({"unknown": "value"}) is None
+
+
+def test_export_ifbench_evidence_writes_prompt_response_and_metric(tmp_path: Path) -> None:
+    module = load_smoke_module()
+    metric_dir = tmp_path / "metric_logs"
+    metric_dir.mkdir()
+    (metric_dir / "test.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "idx_in_split": 0,
+                        "metric_output": 1,
+                        "prediction": {
+                            "response": "回答A",
+                            "finish_reason": "stop",
+                        },
+                    },
+                    ensure_ascii=False,
+                ),
+                json.dumps(
+                    {
+                        "idx_in_split": 1,
+                        "metric_output": 0,
+                        "prediction": None,
+                        "recovery_status": "filled_missing_metric_row",
+                        "recovery_reason": "dspy_evaluate_error_without_metric_row",
+                    },
+                    ensure_ascii=False,
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    test_items = [
+        {
+            "key": "a",
+            "prompt": "题目A",
+            "instruction_id_list": ["count:keywords_multiple"],
+        },
+        {
+            "key": "b",
+            "prompt": "题目B",
+            "instruction_id_list": ["length_constraints:number_words"],
+        },
+    ]
+    summary = module.export_ifbench_evidence(
+        run_dir=tmp_path,
+        test_items=test_items,
+        provider_rejections={"counts_by_key": {"b": 2}},
+        report_dir=tmp_path / "reports",
+    )
+    evidence_path = tmp_path / module.IFBENCH_EVIDENCE_DIR_NAME / module.IFBENCH_EVIDENCE_JSONL_FILENAME
+    rows = [
+        json.loads(line)
+        for line in evidence_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert summary["evidence_rows"] == 2
+    assert summary["metric_sum"] == 1.0
+    assert summary["parse_failure_count"] == 1
+    assert summary["provider_rejection_count"] == 2
+    assert rows[0]["prompt"] == "题目A"
+    assert rows[0]["raw_response"] == "回答A"
+    assert rows[0]["instruction_group"] == "count"
+    assert rows[0]["finish_reasons"] == ["stop"]
+    assert rows[1]["provider_rejection"] is True
+    assert rows[1]["parse_failure"] is True
+    assert Path(summary["report_evidence_jsonl"]).exists()
+
+
+def test_worker_command_passes_ifbench_evidence_export_options() -> None:
+    module = load_smoke_module()
+    args = make_args(
+        export_ifbench_evidence=True,
+        evidence_report_dir="reports/custom-ifbench-evidence",
+    )
+    command = module.build_worker_command(args)
+    assert "--export-ifbench-evidence" in command
+    assert command[command.index("--evidence-report-dir") + 1] == "reports/custom-ifbench-evidence"
+
+
 def test_parent_preflight_rejects_missing_key(monkeypatch) -> None:
     module = load_smoke_module()
     args = module.parse_args(["--preflight-only", "--api-key-env", "MISSING_QWEN_KEY_FOR_TEST"])
+    monkeypatch.setattr(module, "assert_artifact_ready", lambda: None)
     monkeypatch.delenv("MISSING_QWEN_KEY_FOR_TEST", raising=False)
     try:
         module.run_parent(args)

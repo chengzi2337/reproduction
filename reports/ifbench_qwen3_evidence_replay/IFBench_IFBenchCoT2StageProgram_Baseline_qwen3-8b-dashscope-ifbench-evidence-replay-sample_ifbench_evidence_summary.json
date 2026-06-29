@@ -1,0 +1,32 @@
+{
+  "run_dir": "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_0\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-ifbench-evidence-replay-sample",
+  "evidence_jsonl": "C:\\Users\\lin\\Documents\\New project 2\\.codex\\gepa-artifact\\experiment_runs_data\\experiment_runs\\seed_0\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-ifbench-evidence-replay-sample\\evidence\\ifbench_evidence.jsonl",
+  "expected_test_items": 6,
+  "metric_records": 6,
+  "evidence_rows": 6,
+  "missing_metric_records": 0,
+  "parse_failure_count": 0,
+  "provider_rejection_count": 0,
+  "raw_response_available_count": 6,
+  "metric_sum": 0.0,
+  "score_percent": 0.0,
+  "schema": [
+    "idx_in_split",
+    "example_key",
+    "prompt",
+    "instruction_id_list",
+    "instruction_group",
+    "metric_record_available",
+    "metric_output",
+    "raw_response",
+    "prediction_payload",
+    "finish_reasons",
+    "parse_failure",
+    "provider_rejection",
+    "provider_rejection_count",
+    "recovery_status",
+    "recovery_reason"
+  ],
+  "report_evidence_jsonl": "C:\\Users\\lin\\Documents\\New project 2\\reports\\ifbench_qwen3_evidence_replay\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-ifbench-evidence-replay-sample_ifbench_evidence.jsonl",
+  "report_summary": "C:\\Users\\lin\\Documents\\New project 2\\reports\\ifbench_qwen3_evidence_replay\\IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-ifbench-evidence-replay-sample_ifbench_evidence_summary.json"
+}

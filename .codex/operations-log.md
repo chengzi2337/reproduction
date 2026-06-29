@@ -2654,3 +2654,30 @@ set PYTHONUTF8=1&& set QWEN_API_KEY=dummy-preflight-key&& python scripts\run_ifb
 - 论文 IFBench/Qwen3 Figure 9(b) 手工读数约为 Baseline `36.9`、GEPA `38.6`、提升 `+1.7`。
 - 本次 `DashScope/Qwen3 paper-adapted cloud-low-concurrency` 完整复现没有观察到 GEPA 正向提升，不能支持论文该 benchmark 的 GEPA 提升结论。
 - 密钥扫描：扫描 `reports`、`scripts`、`tests`、`.codex` 下 4331 个文本类文件，`sk-[A-Za-z0-9]{20,}` 命中 0。
+## IFBench evidence replay 导出准备 - 2026-06-29
+
+- 任务目标：按用户选择的方案 2，重新做一条小规模 IFBench replay，并保存可审计的样本级细节，包括题目、prompt、原始回答、metric、指令 ID、finish_reason、parse/provider 异常状态。
+- 上下文检索：已检查 `scripts/run_ifbench_qwen3_smoke.py`、`tests/test_ifbench_qwen3_smoke.py`、`.codex/context-summary-ifbench-qwen3-replay-stability.md` 和 `reports/replay_aggregates/*.json`。
+- 关键发现：现有 replay aggregate 只有 `sample_level_score_matrix`、分数、finish_reason 和 parse failure 聚合字段，没有 raw response/prompt 级记录，不能回答“具体题目上 GEPA 如何改进或退化”。
+- 复用决策：复用 `read_example_key`、`read_example_prompt`、`read_example_field`、`load_provider_rejection_audit`、`metric_logs/test.jsonl`、split manifest 和现有 pytest 模式；只新增后处理 evidence 导出层。
+- 工具缺口：`shrimp-task-manager` 要求调用 `split_tasks`，但当前工具列表未暴露该工具；已完成 `plan_task`、`analyze_task`、`reflect_task`，后续以本地实现和验证补足。
+- 当前阻塞：环境变量中未检测到可用云 API key，且 `.codex/gepa-artifact` 目录缺失；因此先实现和验证导出框架，不启动真实 API replay。
+- 实现结果：`scripts/run_ifbench_qwen3_smoke.py` 新增 `--export-ifbench-evidence` 与 `--evidence-report-dir`，运行结束后可导出 `evidence/ifbench_evidence.jsonl`、`evidence/ifbench_evidence_summary.json` 和 `reports/ifbench_qwen3_evidence_replay/*`。
+- 本地验证：`python -m py_compile scripts/run_ifbench_qwen3_smoke.py` 通过；`python -m pytest tests/test_ifbench_qwen3_smoke.py -q -p no:cacheprovider --basetemp .codex/tmp/pytest-ifbench-evidence` 通过，结果 `46 passed`。
+- 环境恢复：已克隆 `.codex/gepa-artifact`，官方 LFS 数据包因仓库 LFS budget 超限无法下载，但 IFBench 代码文件可用；已补齐 `gepa_artifact/utils/dspy` 和 `gepa_artifact/utils/arbor`，并在本地 artifact `pyproject.toml` 给 `uvloop` 添加 Windows 平台 marker 后完成 `uv sync`。
+- Preflight：使用非真实 dummy key 执行 `python scripts/run_ifbench_qwen3_smoke.py --skip-probe --preflight-only --export-ifbench-evidence` 通过，未启动 benchmark，未调用真实 API。
+- 当前剩余阻塞：当前 Codex 进程环境中 `QWEN_API_KEY`、`DASHSCOPE_API_KEY`、`OPENAI_API_KEY` 均未设置；真实 replay 暂未启动。
+
+## IFBench evidence replay 真实小样本执行 - 2026-06-29
+
+- 启动方式：API key 仅作为当前 PowerShell 进程环境变量注入，未写入代码、报告或日志。
+- Baseline cached/默认 replay：`test_size=6`，`metric_rows=6/6`，raw response `6/6`，provider rejection `0`，parse failure `0`，score `0.0/6`。
+- GEPA-Tiny cached/默认 replay：`max_metric_calls=8`，`test_size=6`，`metric_rows=6/6`，raw response `6/6`，provider rejection `0`，parse failure `0`，score `0.0/6`。
+- 为排除旧 DSPy 磁盘缓存疑点，使用独立 `DSPY_CACHEDIR` 补跑 no-cache Baseline：token 计数 `input_tokens=6052`、`output_tokens=7034`，score `0.0/6`。
+- 使用独立 `DSPY_CACHEDIR` 补跑 no-cache GEPA-Tiny：token 计数 `input_tokens=5886`、`output_tokens=6501`、`optimizer_input_tokens=11086`、`optimizer_output_tokens=8515`，score `0.0/6`。
+- 生成样本级对比报告：
+  - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6.json`
+  - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6.md`
+  - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.json`
+  - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.md`
+- 初步结论：这 6 条前缀 test 样本对 Baseline 与 GEPA-Tiny 都很难；GEPA-Tiny 在 val 上曾提升到 `75.0`，但没有迁移到这 6 条 test 样本，支持“局部验证集优化不等于 test 泛化”的研究疑点。
