@@ -127,6 +127,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--train-size", type=int, default=2)
     parser.add_argument("--val-size", type=int, default=2)
     parser.add_argument("--test-size", type=int, default=2)
+    parser.add_argument(
+        "--test-indices",
+        default=None,
+        help="逗号分隔的 IFBench test pool 索引；用于 stratified evidence replay 精确抽样。",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
         "--split-seed",
@@ -191,6 +196,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--worker-recover", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(raw_argv)
     apply_paper_adapted_defaults(args, raw_argv)
+    args.test_indices_list = parse_index_list(args.test_indices, "--test-indices")
+    if args.test_indices_list is not None:
+        if option_was_provided(raw_argv, "--test-size") and args.test_size != len(args.test_indices_list):
+            raise SmokeError(
+                f"`--test-indices` 包含 {len(args.test_indices_list)} 条，"
+                f"但 `--test-size` 为 {args.test_size}。"
+            )
+        args.test_size = len(args.test_indices_list)
     for field_name in ("train_size", "val_size", "test_size"):
         if getattr(args, field_name) < 1:
             cli_name = field_name.replace("_", "-")
@@ -206,6 +219,31 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def option_was_provided(argv: list[str], option: str) -> bool:
     return any(item == option or item.startswith(f"{option}=") for item in argv)
+
+
+def parse_index_list(raw_value: str | None, option_name: str) -> list[int] | None:
+    if raw_value is None:
+        return None
+    stripped = raw_value.strip()
+    if not stripped:
+        raise SmokeError(f"`{option_name}` 不能为空。")
+    indices: list[int] = []
+    seen: set[int] = set()
+    for item in stripped.split(","):
+        token = item.strip()
+        if not token:
+            raise SmokeError(f"`{option_name}` 包含空索引。")
+        try:
+            index = int(token)
+        except ValueError as exc:
+            raise SmokeError(f"`{option_name}` 包含非整数索引：{token}") from exc
+        if index < 0:
+            raise SmokeError(f"`{option_name}` 不能包含负索引：{index}")
+        if index in seen:
+            raise SmokeError(f"`{option_name}` 包含重复索引：{index}")
+        seen.add(index)
+        indices.append(index)
+    return indices
 
 
 def apply_paper_adapted_defaults(args: argparse.Namespace, argv: list[str]) -> None:
@@ -337,6 +375,17 @@ def select_split_items(
         random.Random(derive_split_seed(split_seed, split_name)).shuffle(indices)
     selected_indices = indices[:size]
     return [items[index] for index in selected_indices], selected_indices
+
+
+def select_explicit_indices(items: list[Any], indices: list[int], split_name: str) -> tuple[list[Any], list[int]]:
+    selected: list[Any] = []
+    for index in indices:
+        if index >= len(items):
+            raise SmokeError(
+                f"{split_name} 显式索引越界：{index}，官方池大小为 {len(items)}。"
+            )
+        selected.append(items[index])
+    return selected, list(indices)
 
 
 def read_example_key(example: Any) -> str | None:
@@ -866,6 +915,13 @@ def safe_report_stem(run_dir: Path) -> str:
     return "".join(safe_chars)
 
 
+def resolve_evidence_report_dir(raw_path: str) -> Path:
+    path = Path(raw_path)
+    if path.is_absolute():
+        return path
+    return PROJECT_ROOT / path
+
+
 def export_ifbench_evidence(
     run_dir: Path,
     test_items: list[Any],
@@ -1073,6 +1129,8 @@ def build_worker_command(args: argparse.Namespace) -> list[str]:
         command.append("--cloud-low-concurrency")
     if args.split_seed is not None:
         command.extend(["--split-seed", str(args.split_seed)])
+    if args.test_indices is not None:
+        command.extend(["--test-indices", args.test_indices])
     if args.enable_thinking:
         command.append("--enable-thinking")
     if args.skip_probe:
@@ -1400,12 +1458,19 @@ def run_worker(args: argparse.Namespace) -> int:
             "val",
         )
         self.dev_set = list(self.val_set)
-        self.test_set, test_indices = select_split_items(
-            test_pool,
-            args.test_size,
-            args.split_seed,
-            "test",
-        )
+        if args.test_indices_list is None:
+            self.test_set, test_indices = select_split_items(
+                test_pool,
+                args.test_size,
+                args.split_seed,
+                "test",
+            )
+        else:
+            self.test_set, test_indices = select_explicit_indices(
+                test_pool,
+                args.test_indices_list,
+                "test",
+            )
         selected_test_items = list(self.test_set)
         self.dataset = self.train_set + self.val_set + self.test_set
         prompt_to_key.clear()
@@ -1571,7 +1636,7 @@ def run_worker(args: argparse.Namespace) -> int:
             run_dir=run_dir,
             test_items=selected_test_items,
             provider_rejections=provider_rejection_audit.snapshot(),
-            report_dir=Path(args.evidence_report_dir),
+            report_dir=resolve_evidence_report_dir(args.evidence_report_dir),
         )
     return 0
 

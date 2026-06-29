@@ -31,6 +31,8 @@ def make_args(**overrides):
         "train_size": 2,
         "val_size": 2,
         "test_size": 2,
+        "test_indices": None,
+        "test_indices_list": None,
         "api_key_env": "QWEN_API_KEY",
         "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "seed": 0,
@@ -315,6 +317,25 @@ def test_legacy_split_keeps_prefix_order() -> None:
     assert indices == [0, 1, 2]
 
 
+def test_explicit_test_indices_override_test_size() -> None:
+    module = load_smoke_module()
+    args = module.parse_args(["--test-indices", "75,83,90"])
+    assert args.test_indices_list == [75, 83, 90]
+    assert args.test_size == 3
+
+
+def test_explicit_test_indices_reject_conflicting_size() -> None:
+    module = load_smoke_module()
+    assert module.main(["--test-indices", "75,83,90", "--test-size", "2", "--preflight-only"]) == 2
+
+
+def test_select_explicit_indices_uses_requested_order() -> None:
+    module = load_smoke_module()
+    selected, indices = module.select_explicit_indices(list("abcdef"), [4, 1, 3], "test")
+    assert selected == ["e", "b", "d"]
+    assert indices == [4, 1, 3]
+
+
 def test_split_size_cannot_exceed_official_pool() -> None:
     module = load_smoke_module()
     try:
@@ -347,6 +368,14 @@ def test_worker_command_passes_split_seed() -> None:
     module = load_smoke_module()
     command = module.build_worker_command(make_args(split_seed=4))
     assert command[command.index("--split-seed") + 1] == "4"
+
+
+def test_worker_command_passes_test_indices() -> None:
+    module = load_smoke_module()
+    command = module.build_worker_command(
+        make_args(test_indices="75,83,90", test_indices_list=[75, 83, 90], test_size=3)
+    )
+    assert command[command.index("--test-indices") + 1] == "75,83,90"
 
 
 def test_worker_command_passes_paper_adapted_mode() -> None:
@@ -673,6 +702,12 @@ def test_export_ifbench_evidence_writes_prompt_response_and_metric(tmp_path: Pat
     assert rows[1]["provider_rejection"] is True
     assert rows[1]["parse_failure"] is True
     assert Path(summary["report_evidence_jsonl"]).exists()
+
+
+def test_resolve_evidence_report_dir_uses_project_root_for_relative_path() -> None:
+    module = load_smoke_module()
+    resolved = module.resolve_evidence_report_dir("reports/custom-ifbench-evidence")
+    assert resolved == module.PROJECT_ROOT / "reports" / "custom-ifbench-evidence"
 
 
 def test_worker_command_passes_ifbench_evidence_export_options() -> None:

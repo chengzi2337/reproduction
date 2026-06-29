@@ -2681,3 +2681,20 @@ set PYTHONUTF8=1&& set QWEN_API_KEY=dummy-preflight-key&& python scripts\run_ifb
   - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.json`
   - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.md`
 - 初步结论：这 6 条前缀 test 样本对 Baseline 与 GEPA-Tiny 都很难；GEPA-Tiny 在 val 上曾提升到 `75.0`，但没有迁移到这 6 条 test 样本，支持“局部验证集优化不等于 test 泛化”的研究疑点。
+
+## IFBench stratified evidence replay - 2026-06-29
+
+- 目标：按用户要求补做一批分层 IFBench evidence replay，专门覆盖 full aggregate 中的 format 改善候选，以及 custom/ratio/count 退化候选，以便后续举出具体题目和 raw response。
+- 选择来源：`reports/replay_aggregates/IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-baseline-aggregate.json` 与 `reports/replay_aggregates/IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-optimized-aggregate.json`。
+- 选择索引：`75,83,90,108,274,271,175,176,156,20,8,21`。
+- 分层：format_improved 4 条，custom_degraded 2 条，ratio_degraded 3 条，count_degraded 3 条。
+- 重要边界：本地没有旧 full-budget GEPA `optimized_program`，因此本次真实 raw response replay 使用当前可运行 GEPA-Tiny，不声称是 full-budget saved GEPA raw response 重放。
+- Baseline stratified replay：`metric_rows=12/12`，raw response `12/12`，provider rejection `0`，parse failure `0`，score `6.0/12`。
+- GEPA-Tiny stratified replay：`metric_rows=12/12`，raw response `12/12`，provider rejection `0`，parse failure `0`，score `6.0/12`。
+- 分层结果：format_improved 候选 replay 两边均 `0/4`；custom_degraded 两边均 `2/2`；ratio_degraded Baseline `2/3`、GEPA-Tiny `1/3`；count_degraded Baseline `2/3`、GEPA-Tiny `3/3`。
+- 新增 runner 能力：`--test-indices` 支持按 IFBench test pool 显式索引重放；`--evidence-report-dir` 相对路径现在解析到项目根，避免 worker cwd 导致写入 artifact 目录。
+- 产物：
+  - `reports/ifbench_qwen3_stratified_evidence_replay/stratified_selection_manifest.json`
+  - `reports/ifbench_qwen3_stratified_evidence_replay/stratified_selection_manifest.md`
+  - `reports/ifbench_qwen3_stratified_evidence_replay/stratified_pairwise_evidence_replay.json`
+  - `reports/ifbench_qwen3_stratified_evidence_replay/stratified_pairwise_evidence_replay.md`

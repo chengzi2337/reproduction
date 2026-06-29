@@ -1,0 +1,176 @@
+{
+  "purpose": "stratified IFBench evidence replay selection for concrete improved/degraded examples",
+  "selection_source": {
+    "baseline_aggregate": "IFBench_IFBenchCoT2StageProgram_Baseline_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-baseline-aggregate.json",
+    "gepa_aggregate": "IFBench_IFBenchCoT2StageProgram_GEPA_qwen3-8b-dashscope-paper-adapted-nocache-exact-t06-optimized-aggregate.json",
+    "temperature": 0.6,
+    "top_p": 0.95
+  },
+  "test_indices": [
+    75,
+    83,
+    90,
+    108,
+    274,
+    271,
+    175,
+    176,
+    156,
+    20,
+    8,
+    21
+  ],
+  "test_indices_arg": "75,83,90,108,274,271,175,176,156,20,8,21",
+  "strata_counts": {
+    "count_degraded": 3,
+    "custom_degraded": 2,
+    "format_improved": 4,
+    "ratio_degraded": 3
+  },
+  "rows": [
+    {
+      "idx_in_split": 75,
+      "example_key": "75",
+      "stratum": "format_improved",
+      "instruction_group": "format",
+      "instruction_id_list": [
+        "format:line_indent"
+      ],
+      "aggregate_baseline_score": 0.0,
+      "aggregate_gepa_score": 1.0,
+      "aggregate_delta": 1.0
+    },
+    {
+      "idx_in_split": 83,
+      "example_key": "83",
+      "stratum": "format_improved",
+      "instruction_group": "format",
+      "instruction_id_list": [
+        "format:list"
+      ],
+      "aggregate_baseline_score": 0.0,
+      "aggregate_gepa_score": 1.0,
+      "aggregate_delta": 1.0
+    },
+    {
+      "idx_in_split": 90,
+      "example_key": "90",
+      "stratum": "format_improved",
+      "instruction_group": "format",
+      "instruction_id_list": [
+        "format:newline"
+      ],
+      "aggregate_baseline_score": 0.0,
+      "aggregate_gepa_score": 1.0,
+      "aggregate_delta": 1.0
+    },
+    {
+      "idx_in_split": 108,
+      "example_key": "108",
+      "stratum": "format_improved",
+      "instruction_group": "format",
+      "instruction_id_list": [
+        "format:parentheses"
+      ],
+      "aggregate_baseline_score": 0.0,
+      "aggregate_gepa_score": 1.0,
+      "aggregate_delta": 1.0
+    },
+    {
+      "idx_in_split": 274,
+      "example_key": "280",
+      "stratum": "custom_degraded",
+      "instruction_group": "custom",
+      "instruction_id_list": [
+        "custom:multiples"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.0,
+      "aggregate_delta": -1.0
+    },
+    {
+      "idx_in_split": 271,
+      "example_key": "277",
+      "stratum": "custom_degraded",
+      "instruction_group": "custom",
+      "instruction_id_list": [
+        "custom:date_format_list"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.3333333333333333,
+      "aggregate_delta": -0.6666666666666667
+    },
+    {
+      "idx_in_split": 175,
+      "example_key": "175",
+      "stratum": "ratio_degraded",
+      "instruction_group": "ratio",
+      "instruction_id_list": [
+        "ratio:stop_words"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.0,
+      "aggregate_delta": -1.0
+    },
+    {
+      "idx_in_split": 176,
+      "example_key": "176",
+      "stratum": "ratio_degraded",
+      "instruction_group": "ratio",
+      "instruction_id_list": [
+        "ratio:stop_words"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.3333333333333333,
+      "aggregate_delta": -0.6666666666666667
+    },
+    {
+      "idx_in_split": 156,
+      "example_key": "156",
+      "stratum": "ratio_degraded",
+      "instruction_group": "ratio",
+      "instruction_id_list": [
+        "ratio:sentence_balance"
+      ],
+      "aggregate_baseline_score": 0.6666666666666666,
+      "aggregate_gepa_score": 0.0,
+      "aggregate_delta": -0.6666666666666666
+    },
+    {
+      "idx_in_split": 20,
+      "example_key": "20",
+      "stratum": "count_degraded",
+      "instruction_group": "count",
+      "instruction_id_list": [
+        "count:numbers"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.0,
+      "aggregate_delta": -1.0
+    },
+    {
+      "idx_in_split": 8,
+      "example_key": "8",
+      "stratum": "count_degraded",
+      "instruction_group": "count",
+      "instruction_id_list": [
+        "count:conjunctions"
+      ],
+      "aggregate_baseline_score": 1.0,
+      "aggregate_gepa_score": 0.3333333333333333,
+      "aggregate_delta": -0.6666666666666667
+    },
+    {
+      "idx_in_split": 21,
+      "example_key": "21",
+      "stratum": "count_degraded",
+      "instruction_group": "count",
+      "instruction_id_list": [
+        "count:numbers"
+      ],
+      "aggregate_baseline_score": 0.6666666666666666,
+      "aggregate_gepa_score": 0.0,
+      "aggregate_delta": -0.6666666666666666
+    }
+  ]
+}

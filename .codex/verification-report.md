@@ -2549,3 +2549,33 @@ summary: 'IFBench DashScope adapted 完整 GEPA 结果已完成本地审查。Ba
 - `reports/ifbench_qwen3_evidence_replay/ifbench_evidence_replay_pairwise_sample6_nocache.md`
 
 建议：这批 replay 可作为“具体样本失败分析”的证据，但不应单独作为 GEPA 整体有效性结论。
+
+## IFBench stratified evidence replay 验证 - 2026-06-29
+
+### 执行范围
+
+- 新增 `--test-indices`，用于精确抽取 IFBench test pool 中的指定样本。
+- 分层样本来自 full aggregate 差值，而真实 raw response replay 使用当前可运行 GEPA-Tiny；原因是本地没有旧 full-budget GEPA `optimized_program`。
+- 选择样本：`75,83,90,108,274,271,175,176,156,20,8,21`。
+
+### 完整性结果
+
+- Baseline stratified replay：`metric_rows=12/12`，raw response `12/12`，provider rejection `0`，parse failure `0`，score `6.0/12`。
+- GEPA-Tiny stratified replay：`metric_rows=12/12`，raw response `12/12`，provider rejection `0`，parse failure `0`，score `6.0/12`。
+- 分层汇总：
+  - format_improved：Baseline `0/4`，GEPA-Tiny `0/4`。
+  - custom_degraded：Baseline `2/2`，GEPA-Tiny `2/2`。
+  - ratio_degraded：Baseline `2/3`，GEPA-Tiny `1/3`。
+  - count_degraded：Baseline `2/3`，GEPA-Tiny `3/3`。
+
+### 本地验证
+
+- `python -m py_compile scripts/run_ifbench_qwen3_smoke.py`：通过。
+- `python -m pytest tests/test_ifbench_qwen3_smoke.py -q -p no:cacheprovider --basetemp outputs/tmp_pytest_ifbench_stratified_final`：通过，`51 passed`。
+- `--evidence-report-dir` 相对路径已修复为基于项目根解析。
+
+### 结论
+
+- 本次分层 replay 已产出具体题目和 raw response，能支持后续人工/模型辅助分析“某类题为什么改善或退化”。
+- 当前结果不支持“GEPA-Tiny 在这批分层样本整体优于 Baseline”；总体持平，且 ratio 层退化、count 层改善。
+- 该结论不能外推为 full-budget GEPA 结论；它是 stratified diagnostic evidence。
